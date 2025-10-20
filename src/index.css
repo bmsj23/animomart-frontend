@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* AnimoMart Green & White Theme */
+    --color-primary: 34 139 34; /* Forest Green */
+    --color-primary-dark: 0 100 0; /* Dark Green */
+    --color-primary-light: 144 238 144; /* Light Green */
+    --color-secondary: 255 255 255; /* White */
+    --color-accent: 46 184 92; /* Fresh Green */
+    --color-text: 31 41 55; /* Gray 800 */
+    --color-text-light: 107 114 128; /* Gray 500 */
+    --color-background: 255 255 255; /* White */
+    --color-surface: 249 250 251; /* Gray 50 */
+    --color-error: 239 68 68; /* Red 500 */
+    --color-success: 34 197 94; /* Green 500 */
+    --color-warning: 251 146 60; /* Orange 400 */
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply bg-white text-gray-800 font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  @keyframes slide-in {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+  }
+}
