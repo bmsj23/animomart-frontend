@@ -12,6 +12,12 @@ export const updateMyProfile = async (userData) => {
   return response.data;
 };
 
+// update seller info / become seller
+export const updateSellerInfo = async (sellerData) => {
+  const response = await api.put('/users/me/seller', sellerData);
+  return response.data;
+};
+
 // delete own account
 export const deleteMyAccount = async () => {
   const response = await api.delete('/users/me');
@@ -21,6 +27,12 @@ export const deleteMyAccount = async () => {
 // get public user profile (seller view)
 export const getUserProfile = async (id) => {
   const response = await api.get(`/users/${id}`);
+  return response.data;
+};
+
+// get seller profile
+export const getSellerProfile = async (id) => {
+  const response = await api.get(`/users/seller/${id}`);
   return response.data;
 };
 

@@ -19,7 +19,10 @@ export const removeFromFavorites = async (productId) => {
 };
 
 // check if product is favorited
-export const isFavorited = async (productId) => {
+export const checkFavorite = async (productId) => {
   const response = await api.get(`/favorites/check/${productId}`);
   return response.data;
 };
+
+// alias for backwards compatibility
+export const isFavorited = checkFavorite;

@@ -1,11 +1,11 @@
 import api from './axios';
 
 // upload single image
-export const uploadImage = async (file) => {
+export const uploadSingleImage = async (file) => {
   const formData = new FormData();
   formData.append('image', file);
 
-  const response = await api.post('/upload/image', formData, {
+  const response = await api.post('/upload/single', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -14,13 +14,26 @@ export const uploadImage = async (file) => {
 };
 
 // upload multiple images
-export const uploadImages = async (files) => {
+export const uploadMultipleImages = async (files) => {
   const formData = new FormData();
   files.forEach((file) => {
     formData.append('images', file);
   });
 
-  const response = await api.post('/upload/images', formData, {
+  const response = await api.post('/upload/multiple', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// upload profile picture
+export const uploadProfilePicture = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await api.post('/upload/profile', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -30,8 +43,10 @@ export const uploadImages = async (files) => {
 
 // delete image
 export const deleteImage = async (publicId) => {
-  const response = await api.delete('/upload/image', {
-    data: { publicId }
-  });
+  const response = await api.delete(`/upload/${publicId}`);
   return response.data;
 };
+
+// legacy aliases
+export const uploadImage = uploadSingleImage;
+export const uploadImages = uploadMultipleImages;
