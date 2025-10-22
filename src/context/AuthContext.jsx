@@ -20,23 +20,6 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    // development bypass - auto-login for testing
-    if (import.meta.env.DEV && !token) {
-      const mockUser = {
-        _id: 'dev-user-123',
-        email: 'testuser@dlsl.edu.ph',
-        firstName: 'Test',
-        lastName: 'User',
-        role: 'user',
-        profilePicture: '',
-      };
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      setLoading(false);
-      console.log('Development mode: Auto-authenticated as Test User');
-      return;
-    }
-
     if (token && userData) {
       try {
         const decoded = jwtDecode(token);
@@ -59,19 +42,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credential) => {
     try {
-      const data = await authApi.googleLogin(credential);
+      const response = await authApi.googleLogin(credential);
 
-      // check if email is from DLSL domain
-      const decoded = jwtDecode(credential);
-      if (!decoded.email.endsWith('@dlsl.edu.ph')) {
+      // backend returns: { success: true, data: { user, accessToken }, message }
+      // soo we need response.data.user and response.data.accessToken
+      const { user: userData, accessToken } = response.data;
+
+      // check if user is from DLSL
+      if (!userData.email.endsWith('@dlsl.edu.ph')) {
         throw new Error('Only @dlsl.edu.ph email addresses are allowed');
       }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
       setIsAuthenticated(true);
-      return data;
+      return response.data;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
