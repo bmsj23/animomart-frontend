@@ -20,23 +20,6 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    // development bypass - auto-login for testing
-    if (import.meta.env.DEV && !token) {
-      const mockUser = {
-        _id: 'dev-user-123',
-        email: 'testuser@dlsl.edu.ph',
-        firstName: 'Test',
-        lastName: 'User',
-        role: 'user',
-        profilePicture: '',
-      };
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      setLoading(false);
-      console.log('Development mode: Auto-authenticated as Test User');
-      return;
-    }
-
     if (token && userData) {
       try {
         const decoded = jwtDecode(token);
