@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, Star, ArrowRight, Sparkles, TrendingUp, Package, Grid3x3 } from 'lucide-react';
 import { getProducts } from '../../api/products';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 // ProductCard component
 const ProductCard = ({ product, size = 'default' }) => {
@@ -24,12 +25,6 @@ const ProductCard = ({ product, size = 'default' }) => {
     // todo: navigation logic here: navigate(`/product/${product._id}`)
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP'
-    }).format(price);
-  };
 
   return (
     <div
@@ -88,11 +83,11 @@ const ProductCard = ({ product, size = 'default' }) => {
         <div className="flex items-center justify-between mt-auto">
           <div className="flex flex-col">
             <span className="text-lg font-bold text-green-500">
-              {formatPrice(product.price)}
+              {formatCurrency(product.price)}
             </span>
             {product.originalPrice && (
               <span className="text-xs text-green-500 line-through">
-                {formatPrice(product.originalPrice)}
+                {formatCurrency(product.originalPrice)}
               </span>
             )}
           </div>
