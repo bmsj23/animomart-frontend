@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, Star, ArrowRight, Sparkles, TrendingUp, Package, Grid3x3 } from 'lucide-react';
 import { getProducts } from '../../api/products';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useNavigate } from 'react-router-dom';
 
 // ProductCard component
 const ProductCard = ({ product, size = 'default' }) => {
+  const navigate = useNavigate();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -18,13 +20,12 @@ const ProductCard = ({ product, size = 'default' }) => {
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
     console.log('Wishlist toggled:', product);
+    //todo: wishlist logic here
   };
 
   const handleCardClick = () => {
-    console.log('Navigate to product:', product._id);
-    // todo: navigation logic here: navigate(`/product/${product._id}`)
+    navigate(`/product/${product._id}`);
   };
-
 
   return (
     <div
