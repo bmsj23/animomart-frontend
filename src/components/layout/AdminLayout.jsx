@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Users, Package, FileText, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Toast from '../common/Toast';
 
@@ -13,11 +14,11 @@ const AdminLayout = ({ children }) => {
   };
 
   const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-    { path: '/admin/users', label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-    { path: '/admin/products', label: 'Products', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-    { path: '/admin/orders', label: 'Orders', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-    { path: '/admin/reports', label: 'Reports', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+    { path: '/admin', label: 'Dashboard', icon: Home },
+    { path: '/admin/users', label: 'Users', icon: Users },
+    { path: '/admin/products', label: 'Products', icon: Package },
+    { path: '/admin/orders', label: 'Orders', icon: FileText },
+    { path: '/admin/reports', label: 'Reports', icon: AlertTriangle },
   ];
 
   return (
@@ -37,6 +38,7 @@ const AdminLayout = ({ children }) => {
         <nav className="p-4 space-y-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const Icon = item.icon;
             return (
               <Link
                 key={item.path}
@@ -47,9 +49,7 @@ const AdminLayout = ({ children }) => {
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                </svg>
+                <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </Link>
             );
