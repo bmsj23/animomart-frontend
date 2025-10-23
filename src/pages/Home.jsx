@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Heart, Package } from 'lucide-react';
 import { getProducts } from '../api/products';
 import { addToCart } from '../api/cart';
 import { addToFavorites, removeFromFavorites } from '../api/favorites';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import BentoBox from '../components/common/Bento';
 
 const CATEGORIES = [
   { value: '', label: 'All Categories' },
@@ -142,6 +144,8 @@ const Home = () => {
         <p className="text-gray-600">DLSL Campus Marketplace</p>
       </div>
 
+      <BentoBox />
+
       {/* filters */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -270,14 +274,10 @@ const Home = () => {
                     }}
                     className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <svg
-                      className={`w-5 h-5 ${favorites[product._id] ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+                    <Heart
+                      className={`w-5 h-5 ${favorites[product._id] ? 'text-red-500' : 'text-gray-400'}`}
                       fill={favorites[product._id] ? 'currentColor' : 'none'}
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                    />
                   </button>
                 </Link>
 
@@ -336,9 +336,7 @@ const Home = () => {
       {/* empty state */}
       {!loading && products.length === 0 && (
         <div className="text-center py-20">
-          <svg className="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-          </svg>
+          <Package className="w-24 h-24 mx-auto text-gray-400 mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
           <p className="text-gray-600 mb-4">Try adjusting your filters or check back later</p>
           <button
