@@ -51,7 +51,7 @@ const Home = () => {
     page: searchParams.get('page') || '1'
   });
 
-  const { refreshCart } = useCart();
+  const { fetchCart } = useCart();
   const { success, error: showError } = useToast();
 
   // fetch products
@@ -101,7 +101,7 @@ const Home = () => {
   const handleAddToCart = async (productId) => {
     try {
       await addToCart({ productId, quantity: 1 });
-      await refreshCart();
+      await fetchCart();
       success('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
