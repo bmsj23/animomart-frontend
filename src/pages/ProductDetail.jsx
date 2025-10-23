@@ -13,7 +13,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { refreshCart } = useCart();
+  const { fetchCart } = useCart();
   const { success, error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
@@ -50,7 +50,7 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     try {
       await addToCart({ productId: id, quantity });
-      await refreshCart();
+      await fetchCart();
       success('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
