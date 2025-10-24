@@ -76,7 +76,10 @@ const ConversationList = ({
               {/* last message */}
               {conversation.lastMessage && (
                 <p className="text-sm text-gray-500 truncate">
-                  {conversation.lastMessage.content || 'Sent an image'}
+                  {conversation.lastMessage.content ||
+                   conversation.lastMessage.messageText ||
+                   conversation.lastMessage.text ||
+                   (conversation.lastMessage.image ? 'Image' : 'Sent an image')}
                 </p>
               )}
             </div>
