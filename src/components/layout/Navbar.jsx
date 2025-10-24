@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
@@ -11,22 +11,54 @@ const Navbar = () => {
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const profileRef = useRef(null);
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
+  // Close profile dropdown on outside click, touch, or Escape key
+  useEffect(() => {
+    if (!isProfileOpen) return;
+
+    const handleOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setIsProfileOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    document.addEventListener('keydown', handleKey);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [isProfileOpen]);
+
+  // Close dropdown when route changes
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav className="bg-gray-50 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div className="flex items-center h-20 gap-6">
           {/* Logo: compact stacked ANIMO / MART */}
-          <Link to="/" className="flex items-center justify-center flex-none w-36">
-            <div className="bg-white rounded-md px-2 py-1 shadow-sm w-full">
+          <Link to="/" className="flex items-center justify-center flex-none w-20">
+            <div className="bg-white rounded-md px-1.5 py-0.5 shadow-sm">
               <div className="font-logo text-black font-medium leading-snug text-center">
-                <span className="block text-base md:text-lg">ANIMO</span>
-                <span className="block text-base md:text-lg">MART</span>
+                <span className="block text-sm md:text-base">ANIMO</span>
+                <span className="block text-sm md:text-base">MART</span>
               </div>
             </div>
           </Link>
@@ -34,38 +66,59 @@ const Navbar = () => {
           {/* Large search area */}
           <div className="flex-1 flex items-center">
             <div className="relative w-full max-w-4xl">
-              <input
-                aria-label="Search products"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Sofa set"
-                className="w-full pr-44 h-14 pl-6 rounded-full bg-[#F5F5F5] text-gray-700 placeholder-gray-400 shadow-sm border border-transparent focus:outline-none focus:ring-0"
-              />
-
-              {/* Integrated matte black search button */}
-              <button
-                onClick={() => navigate(`/search?q=${encodeURIComponent(query || '')}`)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 bg-black text-white px-6 h-14 rounded-full shadow-md flex items-center gap-2 hover:opacity-95"
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = query.trim();
+                  navigate(`/search?q=${encodeURIComponent(q)}`);
+                }}
+                className="w-full"
               >
-                <span className="font-medium">Search</span>
-                <Search className="w-4 h-4" />
-              </button>
+                <input
+                  aria-label="Search products"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search for products, brands and more"
+                  className="w-full pr-44 h-14 pl-6 rounded-full bg-[#F5F5F5] text-gray-700 placeholder-gray-400 shadow-sm border border-transparent focus:outline-none focus:ring-0"
+                />
+
+                {/* Integrated matte black search button (subtle visual change when input filled) */}
+                <button
+                  type="submit"
+                  className={`absolute right-1 top-1/2 -translate-y-1/2 text-white px-6 h-14 rounded-full shadow-md flex items-center gap-2 transition duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white ${
+                    query.trim() ? 'bg-black hover:bg-[#030303]' : 'bg-black/80 hover:bg-black'
+                  }`}
+                  aria-label="Search"
+                >
+                  <span className="font-medium">Search</span>
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
             </div>
           </div>
 
           {/* Action pills and profile */}
           <div className="flex items-center gap-2">
-            <Link to="/sell" className="bg-white px-10 h-14 rounded-full shadow-sm text-black flex items-center justify-center">Sell</Link>
+            
 
-            <Link to="/messages" className="bg-white px-5 h-14 rounded-full shadow-sm flex items-center justify-center">
+            <Link
+              to="/messages"
+              className="bg-white px-5 h-14 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-200"
+            >
               <MessageSquare className="w-5 h-5 text-black" />
             </Link>
 
-            <Link to="/favorites" className="bg-white px-5 h-14 rounded-full shadow-sm flex items-center justify-center">
-              <Heart className="w-5 h-5 text-red-500" />
+            <Link
+              to="/favorites"
+              className="group bg-white px-5 h-14 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-200"
+            >
+              <Heart className="w-5 h-5 text-red-500 transform transition duration-150 group-hover:scale-105" />
             </Link>
 
-            <Link to="/cart" className="bg-gray-100 px-5 h-14 rounded-full shadow-sm flex items-center justify-center relative">
+            <Link
+              to="/cart"
+              className="bg-gray-100 px-5 h-14 rounded-full shadow-sm flex items-center justify-center relative hover:bg-gray-50 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-200"
+            >
               <ShoppingCart className="w-6 h-6 text-black" />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -75,17 +128,16 @@ const Navbar = () => {
             </Link>
 
             {/* Profile avatar matching search height */}
-            <div>
-              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden">
+            <div ref={profileRef} className="relative">
+              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn">
                 <img
                   src={user?.profilePicture || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=60'}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </button>
-
               {isProfileOpen && (
-                <div className="absolute right-0 mt-16 w-48 bg-white rounded-lg shadow-lg py-2">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
                   <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setIsProfileOpen(false)}>
                     My Profile
                   </Link>
