@@ -25,8 +25,8 @@ export const sendMessage = async (messageData) => {
 };
 
 // mark messages as read
-export const markAsRead = async (otherUserId) => {
-  const response = await api.post('/messages/mark-read', { otherUserId });
+export const markAsRead = async (conversationId) => {
+  const response = await api.post('/messages/mark-read', { conversationId });
   return response.data;
 };
 
