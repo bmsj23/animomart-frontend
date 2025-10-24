@@ -7,6 +7,8 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import Navbar from './components/layout/Navbar';
+import Toast from './components/common/Toast';
 
 // pages
 import Login from './pages/Login';
@@ -114,12 +116,15 @@ function App() {
                 path="/messages"
                 element={
                   <ProtectedRoute>
-                    <MainLayout>
+                    <div className="h-screen flex flex-col overflow-hidden">
+                      <Navbar />
                       <Messages />
-                    </MainLayout>
+                      <Toast />
+                    </div>
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/profile"
                 element={
