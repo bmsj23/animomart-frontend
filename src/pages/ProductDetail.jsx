@@ -290,7 +290,7 @@ const ProductDetail = () => {
               </div>
               {!isOwnProduct && (
                 <Link
-                  to={`/messages?user=${product.seller?._id}`}
+                  to={`/messages?user=${product.seller?._id}&product=${product._id}`}
                   className="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
                 >
                   Contact Seller

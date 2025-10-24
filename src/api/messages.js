@@ -6,9 +6,15 @@ export const getConversations = async () => {
   return response.data;
 };
 
+// get unread message count
+export const getUnreadCount = async () => {
+  const response = await api.get('/messages/unread-count');
+  return response.data;
+};
+
 // get conversation with specific user
-export const getConversation = async (userId) => {
-  const response = await api.get(`/messages/conversations/${userId}`);
+export const getConversation = async (otherUserId) => {
+  const response = await api.get(`/messages/${otherUserId}`);
   return response.data;
 };
 
@@ -18,14 +24,14 @@ export const sendMessage = async (messageData) => {
   return response.data;
 };
 
-// delete message
-export const deleteMessage = async (id) => {
-  const response = await api.delete(`/messages/${id}`);
+// mark messages as read
+export const markAsRead = async (conversationId) => {
+  const response = await api.post('/messages/mark-read', { conversationId });
   return response.data;
 };
 
-// mark messages as read
-export const markAsRead = async (conversationId) => {
-  const response = await api.put(`/messages/conversations/${conversationId}/read`);
+// delete message
+export const deleteMessage = async (messageId) => {
+  const response = await api.delete(`/messages/${messageId}`);
   return response.data;
 };

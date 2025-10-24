@@ -2,10 +2,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
+import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import Navbar from './components/layout/Navbar';
+import Toast from './components/common/Toast';
 
 // pages
 import Login from './pages/Login';
@@ -32,8 +35,9 @@ function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <ToastProvider>
-            <Routes>
+          <SocketProvider>
+            <ToastProvider>
+              <Routes>
               {/* Public Route */}
               <Route path="/login" element={<Login />} />
 
@@ -112,12 +116,15 @@ function App() {
                 path="/messages"
                 element={
                   <ProtectedRoute>
-                    <MainLayout>
+                    <div className="h-screen flex flex-col overflow-hidden">
+                      <Navbar />
                       <Messages />
-                    </MainLayout>
+                      <Toast />
+                    </div>
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/profile"
                 element={
@@ -195,6 +202,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ToastProvider>
+        </SocketProvider>
         </CartProvider>
       </AuthProvider>
     </Router>
