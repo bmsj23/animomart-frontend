@@ -1,43 +1,73 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Circle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useSocket } from '../hooks/useSocket';
 import { useToast } from '../hooks/useToast';
+import { useConversations } from '../hooks/useConversations';
+import { useMessageHandlers } from '../hooks/useMessageHandlers';
+import { useSocketListeners } from '../hooks/useSocketListeners';
 import * as messageApi from '../api/messages';
-import { uploadMultipleImages } from '../api/upload';
-import { getProduct } from '../api/products';
-import { getUserProfile } from '../api/users';
 import ConversationList from '../components/messages/ConversationList';
 import ChatHeader from '../components/messages/ChatHeader';
 import MessageBubble from '../components/messages/MessageBubble';
 import MessageInput from '../components/messages/MessageInput';
 import TypingIndicator from '../components/messages/TypingIndicator';
 import EmptyState from '../components/messages/EmptyState';
+import {
+  formatTime,
+  formatDate,
+  getConversationName,
+  getUserRole
+} from '../utils/conversationHelpers';
 
 const Messages = () => {
   const { user } = useAuth();
   const { socket, isUserOnline } = useSocket();
-  const { success, error: showError } = useToast();
+  const { error: showError } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [messageText, setMessageText] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [userCache, setUserCache] = useState({}); // Cache user info by ID
 
-  const messagesEndRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  // Use custom hooks
+  const {
+    conversations,
+    setConversations,
+    loading,
+    fetchConversations,
+    createNewConversation
+  } = useConversations(user._id);
+
+  const {
+    messageText,
+    setMessageText,
+    sending,
+    imagePreviews,
+    messagesEndRef,
+    handleImageSelect,
+    removeImage,
+    handleSendMessage,
+    handleTyping,
+    handleDeleteMessage,
+    scrollToBottom,
+    clearInput
+  } = useMessageHandlers(socket, user, selectedConversation, setMessages);
+
+  const { typing } = useSocketListeners(
+    socket,
+    user,
+    selectedConversation,
+    setMessages,
+    setConversations,
+    scrollToBottom
+  );
 
   // fetch conversations on mount
   useEffect(() => {
-    fetchConversations();
+    fetchConversations().catch(() => {
+      showError('Failed to load conversations');
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,139 +101,28 @@ const Messages = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, conversations, loading]);
 
-  // socket event listeners
+  // join/leave conversation when a conversation from the list is clicked
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !selectedConversation?.conversationId) return;
 
-    // listen for new messages
-    socket.on('newMessage', (message) => {
-      console.log('Received new message via socket:', message);
-
-      // Get the other user's ID from the conversation
-      const otherUserId = selectedConversation?.otherUserId ||
-                         selectedConversation?.otherUser?._id;
-
-      // Get sender ID (handle both object and string)
-      const senderId = typeof message.sender === 'object' ? message.sender?._id : message.sender;
-      const receiverId = typeof message.receiver === 'object' ? message.receiver?._id : message.receiver;
-
-      // if message is for current conversation, add it
-      if (selectedConversation && (senderId === otherUserId || receiverId === otherUserId)) {
-        setMessages((prev) => [...prev, message]);
-        scrollToBottom();
-
-        // mark as read if from other user and update unread count
-        if (senderId === otherUserId && selectedConversation.conversationId) {
-          messageApi.markAsRead(selectedConversation.conversationId);
-
-          setConversations((prev) =>
-            prev.map((conv) =>
-              conv._id === selectedConversation.conversationId
-                ? { ...conv, unreadCount: 0 }
-                : conv
-            )
-          );
-        }
-      } else {
-        // message for a different conversation - increment unread count
-        const messageConvId = `${Math.min(senderId, receiverId)}_${Math.max(senderId, receiverId)}`;
-        setConversations((prev) =>
-          prev.map((conv) =>
-            conv._id === messageConvId
-              ? { ...conv, unreadCount: (conv.unreadCount || 0) + 1, lastMessage: message }
-              : conv
-          )
-        );
-      }
+    socket.emit('joinConversation', {
+      conversationId: selectedConversation.conversationId
     });
 
-    // listen for typing indicator
-    socket.on('userTyping', ({ userId, isTyping }) => {
-      const otherUserId = selectedConversation?.otherUserId ||
-                         selectedConversation?.otherUser?._id;
-      if (selectedConversation && userId === otherUserId) {
-        setTyping(isTyping);
-      }
-    });
-
-    // listen for message deletion
-    socket.on('messageDeleted', ({ messageId }) => {
-      setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
-    });
-
-    // listen for messages read event
-    socket.on('messagesRead', ({ readBy, conversationId }) => {
-      console.log('Messages marked as read by:', readBy, 'for conversation:', conversationId);
-
-      if (conversationId) {
-        setConversations((prev) =>
-          prev.map((conv) =>
-            conv._id === conversationId ? { ...conv, unreadCount: 0 } : conv
-          )
-        );
-      }
-    });
-
+    // leave conversation when component unmounts or conversation changes
     return () => {
-      socket.off('newMessage');
-      socket.off('userTyping');
-      socket.off('messageDeleted');
-      socket.off('messagesRead');
+      socket.emit('leaveConversation', {
+        conversationId: selectedConversation.conversationId
+      });
     };
-  }, [socket, selectedConversation]);
+  }, [socket, selectedConversation?.conversationId]);
 
+  // Auto-scroll when messages change
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const fetchConversations = async () => {
-    try {
-      setLoading(true);
-      const response = await messageApi.getConversations();
-      console.log('Fetched conversations:', response.data);
-
-      const enrichedConversations = await Promise.all(
-        (response.data || []).map(async (conv) => {
-          const [user1Id, user2Id] = conv._id.split('_');
-          const otherUserId = user1Id === user._id ? user2Id : user1Id;
-
-          let otherUser = userCache[otherUserId];
-
-          if (!otherUser) {
-            try {
-
-              const userResponse = await getUserProfile(otherUserId);
-              otherUser = userResponse.data;
-            } catch (err) {
-              console.error('Failed to fetch user:', otherUserId, err);
-              otherUser = { _id: otherUserId, name: 'Unknown User' };
-            }
-
-            setUserCache(prev => ({ ...prev, [otherUserId]: otherUser }));
-          }
-
-          return {
-            ...conv,
-            otherUser,
-            otherUserId
-          };
-        })
-      );
-
-      setConversations(enrichedConversations);
-    } catch (err) {
-      console.error('Failed to fetch conversations:', err);
-      showError('Failed to load conversations');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [messages.length, messagesEndRef]);
 
   const fetchMessages = async (otherUserId, conversationId) => {
     try {
@@ -255,259 +174,7 @@ const Messages = () => {
 
     fetchMessages(otherUserId, conversationId);
 
-    setMessageText('');
-    setSelectedImages([]);
-    setImagePreviews([]);
-  };
-
-  const createNewConversation = async (userId, productId) => {
-    try {
-      console.log('Creating conversation for userId:', userId, 'productId:', productId);
-
-
-      const tempConversation = {
-        _id: userId,
-        name: 'Loading...',
-        otherUser: {
-          _id: userId,
-          name: 'Loading...'
-        },
-        product: null,
-        messages: []
-      };
-
-      setSelectedConversation(tempConversation);
-      setMessages([]);
-
-      // parallel fetching sa user and product info
-      const [userResponse, productResponse] = await Promise.all([
-        userId ? getUserProfile(userId).catch(err => {
-          console.error('Failed to fetch user:', err);
-          return null;
-        }) : Promise.resolve(null),
-        productId ? getProduct(productId).catch(err => {
-          console.error('Failed to fetch product:', err);
-          return null;
-        }) : Promise.resolve(null)
-      ]);
-
-      const userInfo = userResponse?.data;
-      const productInfo = productResponse?.data;
-
-      console.log('User info:', userInfo);
-      console.log('Product info:', productInfo);
-
-      // update conversation with actual data
-      const updatedConversation = {
-        _id: userId,
-        name: userInfo?.name || 'Unknown User',
-        otherUser: userInfo || {
-          _id: userId,
-          name: 'Unknown User'
-        },
-        product: productInfo,
-        messages: []
-      };
-
-      console.log('Updating conversation with fetched data:', updatedConversation);
-      setSelectedConversation(updatedConversation);
-    } catch (err) {
-      console.error('Failed to create conversation:', err);
-      showError('Failed to open conversation');
-    }
-  };
-
-  const handleImageSelect = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length + selectedImages.length > 5) {
-      showError('You can only upload up to 5 images');
-      return;
-    }
-
-    setSelectedImages([...selectedImages, ...files]);
-
-    // create previews
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removeImage = (index) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-
-    if (!messageText.trim() && selectedImages.length === 0) return;
-    if (!selectedConversation) return;
-
-    try {
-      setSending(true);
-
-      // create optimistic message which is shown immediately
-      const tempId = `temp-${Date.now()}`;
-      const optimisticMessage = {
-        _id: tempId,
-        sender: user._id,
-        recipient: selectedConversation.otherUserId || selectedConversation.otherUser?._id,
-        messageText: messageText.trim(),
-        createdAt: new Date().toISOString(),
-        isRead: false,
-        status: 'sending'
-      };
-
-      setMessages((prev) => [...prev, optimisticMessage]);
-
-      // clear input immediately for better ux
-      const messageToSend = messageText.trim();
-      const imagesToUpload = [...selectedImages];
-      setMessageText('');
-      setSelectedImages([]);
-      setImagePreviews([]);
-      scrollToBottom();
-
-      let imageUrls = [];
-
-      // upload images if any
-      if (imagesToUpload.length > 0) {
-        const uploadResponse = await uploadMultipleImages(imagesToUpload);
-        imageUrls = uploadResponse.data.map((img) => img.url);
-      }
-
-      // send message
-      const recipientId = selectedConversation.otherUserId ||
-                         selectedConversation.otherUser?._id ||
-                         selectedConversation._id;
-
-      const messageData = {
-        recipient: recipientId,
-        messageText: messageToSend,
-        ...(imageUrls.length > 0 && { image: imageUrls[0] }),
-        ...(selectedConversation.product && { product: selectedConversation.product._id })
-      };
-
-      // add conversationId only if this is an existing conversation
-      if (selectedConversation.conversationId) {
-        messageData.conversationId = selectedConversation.conversationId;
-      }
-
-      console.log('Sending message with data:', messageData);
-      const response = await messageApi.sendMessage(messageData);
-      const messageFromResponse = response.data?.message || response.data;
-
-      // replace optimistic message with real message from server
-      setMessages((prev) =>
-        prev.map((msg) => msg._id === tempId ? { ...messageFromResponse, status: 'sent' } : msg)
-      );
-
-      // emit socket event
-      if (socket) {
-        socket.emit('sendMessage', messageFromResponse);
-      }
-
-      scrollToBottom();
-
-    } catch (err) {
-      console.error('Failed to send message:', err);
-      showError('Failed to send message');
-
-      // remove optimistic message on error
-      setMessages((prev) => prev.filter((msg) => msg.status !== 'sending'));
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleTyping = () => {
-    if (!socket || !selectedConversation) return;
-
-    // emit typing event
-    socket.emit('typing', {
-      to: selectedConversation._id,
-      isTyping: true
-    });
-
-    // clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // set timeout to stop typing
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', {
-        to: selectedConversation._id,
-        isTyping: false
-      });
-    }, 1000);
-  };
-
-  const handleDeleteMessage = async (messageId) => {
-    try {
-      await messageApi.deleteMessage(messageId);
-
-      // emit socket event
-      if (socket) {
-        socket.emit('deleteMessage', { messageId });
-      }
-
-      setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
-      success('Message deleted');
-    } catch (err) {
-      console.error('Failed to delete message:', err);
-      showError('Failed to delete message');
-    }
-  };
-
-  const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-  };
-
-  const formatDate = (date) => {
-    const messageDate = new Date(date);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (messageDate.toDateString() === today.toDateString()) {
-      return 'Today';
-    } else if (messageDate.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
-    } else {
-      return messageDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-      });
-    }
-  };
-
-  const getConversationName = (conversation) => {
-
-    return conversation.name ||
-           conversation.otherUser?.name ||
-           conversation.otherUser?.username ||
-           'Unknown User';
-  };
-
-  const getUserRole = (conversation) => {
-    // determine if user is buyer or seller in this conversation
-    if (conversation.product) {
-      const sellerId = typeof conversation.product.seller === 'object'
-        ? conversation.product.seller?._id
-        : conversation.product.seller;
-      const isSeller = sellerId === user._id;
-      return isSeller ? 'Seller' : 'Buyer';
-    }
-    return null;
+    clearInput();
   };
 
   if (loading) {
