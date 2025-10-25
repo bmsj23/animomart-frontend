@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare } from 'lucide-react';
+import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 
@@ -13,6 +13,17 @@ const Navbar = () => {
   const [query, setQuery] = useState('');
   const profileRef = useRef(null);
   const location = useLocation();
+  const prevItemCountRef = useRef(0);
+  const [bounce, setBounce] = useState(false);
+
+  // bounce animation when cart count increases
+  useEffect(() => {
+    if (itemCount > prevItemCountRef.current && itemCount > 0) {
+      setBounce(true);
+      setTimeout(() => setBounce(false), 500);
+    }
+    prevItemCountRef.current = itemCount;
+  }, [itemCount]);
 
   const handleLogout = async () => {
     await logout();
@@ -85,7 +96,7 @@ const Navbar = () => {
                 {/* Integrated matte black search button (subtle visual change when input filled) */}
                 <button
                   type="submit"
-                  className={`absolute right-1 top-1/2 -translate-y-1/2 text-white px-6 h-14 rounded-full shadow-md flex items-center gap-2 transition duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white ${
+                  className={`absolute right-0 top-1/2 -translate-y-1/2 text-white px-6 h-14 rounded-full shadow-md flex items-center gap-2 transition duration-150 ease-out hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white ${
                     query.trim() ? 'bg-black hover:bg-[#030303]' : 'bg-black/80 hover:bg-black'
                   }`}
                   aria-label="Search"
@@ -99,7 +110,14 @@ const Navbar = () => {
 
           {/* Action pills and profile */}
           <div className="flex items-center gap-2">
-            
+
+            <Link
+              to="/sell"
+              className="bg-green-600 text-white px-6 h-14 rounded-full shadow-sm flex items-center gap-2 justify-center hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+            >
+              <Plus className="w-5 h-5" />
+              <span className="font-medium">Sell</span>
+            </Link>
 
             <Link
               to="/messages"
@@ -121,7 +139,11 @@ const Navbar = () => {
             >
               <ShoppingCart className="w-6 h-6 text-black" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span
+                  className={`absolute -top-1 -right-1 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transition-transform ${
+                    bounce ? 'animate-bounce' : ''
+                  }`}
+                >
                   {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}
@@ -129,7 +151,7 @@ const Navbar = () => {
 
             {/* Profile avatar matching search height */}
             <div ref={profileRef} className="relative">
-              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn">
+              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn hover:cursor-pointer">
                 <img
                   src={user?.profilePicture || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=60'}
                   alt="Profile"
@@ -147,7 +169,7 @@ const Navbar = () => {
                     </Link>
                   )}
                   <hr className="my-2" />
-                  <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-red-600">
+                  <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-red-600 hover:cursor-pointer hover:bg-red-100">
                     Logout
                   </button>
                 </div>
