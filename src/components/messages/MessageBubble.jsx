@@ -27,6 +27,16 @@ const MessageBubble = ({
     };
   }, [showMenu]);
 
+  // determine message status with priority
+  const getMessageStatus = () => {
+    if (message.status === 'sending') return 'sending';
+    if (message.status === 'read' || message.isRead) return 'read';
+    if (message.status === 'sent') return 'sent';
+    return 'sent';
+  };
+
+  const messageStatus = getMessageStatus();
+
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}>
       <div className={`max-w-[85%] sm:max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'} relative`}>
@@ -100,39 +110,24 @@ const MessageBubble = ({
           )}
 
           {/* timestamp and status */}
-          {!isGrouped && (
-            <div className="flex items-center justify-end gap-1 mt-1">
-              <p
-                className={`text-xs ${
-                  isOwnMessage ? 'text-green-100' : 'text-gray-500'
-                }`}
-              >
-                {formatTime(message.createdAt)}
-              </p>
+          <div className={`flex items-center justify-end gap-1 mt-1 ${isGrouped ? 'opacity-100 transition-opacity' : ''}`}>
+            <p
+              className={`text-xs ${
+                isOwnMessage ? 'text-green-100' : 'text-gray-500'
+              }`}
+            >
+              {formatTime(message.createdAt)}
+            </p>
 
-              {/* status indicators for own messages */}
-              {isOwnMessage && (
-                <span className="text-xs text-green-100">
-                  {message.status === 'sending' && '○'}
-                  {message.status === 'sent' && <Check />}
-                  {message.isRead && !message.status && <CheckCheck />}
-                  {!message.isRead && !message.status && <Check />}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* for grouped messages, show minimal status */}
-          {isGrouped && isOwnMessage && (
-            <div className="flex items-center justify-end gap-1 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-green-100">
-                {message.status === 'sending' && '○'}
-                {message.status === 'sent' && <Check />}
-                {message.isRead && !message.status && <CheckCheck />}
-                {!message.isRead && !message.status && <Check />}
+            {/* status indicators for own messages */}
+            {isOwnMessage && (
+              <span className="text-xs text-green-100 flex items-center">
+                {messageStatus === 'sending' && '○'}
+                {messageStatus === 'sent' && <Check className="w-4 h-4" />}
+                {messageStatus === 'read' && <CheckCheck className="w-4 h-4" />}
               </span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
