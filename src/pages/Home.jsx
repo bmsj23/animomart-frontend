@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Heart, Package } from 'lucide-react';
 import { getProducts } from '../api/products';
-import { addToCart } from '../api/cart';
 import { addToFavorites, removeFromFavorites } from '../api/favorites';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
@@ -40,6 +39,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
   const [favorites, setFavorites] = useState({});
+  const [addedToCart, setAddedToCart] = useState({});
 
   // filters from url params
   const [filters, setFilters] = useState({
@@ -51,7 +51,7 @@ const Home = () => {
     page: searchParams.get('page') || '1'
   });
 
-  const { fetchCart } = useCart();
+  const { addItem, cart } = useCart();
   const { success, error: showError } = useToast();
 
   // fetch products
@@ -100,9 +100,35 @@ const Home = () => {
   // add to cart
   const handleAddToCart = async (productId) => {
     try {
-      await addToCart({ productId, quantity: 1 });
-      await fetchCart();
-      success('Added to cart!');
+
+      // find the product to get its stock
+      const product = products.find(p => p._id === productId);
+      if (!product) return;
+
+      // check if product exists in cart and get current quantity
+      const cartItem = cart?.items?.find(item => item.product._id === productId);
+      const currentQuantityInCart = cartItem ? cartItem.quantity : 0;
+
+      // validate if quantity exceeds stock
+      if (currentQuantityInCart >= product.stock) {
+        showError(`Cannot add more. Only ${product.stock} in stock.`);
+        return;
+      }
+
+      if (currentQuantityInCart + 1 > product.stock) {
+        showError(`Cannot add more. Only ${product.stock - currentQuantityInCart} remaining.`);
+        return;
+      }
+
+      await addItem(productId, 1);
+
+      // show success state on button
+      setAddedToCart(prev => ({ ...prev, [productId]: true }));
+
+      // reset button state after 2 seconds
+      setTimeout(() => {
+        setAddedToCart(prev => ({ ...prev, [productId]: false }));
+      }, 2000);
     } catch (err) {
       console.error('Failed to add to cart:', err);
       showError(err.response?.data?.message || 'Failed to add to cart');
@@ -299,9 +325,17 @@ const Home = () => {
                   <button
                     onClick={() => handleAddToCart(product._id)}
                     disabled={product.stock === 0}
-                    className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                    className={`w-full py-2 rounded-lg transition-all font-medium ${
+                      addedToCart[product._id]
+                        ? 'bg-green-700 text-white'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    } disabled:bg-gray-300 disabled:cursor-not-allowed`}
                   >
-                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    {product.stock === 0
+                      ? 'Out of Stock'
+                      : addedToCart[product._id]
+                        ? 'Added to Cart'
+                        : 'Add to Cart'}
                   </button>
                 </div>
               </div>
