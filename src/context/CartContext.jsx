@@ -45,7 +45,7 @@ export const CartProvider = ({ children }) => {
 
   const addItem = async (productId, quantity = 1) => {
     try {
-      const data = await cartApi.addToCart(productId, quantity);
+      const data = await cartApi.addToCart({ productId, quantity });
       setCart(data);
       return data;
     } catch (error) {
@@ -54,10 +54,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateItem = async (productId, quantity) => {
+  const updateItem = async (productId, quantity, skipStateUpdate = false) => {
     try {
       const data = await cartApi.updateCartItem(productId, quantity);
-      setCart(data);
+      if (!skipStateUpdate) {
+        setCart(data);
+      }
       return data;
     } catch (error) {
       console.error('Error updating cart item:', error);
@@ -89,6 +91,7 @@ export const CartProvider = ({ children }) => {
 
   const value = {
     cart,
+    setCart,
     loading,
     itemCount,
     fetchCart,
