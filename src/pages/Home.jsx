@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, ArrowRight, Sparkles, Clock, Tag } from 'lucide-react';
+import { Heart, ShoppingCart, ArrowRight, Sparkles, Clock, Tag, ChevronDown, Menu } from 'lucide-react';
 import { getProducts } from '../api/products';
 import { useCart } from '../hooks/useCart';
 import { useFavorites } from '../hooks/useFavorites';
@@ -8,6 +8,156 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/formatCurrency';
 import BentoBox from '../components/common/Bento';
+
+// category data with subcategories
+const categoryData = [
+  {
+    name: 'School Supplies',
+    subcategories: ['Notebooks', 'Pens & Pencils', 'Paper', 'Binders', 'Other Supplies']
+  },
+  {
+    name: 'Electronics',
+    subcategories: ['Laptops', 'Phones', 'Accessories', 'Chargers', 'Other Electronics']
+  },
+  {
+    name: 'Books',
+    subcategories: ['Textbooks', 'Novels', 'Study Guides', 'Reference', 'Other Books']
+  },
+  {
+    name: 'Clothing',
+    subcategories: ['Shirts', 'Pants', 'Shoes', 'Accessories', 'Other Clothing']
+  },
+  {
+    name: 'Food & Beverages',
+    subcategories: ['Snacks', 'Drinks', 'Meal Prep', 'Other Food']
+  },
+  {
+    name: 'Sports Equipment',
+    subcategories: ['Gym Equipment', 'Sports Gear', 'Outdoor', 'Other Sports']
+  },
+  {
+    name: 'Others',
+    subcategories: []
+  }
+];
+
+// category bar component
+const CategoryBar = () => {
+  const navigate = useNavigate();
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleCategoryClick = (category) => {
+    navigate(`/categories?category=${encodeURIComponent(category)}`);
+    setMobileMenuOpen(false);
+    setHoveredCategory(null);
+  };
+
+  return (
+    <div className="bg-gray-50 border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* desktop category bar */}
+        <div className="hidden md:flex items-center gap-4 py-3">
+          <h2 className="font-semibold text-gray-900 text-lg pr-8 whitespace-nowrap">Categories</h2>
+
+          <div className="flex items-center gap-2 flex-1 pl-4 pb-4">
+            {categoryData.map((category) => (
+              <div
+                key={category.name}
+                className="relative group"
+                onMouseEnter={() => setHoveredCategory(category.name)}
+                onMouseLeave={() => setHoveredCategory(null)}
+              >
+                <button
+                  onClick={() => handleCategoryClick(category.name)}
+                  className="flex items-center gap-1.5 px-6 h-14 bg-gray-100 hover:bg-green-50 hover:text-green-600 rounded-full text-sm font-medium text-gray-700 transition-all whitespace-nowrap border border-transparent hover:border-green-200 hover:cursor-pointer"
+                >
+                  {category.name}
+                  {category.subcategories.length > 0 && (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  )}
+                </button>
+
+                {/* dropdown */}
+                {category.subcategories.length > 0 && (
+                  <div
+                    className={`absolute left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 py-3 min-w-[240px] ${
+                      hoveredCategory === category.name ? 'block' : 'hidden'
+                    }`}
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: '0',
+                      zIndex: 99999
+                    }}
+                    onMouseEnter={() => setHoveredCategory(category.name)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                  >
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100 mb-2">
+                      {category.name}
+                    </div>
+                    <div className="space-y-0.5 px-2">
+                      {category.subcategories.map((sub) => (
+                        <button
+                          key={sub}
+                          onClick={() => handleCategoryClick(sub)}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors rounded-lg font-medium"
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* mobile category dropdown */}
+        <div className="md:hidden py-3">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex items-center gap-2 w-full px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700"
+          >
+            <Menu className="w-4 h-4" />
+            Categories
+            <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${mobileMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* mobile dropdown menu */}
+          {mobileMenuOpen && (
+            <div className="mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto">
+              {categoryData.map((category) => (
+                <div key={category.name} className="border-b border-gray-100 last:border-0">
+                  <button
+                    onClick={() => handleCategoryClick(category.name)}
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                  >
+                    {category.name}
+                  </button>
+                  {category.subcategories.length > 0 && (
+                    <div className="bg-gray-50 px-4 py-2 space-y-1">
+                      {category.subcategories.map((sub) => (
+                        <button
+                          key={sub}
+                          onClick={() => handleCategoryClick(sub)}
+                          className="block w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:text-green-600"
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Product Card component
 const ProductCard = ({ product }) => {
@@ -238,7 +388,10 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* category bar*/}
+      <CategoryBar />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
 
         {/* Bento Grid */}
         <BentoBox />
