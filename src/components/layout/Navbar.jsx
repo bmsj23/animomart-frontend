@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus } from 'lucide-react';
+import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 
@@ -27,7 +27,17 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
+    setIsMenuOpen(false);
     navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const q = query.trim();
+    if (q) {
+      navigate(`/search?q=${encodeURIComponent(q)}`);
+      setQuery('');
+    }
   };
 
   // Close profile dropdown on outside click, touch, or Escape key
@@ -55,61 +65,50 @@ const Navbar = () => {
     };
   }, [isProfileOpen]);
 
-  // Close dropdown when route changes
+  // Close dropdowns when route changes
   useEffect(() => {
     setIsProfileOpen(false);
+    setIsMenuOpen(false);
   }, [location.pathname]);
 
   return (
     <nav className="bg-gray-50 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div className="flex items-center h-20 gap-6">
-          {/* Logo: compact stacked ANIMO / MART */}
-          <Link to="/" className="flex items-center justify-center flex-none w-20">
-            <div className="bg-white rounded-md px-1.5 py-0.5 shadow-sm">
-              <div className="font-logo text-black font-medium leading-snug text-center">
-                <span className="block text-sm md:text-base">ANIMO</span>
-                <span className="block text-sm md:text-base">MART</span>
-              </div>
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="flex items-center h-16 md:h-20 gap-1.5 md:gap-6">
+          {/* Logo */}
+          <Link to="/" className="flex items-center justify-center flex-none w-14 md:w-32">
+            <div className="bg-white rounded-md px-3 py-2.5 md:px-6 md:py-2 shadow-sm">
+              <img src="tr_animomart_1.png" alt="AnimoMart" className="h-5 md:h-10 w-auto" />
             </div>
           </Link>
 
-          {/* Large search area */}
-          <div className="flex-1 flex items-center">
+          {/* mobile & desktop: search area */}
+          <div className="flex flex-1 items-center">
             <div className="relative w-full max-w-4xl">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const q = query.trim();
-                  navigate(`/search?q=${encodeURIComponent(q)}`);
-                }}
-                className="w-full"
+              <form onSubmit={handleSearch} className="w-full"
               >
                 <input
                   aria-label="Search products"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search for products, brands and more"
-                  className="w-full pr-44 h-14 pl-6 rounded-full bg-[#F5F5F5] text-gray-700 placeholder-gray-400 shadow-sm border border-transparent focus:outline-none focus:ring-0"
+                  placeholder="Search for products..."
+                  className="w-full pr-12 md:pr-44 h-10 md:h-14 pl-3 md:pl-6 rounded-full bg-[#F5F5F5] text-gray-700 placeholder-gray-400 shadow-sm border border-transparent focus:outline-none focus:ring-0 text-sm md:text-base"
                 />
 
-                {/* Integrated matte black search button (subtle visual change when input filled) */}
                 <button
                   type="submit"
-                  className={`absolute right-0 top-1/2 -translate-y-1/2 text-white px-6 h-14 rounded-full shadow-md flex items-center gap-2 transition duration-150 ease-out hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white ${
-                    query.trim() ? 'bg-black hover:bg-[#030303]' : 'bg-black/80 hover:bg-black'
-                  }`}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-black text-white p-4 md:px-6 h-10 md:h-14 rounded-full shadow-md flex items-center justify-center gap-2 transition hover:bg-black/90 hover: cursor-pointer"
                   aria-label="Search"
                 >
-                  <span className="font-medium">Search</span>
+                  <span className="hidden md:inline font-medium">Search</span>
                   <Search className="w-4 h-4" />
                 </button>
               </form>
             </div>
           </div>
 
-          {/* Action pills and profile */}
-          <div className="flex items-center gap-2">
+          {/* desktop: action buttons */}
+          <div className="hidden md:flex items-center gap-2">
 
             <Link
               to="/sell"
@@ -177,28 +176,131 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden ml-3">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+          {/* mobile: cart icon */}
+          <Link
+            to="/cart"
+            className="md:hidden bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 transition relative"
+            aria-label="Cart"
+          >
+            <ShoppingCart className="w-4 h-4 text-gray-700" />
+            {itemCount > 0 && (
+              <span
+                className={`absolute -top-1 -right-1 bg-black text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center transition-transform ${
+                  bounce ? 'animate-bounce' : ''
+                }`}
+              >
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            )}
+          </Link>
+
+          {/* mobile: menu button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 transition"
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <X className="w-4 h-4 text-gray-700" /> : <Menu className="w-4 h-4 text-gray-700" />}
+          </button>
         </div>
 
-        {/* Mobile Menu (simplified) */}
+        {/* mobile: slide-in menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
-            <Link to="/" className="block py-2 text-gray-700">Home</Link>
-            <Link to="/categories" className="block py-2 text-gray-700">Categories</Link>
-            <Link to="/sell" className="block py-2 text-gray-700">Sell</Link>
-            <Link to="/search" className="block py-2 text-gray-700">Search</Link>
-            <Link to="/favorites" className="block py-2 text-gray-700">Favorites</Link>
-            <Link to="/cart" className="block py-2 text-gray-700">Cart {itemCount > 0 && `(${itemCount})`}</Link>
-            <Link to="/messages" className="block py-2 text-gray-700">Messages</Link>
-            <Link to="/profile" className="block py-2 text-gray-700">Profile</Link>
-            {isAdmin && <Link to="/admin" className="block py-2 text-gray-700">Admin Dashboard</Link>}
-            <button onClick={handleLogout} className="block w-full text-left py-2 text-red-600">Logout</button>
-          </div>
+          <>
+            {/* backdrop */}
+            <div
+              className="md:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+              onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* menu panel */}
+            <div className="md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 overflow-y-auto">
+              <div className="p-6">
+                {/* close button */}
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-6 h-6 text-gray-700" />
+                </button>
+
+                {/* profile section */}
+                <div className="mb-8 pt-2">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={user?.profilePicture || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=60'}
+                      alt="Profile"
+                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                    />
+                    <div>
+                      <p className="font-semibold text-gray-900">{user?.name || 'User'}</p>
+                      <p className="text-sm text-gray-500">{user?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* menu items */}
+                <nav className="space-y-1">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="font-medium">My Profile</span>
+                  </Link>
+
+                  <Link
+                    to="/sell"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span className="font-medium">Sell Item</span>
+                  </Link>
+
+                  <Link
+                    to="/favorites"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Heart className="w-5 h-5" />
+                    <span className="font-medium">Favorites</span>
+                  </Link>
+
+                  <Link
+                    to="/messages"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="font-medium">Messages</span>
+                  </Link>
+
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <ChevronDown className="w-5 h-5" />
+                      <span className="font-medium">Admin Dashboard</span>
+                    </Link>
+                  )}
+
+                  <hr className="my-4" />
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 transition text-red-600 font-medium"
+                  >
+                    <X className="w-5 h-5" />
+                    <span>Logout</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </nav>

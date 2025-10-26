@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { ToastProvider } from './context/ToastContext';
 import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -13,6 +14,7 @@ import Toast from './components/common/Toast';
 // pages
 import Login from './pages/Login';
 import Home from './pages/Home';
+import Browse from './pages/Browse';
 import Categories from './pages/Categories';
 import ProductDetail from './pages/ProductDetail';
 import Search from './pages/Search';
@@ -35,9 +37,10 @@ function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <SocketProvider>
-            <ToastProvider>
-              <Routes>
+          <FavoritesProvider>
+            <SocketProvider>
+              <ToastProvider>
+                <Routes>
               {/* Public Route */}
               <Route path="/login" element={<Login />} />
 
@@ -48,6 +51,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <Home />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/browse"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <Browse />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -198,11 +211,12 @@ function App() {
                 }
               />
 
-              {/* Catch all - redirect to home */}
+              {/* catch all (redirect to home) */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ToastProvider>
         </SocketProvider>
+        </FavoritesProvider>
         </CartProvider>
       </AuthProvider>
     </Router>
