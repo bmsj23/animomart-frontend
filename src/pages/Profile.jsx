@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { updateMyProfile } from "../api/users";
 import { uploadProfilePicture } from "../api/upload";
+import Modal from "../components/common/Modal";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -22,10 +23,11 @@ const Profile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [form, setForm] = useState({
-    name: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
-    email: user?.email || "",
+    username: user?.username || "",
+    phone: user?.phone || "",
     profilePicture: user?.profilePicture || "",
   });
 
@@ -43,7 +45,7 @@ const Profile = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setIsSaving(true);
     try {
       // call API to update profile
@@ -65,8 +67,8 @@ const Profile = () => {
       }
 
       const updated = await updateMyProfile({
-        name: form.name,
-        ...(form.email ? { email: form.email } : {}),
+        username: form.username,
+        phone: form.phone,
         profilePicture: profilePicUrl,
       });
 
@@ -98,11 +100,23 @@ const Profile = () => {
     }
   };
 
+  const confirmSave = async () => {
+    // close modal then run save
+    setShowConfirm(false);
+    try {
+      await handleSave();
+      // ensure we exit edit mode and show updated profile
+      setIsEditing(false);
+    } catch (err) {
+      // handleSave already shows errors via toasts
+    }
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     setForm({
-      name: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
-      email: user?.email || "",
+      username: user?.username || "",
+      phone: user?.phone || "",
       profilePicture: user?.profilePicture || "",
     });
     if (previewUrl) {
@@ -114,7 +128,7 @@ const Profile = () => {
     setPreviewUrl("");
   };
 
-  //Keyboard navigation for tabs
+  //Keyboard navigation for Profile Menu 
   const handleKeyDown = (e, index) => {
     const key = e.key;
     let newIndex = index;
@@ -178,7 +192,7 @@ const Profile = () => {
               </nav>
             </div>
 
-            {/* Display panels */}
+            {/* Display Panel */}
             <div className="flex-1">
               <div
                 id="panel-profile"
@@ -193,7 +207,7 @@ const Profile = () => {
                       <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="ml-4 px-3 py-1 bg-green-600 text-white rounded-md text-sm"
+                        className="ml-4 px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:cursor-pointer"
                       >
                         Edit Profile
                       </button>
@@ -203,7 +217,7 @@ const Profile = () => {
                       <img
                         src={user?.profilePicture || 'https://via.placeholder.com/80'}
                         alt="Profile"
-                        className="w-20 h-20 rounded-full object-cover"
+                        className="w-40 h-40 rounded-full object-cover"
                       />
 
                       <div>
@@ -211,6 +225,7 @@ const Profile = () => {
                           {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'No name provided'}
                         </h3>
                         <p className="text-sm text-gray-600">{user?.email || 'No email provided'}</p>
+                        <p className="text-sm text-gray-600 mt-1">Phone: {user?.phone || 'No phone provided'}</p>
                         {user?.role && (
                           <p className="text-xs text-gray-500 mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
                         )}
@@ -221,14 +236,24 @@ const Profile = () => {
                     </div>
                   </>
                 ) : (
-                  <form onSubmit={handleSave} className="space-y-4">
+                  <>
+                  <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                    <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
                     <div className="flex items-center space-x-6">
                       <div className="flex-shrink-0">
+                        <label className="block text-md font-medium text-gray-700">Profile Image</label>
                         <img
                           src={previewUrl || form.profilePicture || 'https://via.placeholder.com/80'}
                           alt="Profile"
-                          className="w-20 h-20 rounded-full object-cover"
+                          className="w-40 h-40 rounded-full object-cover"
                         />
+                        <button
+                            type="button"
+                            onClick={() => document.getElementById('profile-file-input')?.click()}
+                            className="text-sm text-green-600 hover:cursor-pointer"
+                          >
+                            Change photo
+                        </button>
                       </div>
 
                       <div className="flex-1">
@@ -239,36 +264,27 @@ const Profile = () => {
                           onChange={onFileChange}
                           className="hidden"
                         />
-                        <div className="flex items-center justify-between">
-                          <label className="block text-sm font-medium text-gray-700">Full name</label>
-                          <button
-                            type="button"
-                            onClick={() => document.getElementById('profile-file-input')?.click()}
-                            className="text-sm text-green-600"
-                          >
-                            Change photo
-                          </button>
+
+                        <label className="block text-md font-medium text-gray-700 mb-2">Username</label>
+                        <input
+                          name="username"
+                          value={form.username}
+                          onChange={onChange}
+                          className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
+                        />
+
+                        <div className="flex items-center justify-between mt-4">
+                          <label className="block text-md font-medium text-gray-700 mb-2">Full Name</label>
                         </div>
-                        <input
-                          name="name"
-                          value={form.name}
-                          onChange={onChange}
-                          className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
-                        />
+                        <p className="mt-1 text-sm text-gray-700">{user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'No name provided'}</p>
 
-                        <label className="block text-sm font-medium text-gray-700 mt-3">Email</label>
-                        <input
-                          name="email"
-                          type="email"
-                          value={form.email}
-                          onChange={onChange}
-                          className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
-                        />
+                        <label className="block text-md font-medium text-gray-700 mt-3 mb-2">Email</label>
+                        <p className="mt-1 text-sm text-gray-700">{user?.email || 'No email provided'}</p>
 
-                        <label className="block text-sm font-medium text-gray-700 mt-3">Profile picture URL</label>
+                        <label className="block text-md font-medium text-gray-700 mt-3 mb-2">Phone Number</label>
                         <input
-                          name="profilePicture"
-                          value={form.profilePicture}
+                          name="phone"
+                          value={form.phone}
                           onChange={onChange}
                           className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
                         />
@@ -277,22 +293,49 @@ const Profile = () => {
 
                     <div className="flex items-center gap-3">
                       <button
-                        type="submit"
+                        type="button"
+                        onClick={() => setShowConfirm(true)}
                         disabled={isSaving}
-                        className="px-4 py-2 bg-green-600 text-white rounded-md"
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer"
                       >
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isSaving ? 'Saving...' : 'Save Changes'}
                       </button>
                       <button
                         type="button"
                         onClick={handleCancel}
                         disabled={isSaving}
-                        className="px-4 py-2 border rounded-md"
+                        className="px-4 py-2 border rounded-md hover:cursor-pointer"
                       >
                         Cancel
                       </button>
                     </div>
                   </form>
+
+                <Modal
+                  isOpen={showConfirm}
+                  onClose={() => setShowConfirm(false)}
+                  title="Confirm changes"
+                >
+                  <p>Are you sure you want to save these changes to your profile?</p>
+                  <div className="mt-4 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(false)}
+                      className="px-4 py-2 border rounded-md hover:cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmSave}
+                      disabled={isSaving}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer"
+                    >
+                      {isSaving ? 'Saving...' : 'Confirm'}
+                    </button>
+                  </div>
+                </Modal>
+                  </>
                 )}
               </div>
 
