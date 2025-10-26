@@ -241,14 +241,7 @@ const BentoBox = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-          Discover Campus Marketplace
-        </h2>
-        <p className="text-gray-600">Find everything you need from fellow students</p>
-      </div>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 py-4">
 
       {/* Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ gridAutoRows: '240px' }}>

@@ -163,12 +163,12 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* header */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* header
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">AnimoMart</h1>
-        <p className="text-gray-600">DLSL Campus Marketplace</p>
-      </div>
+        <h1 className="text-3xl text-center font-bold text-gray-900 mb-2">AnimoMart</h1>
+        <p className="text-gray-600 text-center">DLSL Campus Marketplace</p>
+      // </div> tanggal for now */}
 
       <BentoBox />
 
@@ -276,7 +276,7 @@ const Home = () => {
       {/* products grid */}
       {!loading && products.length > 0 && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
             {products.map(product => (
               <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                 {/* product image */}
@@ -308,16 +308,16 @@ const Home = () => {
                 </Link>
 
                 {/* product info */}
-                <div className="p-4">
+                <div className="p-3 md:p-4">
                   <Link to={`/products/${product._id}`}>
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-green-600">
+                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-green-600 text-sm md:text-base">
                       {product.name}
                     </h3>
                   </Link>
-                  <p className="text-2xl font-bold text-green-600 mb-2">
+                  <p className="text-lg md:text-2xl font-bold text-green-600 mb-2">
                     {formatPrice(product.price)}
                   </p>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3">
                     {product.stock > 0 ? `${product.stock} available` : 'Out of stock'}
                   </p>
 
@@ -325,7 +325,7 @@ const Home = () => {
                   <button
                     onClick={() => handleAddToCart(product._id)}
                     disabled={product.stock === 0}
-                    className={`w-full py-2 rounded-lg transition-all font-medium ${
+                    className={`w-full py-2 rounded-lg transition-all font-medium text-sm md:text-base ${
                       addedToCart[product._id]
                         ? 'bg-green-700 text-white'
                         : 'bg-green-600 text-white hover:bg-green-700'
