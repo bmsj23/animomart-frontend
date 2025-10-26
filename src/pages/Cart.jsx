@@ -146,12 +146,12 @@ const Cart = () => {
           <div>
             {/* Table Header */}
             <div className="mb-6 hidden md:block">
-              <div className="bg-gray-50 rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
-                <div className="grid grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] items-center gap-4 text-gray-700 font-medium text-sm">
+              <div className="bg-gray-50 rounded-2xl px-6 shadow-sm border border-gray-100 h-16">
+                <div className="grid grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] items-center h-full gap-4 text-gray-700 font-medium text-md">
                   <div className="flex items-center justify-center">
 
                   </div>
-                  <div>Product</div>
+                  <div className='pl-5'>Product</div>
                   <div className="text-center">Unit Price</div>
                   <div className="text-center">Quantity</div>
                   <div className="text-center">Total</div>
@@ -174,7 +174,7 @@ const Cart = () => {
                         type="checkbox"
                         checked={selectedItems.has(item.product._id)}
                         onChange={() => toggleItemSelection(item.product._id)}
-                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        className="w-4 h-4 accent-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                     </div>
 
@@ -212,7 +212,7 @@ const Cart = () => {
                         <button
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
-                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -220,7 +220,7 @@ const Cart = () => {
                         <button
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
                           disabled={item.quantity >= (item.product?.stock || 0)}
-                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -236,7 +236,7 @@ const Cart = () => {
                     <div className="hidden md:flex md:items-center md:justify-center">
                       <button
                         onClick={() => confirmDelete(item.product._id, item.product?.name)}
-                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -249,7 +249,7 @@ const Cart = () => {
                           type="checkbox"
                           checked={selectedItems.has(item.product._id)}
                           onChange={() => toggleItemSelection(item.product._id)}
-                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                          className="w-4 h-4 accent-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                         />
                         <span className="text-sm font-medium text-gray-700">Select this item</span>
                       </div>
@@ -267,7 +267,7 @@ const Cart = () => {
                           <button
                             onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
-                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center cursor-pointer"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
@@ -275,7 +275,7 @@ const Cart = () => {
                           <button
                             onClick={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
                             disabled={item.quantity >= (item.product?.stock || 0)}
-                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center cursor-pointer"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -291,7 +291,7 @@ const Cart = () => {
 
                       <button
                         onClick={() => confirmDelete(item.product._id, item.product?.name)}
-                        className="w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-700 py-2 hover:bg-red-50 rounded-lg transition-colors"
+                        className="w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-700 py-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                         Remove Item
@@ -330,14 +330,14 @@ const Cart = () => {
               <button
                 onClick={() => navigate('/checkout')}
                 disabled={selectedItems.size === 0}
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
               >
                 Proceed to Checkout
               </button>
 
               <button
                 onClick={() => navigate('/')}
-                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
               >
                 Continue Shopping
               </button>
@@ -351,7 +351,7 @@ const Cart = () => {
           <div className="text-2xl font-medium text-gray-700">Your cart is empty.</div>
           <button
             onClick={() => navigate('/')}
-            className="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+            className="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium cursor-pointer"
           >
             Start Shopping
           </button>
@@ -371,13 +371,13 @@ const Cart = () => {
           <div className="flex gap-3 justify-end">
             <button
               onClick={() => setDeleteConfirm({ show: false, productId: null, productName: '' })}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={() => handleRemoveItem(deleteConfirm.productId)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               Remove
             </button>
