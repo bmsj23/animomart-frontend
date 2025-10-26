@@ -116,21 +116,21 @@ const Cart = () => {
           <div className="lg:col-span-2">
             {/* Table Header */}
             <div className="mb-6">
-              <div className="bg-gray-50 rounded-2xl px-4 h-14 shadow-sm border border-gray-100 hidden md:block">
-                <div className="flex items-center h-full text-gray-700 font-medium text-sm">
+              <div className="bg-gray-50 rounded-2xl px-4 h-16 shadow-sm border border-gray-100 hidden md:block">
+                <div className="flex items-center h-full text-gray-700 font-medium text-md">
                   <div className="flex items-center justify-start flex-[2] min-w-0 pl-6 h-full">
                     <span className="truncate">Product</span>
                   </div>
-                  <div className="flex-1 text-center">
+                  <div className="flex-1 text-right">
                     <span>Unit Price</span>
                   </div>
-                  <div className="flex-1 text-center">
+                  <div className="flex-1 text-right">
                     <span>Quantity</span>
                   </div>
-                  <div className="flex-1 text-center">
+                  <div className="flex-1 text-right">
                     <span>Total</span>
                   </div>
-                  <div className="flex-1 text-center pr-6">
+                  <div className="flex-1 text-right pr-6">
                     <span>Actions</span>
                   </div>
                 </div>
