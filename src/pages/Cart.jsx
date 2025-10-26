@@ -12,12 +12,40 @@ const Cart = () => {
   const { cart, setCart, fetchCart, loading, updateItem, removeItem } = useCart();
   const { error: showError } = useToast();
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' });
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const pendingUpdates = useRef({});
 
   useEffect(() => {
     fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Select all items when cart loads
+  useEffect(() => {
+    if (cart?.items && cart.items.length > 0) {
+      setSelectedItems(new Set(cart.items.map(item => item.product._id)));
+    }
+  }, [cart?.items]);
+
+  const toggleItemSelection = (productId) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  // const toggleSelectAll = () => {
+  //   if (selectedItems.size === cart?.items?.length) {
+  //     setSelectedItems(new Set());
+  //   } else {
+  //     setSelectedItems(new Set(cart.items.map(item => item.product._id)));
+  //   }
+  // };
 
   const handleUpdateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -91,6 +119,8 @@ const Cart = () => {
   const calculateTotal = () => {
     if (!cart?.items) return 0;
     return cart.items.reduce((total, item) => {
+      // Only include selected items in total
+      if (!selectedItems.has(item.product._id)) return total;
       const price = item.product?.price || 0;
       return total + (price * item.quantity);
     }, 0);
@@ -111,28 +141,21 @@ const Cart = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Shopping Cart</h1>
 
       {hasItems ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2">
+          <div>
             {/* Table Header */}
-            <div className="mb-6">
-              <div className="bg-gray-50 rounded-2xl px-4 h-16 shadow-sm border border-gray-100 hidden md:block">
-                <div className="flex items-center h-full text-gray-700 font-medium text-md">
-                  <div className="flex items-center justify-start flex-[2] min-w-0 pl-6 h-full">
-                    <span className="truncate">Product</span>
+            <div className="mb-6 hidden md:block">
+              <div className="bg-gray-50 rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
+                <div className="grid grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] items-center gap-4 text-gray-700 font-medium text-sm">
+                  <div className="flex items-center justify-center">
+
                   </div>
-                  <div className="flex-1 text-right">
-                    <span>Unit Price</span>
-                  </div>
-                  <div className="flex-1 text-right">
-                    <span>Quantity</span>
-                  </div>
-                  <div className="flex-1 text-right">
-                    <span>Total</span>
-                  </div>
-                  <div className="flex-1 text-right pr-6">
-                    <span>Actions</span>
-                  </div>
+                  <div>Product</div>
+                  <div className="text-center">Unit Price</div>
+                  <div className="text-center">Quantity</div>
+                  <div className="text-center">Total</div>
+                  <div className="text-center">Actions</div>
                 </div>
               </div>
             </div>
@@ -144,9 +167,19 @@ const Cart = () => {
                   key={item._id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="flex flex-col gap-4 md:grid md:grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] md:items-center md:gap-4">
+                    {/* Checkbox */}
+                    <div className="hidden md:flex md:items-center md:justify-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(item.product._id)}
+                        onChange={() => toggleItemSelection(item.product._id)}
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                    </div>
+
                     {/* Product Info */}
-                    <div className="flex items-center gap-4 flex-[2] min-w-0">
+                    <div className="flex items-center gap-4 min-w-0">
                       <img
                         src={item.product?.images?.[0] || 'https://via.placeholder.com/100'}
                         alt={item.product?.name}
@@ -168,13 +201,13 @@ const Cart = () => {
                     </div>
 
                     {/* Price, Quantity, Total // desktop */}
-                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-end text-right">
+                    <div className="hidden md:flex md:items-center md:justify-center">
                       <p className="font-medium text-gray-900">
                         {formatCurrency(item.product?.price || 0)}
                       </p>
                     </div>
 
-                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-center">
+                    <div className="hidden md:flex md:items-center md:justify-center">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
@@ -194,13 +227,13 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-center">
+                    <div className="hidden md:flex md:items-center md:justify-center">
                       <p className="font-bold text-green-600">
                         {formatCurrency((item.product?.price || 0) * item.quantity)}
                       </p>
                     </div>
 
-                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-center">
+                    <div className="hidden md:flex md:items-center md:justify-center">
                       <button
                         onClick={() => confirmDelete(item.product._id, item.product?.name)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
@@ -211,6 +244,16 @@ const Cart = () => {
 
                     {/* Mobile Layout */}
                     <div className="md:hidden space-y-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.has(item.product._id)}
+                          onChange={() => toggleItemSelection(item.product._id)}
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Select this item</span>
+                      </div>
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Unit Price:</span>
                         <span className="font-medium">
@@ -260,14 +303,14 @@ const Cart = () => {
             </div>
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+          {/* Order Summary - Full Width Below Cart */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({cart.items.length} items)</span>
+                  <span>Subtotal ({selectedItems.size} selected items)</span>
                   <span>{formatCurrency(calculateTotal())}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
@@ -286,7 +329,8 @@ const Cart = () => {
 
               <button
                 onClick={() => navigate('/checkout')}
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3"
+                disabled={selectedItems.size === 0}
+                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 Proceed to Checkout
               </button>
