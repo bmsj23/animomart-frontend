@@ -97,7 +97,7 @@ const Navbar = () => {
 
                 <button
                   type="submit"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-black text-white p-4 md:px-6 h-10 md:h-14 rounded-full shadow-md flex items-center justify-center gap-2 transition hover:bg-black/90"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-black text-white p-4 md:px-6 h-10 md:h-14 rounded-full shadow-md flex items-center justify-center gap-2 transition hover:bg-black/90 hover: cursor-pointer"
                   aria-label="Search"
                 >
                   <span className="hidden md:inline font-medium">Search</span>
