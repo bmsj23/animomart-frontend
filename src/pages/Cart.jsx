@@ -168,7 +168,7 @@ const Cart = () => {
                     </div>
 
                     {/* Price, Quantity, Total // desktop */}
-                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-center">
+                    <div className="hidden md:flex md:flex-1 md:items-center md:justify-end text-right">
                       <p className="font-medium text-gray-900">
                         {formatCurrency(item.product?.price || 0)}
                       </p>
