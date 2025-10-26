@@ -246,7 +246,7 @@ const ProductDetail = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
                 >
                   -
                 </button>
@@ -259,7 +259,7 @@ const ProductDetail = () => {
                 />
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
                 >
                   +
                 </button>
@@ -274,7 +274,7 @@ const ProductDetail = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className={`flex-1 py-3 rounded-lg transition-all font-medium ${
+                  className={`flex-1 py-3 rounded-lg transition-all font-medium hover:cursor-pointer ${
                     addedToCart
                       ? 'bg-green-800 text-white'
                       : 'bg-green-600 text-white hover:bg-green-700'
@@ -284,7 +284,7 @@ const ProductDetail = () => {
                 </button>
                 <button
                   onClick={handleToggleFavorite}
-                  className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center"
+                  className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center hover:cursor-pointer"
                 >
                   <Heart
                     className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
