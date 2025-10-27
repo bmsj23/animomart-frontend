@@ -346,12 +346,12 @@ const Cart = () => {
         </div>
       ) : (
         // show only empty message when no items
-        <div className="py-12 flex flex-col items-center justify-center gap-4 text-gray-600">
-          <ShoppingCart className="w-16 h-16 text-gray-400" />
-          <div className="text-2xl font-medium text-gray-700">Your cart is empty.</div>
+        <div className="py-12 flex flex-col items-center justify-center gap-4 text-gray-600 animate-fade-in">
+          <img src="/EmptyCart.png" alt="Empty cart" className="w-56 h-56 md:w-80 md:h-80 object-contain animate-slide-in" />
+          <div className="text-2xl md:text-3xl font-medium text-gray-700">Your cart is empty.</div>
           <button
             onClick={() => navigate('/')}
-            className="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium cursor-pointer"
+            className="mt-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium cursor-pointer delay-200"
           >
             Start Shopping
           </button>

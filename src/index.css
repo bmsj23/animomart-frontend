@@ -70,11 +70,11 @@
   }
 
   .animate-slide-in {
-    animation: slide-in 0.3s ease-out;
+    animation: slide-in 0.35s ease-out;
   }
 
   .animate-fade-in {
-    animation: fade-in 0.15s ease-out;
+    animation: fade-in 0.35s ease-out;
   }
 
   @keyframes fade-in {
@@ -89,6 +89,6 @@
   }
 
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
+    animation: fade-in 0.35s ease-out;
   }
 }
