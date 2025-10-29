@@ -7,16 +7,7 @@ import { createProduct } from '../api/products';
 import { updateSellerInfo } from '../api/users';
 import { uploadMultipleImages } from '../api/upload';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-
-const CATEGORIES = [
-  { value: 'Electronics', label: 'Electronics' },
-  { value: 'Books', label: 'Books' },
-  { value: 'Clothing', label: 'Clothing' },
-  { value: 'Furniture', label: 'Furniture' },
-  { value: 'School Supplies', label: 'School Supplies' },
-  { value: 'Sports', label: 'Sports' },
-  { value: 'Others', label: 'Others' }
-];
+import { CATEGORY_DATA, getSubcategories } from '../constants/categories';
 
 const CONDITIONS = [
   { value: "New", label: "Brand New" },
@@ -42,16 +33,20 @@ const Sell = () => {
     pickupLocation: ''
   });
 
-  // product form
+  // product form with main category and subcategory
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
-    category: 'Electronics',
+    mainCategory: '',
+    subcategory: '',
     condition: 'Good',
     stock: '1',
     meetupLocations: ''
   });
+
+  // subcategories based on selected main category
+  const [availableSubcategories, setAvailableSubcategories] = useState([]);
 
   useEffect(() => {
     // check if user is a seller
@@ -178,7 +173,7 @@ const Sell = () => {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
-        category: formData.category,
+        category: formData.subcategory, // use subcategory as the category
         condition: formData.condition,
         stock: parseInt(formData.stock),
         images: imageUrls,
@@ -354,21 +349,60 @@ const Sell = () => {
 
         {/* category and condition */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Main Category */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
+              Main Category *
             </label>
             <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              value={formData.mainCategory}
+              onChange={(e) => {
+                const mainCat = e.target.value;
+                setFormData({
+                  ...formData,
+                  mainCategory: mainCat,
+                  subcategory: '' // reset subcategory when main category changes
+                });
+                setAvailableSubcategories(getSubcategories(mainCat));
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
             >
-              {CATEGORIES.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              <option value="">Select a category</option>
+              {CATEGORY_DATA.map(cat => (
+                <option key={cat.name} value={cat.name}>{cat.name}</option>
               ))}
             </select>
           </div>
 
+          {/* Subcategory */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subcategory *
+            </label>
+            <select
+              value={formData.subcategory}
+              onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={!formData.mainCategory || availableSubcategories.length === 0}
+              required
+            >
+              <option value="">
+                {!formData.mainCategory
+                  ? 'Select main category first'
+                  : availableSubcategories.length === 0
+                  ? 'No subcategories available'
+                  : 'Select a subcategory'}
+              </option>
+              {availableSubcategories.map(sub => (
+                <option key={sub} value={sub}>{sub}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* condition selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Condition *
