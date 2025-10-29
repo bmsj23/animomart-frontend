@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { getProducts } from '../api/products';
 import ProductCard from '../components/common/ProductCard';
 
@@ -36,7 +36,8 @@ const Browse = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const filterRef = useRef(null);
 
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
