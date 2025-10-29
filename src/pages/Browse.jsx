@@ -17,7 +17,7 @@ const CATEGORIES = [
 
 const CONDITIONS = [
   { value: '', label: 'All Conditions' },
-  { value: 'New', label: 'Brand New' },
+  { value: 'Brand New', label: 'Brand New' },
   { value: 'Like New', label: 'Like New' },
   { value: 'Good', label: 'Good' },
   { value: 'Fair', label: 'Fair' }
@@ -26,8 +26,8 @@ const CONDITIONS = [
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' }
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' }
 ];
 
 const Browse = () => {
