@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { updateMyProfile } from "../api/users";
 import { uploadProfilePicture } from "../api/upload";
+import { getMyListings } from "../api/products";
+import { getMyPurchases } from "../api/orders";
+import { formatCurrency } from "../utils/formatCurrency";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { Link } from "react-router-dom";
 import Modal from "../components/common/Modal";
 
 const Profile = () => {
@@ -24,6 +29,13 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [myListings, setMyListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [listingsError, setListingsError] = useState(null);
+
+  const [purchases, setPurchases] = useState([]);
+  const [purchasesLoading, setPurchasesLoading] = useState(false);
+  const [purchasesError, setPurchasesError] = useState(null);
 
   const [form, setForm] = useState({
     username: user?.username || "",
@@ -128,6 +140,73 @@ const Profile = () => {
     setPreviewUrl("");
   };
 
+  // Load user's listings when switching to Listings tab
+  useEffect(() => {
+    const loadListings = async () => {
+      setListingsLoading(true);
+      setListingsError(null);
+      try {
+        const data = await getMyListings();
+        // expected response shape: array of products or { products: [...] }
+        const products = Array.isArray(data) ? data : data?.products || data?.data || [];
+        setMyListings(products);
+      } catch (err) {
+        setListingsError(err?.response?.data?.message || err.message || 'Failed to load listings');
+      } finally {
+        setListingsLoading(false);
+      }
+    };
+
+    if (activeTab === 'listings') {
+      loadListings();
+    }
+    
+    // load purchases when switching to purchases tab
+    const loadPurchases = async () => {
+      setPurchasesLoading(true);
+      setPurchasesError(null);
+      try {
+        const data = await getMyPurchases();
+        // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
+        const orders = Array.isArray(data) ? data : data?.orders || data?.data || [];
+
+        // extract purchased products from orders defensively
+        const items = [];
+        orders.forEach((order) => {
+          const orderItems = order.items || order.products || order.orderItems || [];
+          if (Array.isArray(orderItems) && orderItems.length) {
+            orderItems.forEach((it) => {
+              // item might wrap a product object or be a direct product
+              const product = it.product || it.productId || it.productInfo || it;
+              if (product) items.push(product);
+            });
+          }
+        });
+
+        // de-duplicate by _id if present
+        const unique = [];
+        const seen = new Set();
+        items.forEach((p) => {
+          const id = p?._id || p?.id || JSON.stringify(p);
+          if (!seen.has(id)) {
+            seen.add(id);
+            unique.push(p);
+          }
+        });
+
+        setPurchases(unique);
+      } catch (err) {
+        setPurchasesError(err?.response?.data?.message || err.message || 'Failed to load purchases');
+      } finally {
+        setPurchasesLoading(false);
+      }
+    };
+
+    if (activeTab === 'purchases') {
+      loadPurchases();
+    }
+  }, [activeTab]);
+
   //Keyboard navigation for Profile Menu 
   const handleKeyDown = (e, index) => {
     const key = e.key;
@@ -194,6 +273,7 @@ const Profile = () => {
 
             {/* Display Panel */}
             <div className="flex-1">
+              {/* Profile Tab */}
               <div
                 id="panel-profile"
                 role="tabpanel"
@@ -201,6 +281,7 @@ const Profile = () => {
                 hidden={activeTab !== "profile"}
                 tabIndex={0}
               >
+                {/* View Profile Details */}
                 {!isEditing ? (
                   <>
                     <div className="flex items-start justify-between">
@@ -225,7 +306,7 @@ const Profile = () => {
                           {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'No name provided'}
                         </h3>
                         <p className="text-sm text-gray-600">{user?.email || 'No email provided'}</p>
-                        <p className="text-sm text-gray-600 mt-1">Phone: {user?.phone || 'No phone provided'}</p>
+                        <p className="text-sm text-gray-600 mt-1">Phone: {user?.phone || 'No phone number provided'}</p>
                         {user?.role && (
                           <p className="text-xs text-gray-500 mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
                         )}
@@ -237,6 +318,7 @@ const Profile = () => {
                   </>
                 ) : (
                   <>
+                  {/* Edit Profile */}
                   <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
                     <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
                     <div className="flex items-center space-x-6">
@@ -270,6 +352,7 @@ const Profile = () => {
                           name="username"
                           value={form.username}
                           onChange={onChange}
+                          placeholder={user?.username || 'e.g., john_doe'}
                           className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
                         />
 
@@ -286,8 +369,13 @@ const Profile = () => {
                           name="phone"
                           value={form.phone}
                           onChange={onChange}
+                          placeholder="e.g., +63 912 345 6789"
+                          pattern="^\+[0-9\s\-()]{7,20}$"
+                          title="Enter phone in international format: +[country code] [number], e.g. +63 912 345 6789"
+                          aria-describedby="phone-format-desc"
                           className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
                         />
+                        <p id="phone-format-desc" className="text-xs text-gray-500 mt-1">Format: +[country code] [number], e.g. +63 912 345 6789</p>
                       </div>
                     </div>
 
@@ -338,7 +426,8 @@ const Profile = () => {
                   </>
                 )}
               </div>
-
+              
+              {/* My Listings Tab */}
               <div
                 id="panel-listings"
                 role="tabpanel"
@@ -347,11 +436,41 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Listings</h2>
-                <p className="text-gray-600">
-                  Your product listings will appear here.
-                </p>
-              </div>
+                {listingsLoading ? (
+                  <LoadingSpinner size="lg" />
+                ) : listingsError ? (
+                  <p className="text-red-600">{listingsError}</p>
+                ) : myListings.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-700 mb-4">You haven't listed any products yet.</p>
+                    <Link to="/sell" className="px-4 py-2 bg-green-600 text-white rounded-md">List a product</Link>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {myListings.map((product) => (
+                      <div key={product._id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
+                        <Link to={`/products/${product._id}`} className="block">
+                          <img
+                            src={product.image || product.images?.[0] || '/api/placeholder/400/320'}
+                            alt={product.name}
+                            className="w-full h-48 object-cover"
+                          />
+                        </Link>
 
+                        <div className="p-4">
+                          <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.name}</h3>
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700 font-bold">{formatCurrency(product.price)}</span>
+                            <span className="text-xs text-gray-500">{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Purchases Tab */}
               <div
                 id="panel-purchases"
                 role="tabpanel"
@@ -360,11 +479,39 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Purchases</h2>
-                <p className="text-gray-600">
-                  Your purchase history will appear here.
-                </p>
+                {purchasesLoading ? (
+                  <LoadingSpinner size="lg" />
+                ) : purchasesError ? (
+                  <p className="text-red-600">{purchasesError}</p>
+                ) : purchases.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-700 mb-4">You haven't purchased any products yet.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {purchases.map((product) => (
+                      <div key={product._id || product.id || product.name} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
+                        <Link to={product._id ? `/products/${product._id}` : '#'} className="block">
+                          <img
+                            src={product.image || product.images?.[0] || '/api/placeholder/400/320'}
+                            alt={product.name || 'Purchased product'}
+                            className="w-full h-48 object-cover"
+                          />
+                        </Link>
+
+                        <div className="p-4">
+                          <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.name || 'Product'}</h3>
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700 font-bold">{formatCurrency(product.price || product.amount || 0)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Sales Tab */}
               <div
                 id="panel-sales"
                 role="tabpanel"
@@ -377,7 +524,8 @@ const Profile = () => {
                   Your sales history will appear here.
                 </p>
               </div>
-
+              
+              {/* Reviews Tab */}
               <div
                 id="panel-reviews"
                 role="tabpanel"
