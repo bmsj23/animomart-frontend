@@ -1,46 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Heart, ShoppingCart, ArrowRight, Sparkles, Clock, Tag, ChevronDown, Menu } from 'lucide-react';
+import { ChevronDown, Menu, ArrowRight } from 'lucide-react';
 import { getProducts } from '../api/products';
-import { useCart } from '../hooks/useCart';
-import { useFavorites } from '../hooks/useFavorites';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { formatCurrency } from '../utils/formatCurrency';
 import BentoBox from '../components/common/Bento';
-
-// category data with subcategories
-const categoryData = [
-  {
-    name: 'School Supplies',
-    subcategories: ['Notebooks', 'Pens & Pencils', 'Paper', 'Binders', 'Other Supplies']
-  },
-  {
-    name: 'Electronics',
-    subcategories: ['Laptops', 'Phones', 'Accessories', 'Chargers', 'Other Electronics']
-  },
-  {
-    name: 'Books',
-    subcategories: ['Textbooks', 'Novels', 'Study Guides', 'Reference', 'Other Books']
-  },
-  {
-    name: 'Clothing',
-    subcategories: ['Shirts', 'Pants', 'Shoes', 'Accessories', 'Other Clothing']
-  },
-  {
-    name: 'Food & Beverages',
-    subcategories: ['Snacks', 'Drinks', 'Meal Prep', 'Other Food']
-  },
-  {
-    name: 'Sports Equipment',
-    subcategories: ['Gym Equipment', 'Sports Gear', 'Outdoor', 'Other Sports']
-  },
-  {
-    name: 'Others',
-    subcategories: []
-  }
-];
+import ProductCard from '../components/common/ProductCard';
+import { CATEGORY_DATA } from '../constants/categories';
 
 // category bar component
 const CategoryBar = () => {
@@ -51,14 +16,25 @@ const CategoryBar = () => {
   const buttonRefs = useRef({});
   const closeTimeoutRef = useRef(null);
 
-  const handleCategoryClick = (category) => {
-    navigate(`/categories?category=${encodeURIComponent(category)}`);
+  const handleCategoryClick = (categoryName, isSubcategory = false) => {
+    if (isSubcategory) {
+      // for subcategories, need to find parent category first
+      const parentCategory = CATEGORY_DATA.find(cat =>
+        cat.subcategories.includes(categoryName)
+      );
+      if (parentCategory) {
+        navigate(`/categories/${encodeURIComponent(parentCategory.name)}?subcategory=${encodeURIComponent(categoryName)}`);
+      }
+    } else {
+      // for main categories, go to category detail page
+      navigate(`/categories/${encodeURIComponent(categoryName)}`);
+    }
     setMobileMenuOpen(false);
     setHoveredCategory(null);
   };
 
   const handleMouseEnter = (categoryName) => {
-    // clear any pending close timeout
+    // clear any pending close timeoutv
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
@@ -106,7 +82,7 @@ const CategoryBar = () => {
           <h2 className="font-semibold text-gray-900 text-lg pr-8 whitespace-nowrap">Categories</h2>
 
           <div className="flex items-center gap-2 flex-1 pl-4">
-            {categoryData.map((category) => (
+            {CATEGORY_DATA.map((category) => (
               <div
                 key={category.name}
                 className="relative group"
@@ -144,12 +120,22 @@ const CategoryBar = () => {
                       {category.subcategories.map((sub) => (
                         <button
                           key={sub}
-                          onClick={() => handleCategoryClick(sub)}
+                          onClick={() => handleCategoryClick(sub, true)}
                           className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors rounded-lg font-medium hover:cursor-pointer"
                         >
                           {sub}
                         </button>
                       ))}
+                    </div>
+
+                    {/* shop all link */}
+                    <div className="px-2 mb-1">
+                      <button
+                        onClick={() => handleCategoryClick(category.name, false)}
+                        className="w-full text-left px-3 py-2 text-sm font-semibold text-green-600 hover:bg-green-50 transition-colors rounded-lg hover:cursor-pointer"
+                      >
+                        Shop All {category.name}
+                      </button>
                     </div>
                   </div>,
                   document.body
@@ -173,10 +159,10 @@ const CategoryBar = () => {
           {/* mobile dropdown menu */}
           {mobileMenuOpen && (
             <div className="mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto">
-              {categoryData.map((category) => (
+              {CATEGORY_DATA.map((category) => (
                 <div key={category.name} className="border-b border-gray-100 last:border-0">
                   <button
-                    onClick={() => handleCategoryClick(category.name)}
+                    onClick={() => handleCategoryClick(category.name, false)}
                     className="w-full text-left px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
                   >
                     {category.name}
@@ -186,7 +172,7 @@ const CategoryBar = () => {
                       {category.subcategories.map((sub) => (
                         <button
                           key={sub}
-                          onClick={() => handleCategoryClick(sub)}
+                          onClick={() => handleCategoryClick(sub, true)}
                           className="block w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:text-green-600"
                         >
                           {sub}
@@ -204,165 +190,27 @@ const CategoryBar = () => {
   );
 };
 
-// Product Card component
-const ProductCard = ({ product }) => {
-  const { user } = useAuth();
-  const { addItem, cart } = useCart();
-  const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
-  const { error: showError } = useToast();
-  const [isAdding, setIsAdding] = useState(false);
-  const [justAdded, setJustAdded] = useState(false);
-
-  const isFavorited = favorites?.some(fav => {
-    const favProductId = fav._id || fav.product?._id || fav.product;
-    return favProductId === product._id;
-  });
-  const isOwnProduct = product.seller && user?._id &&
-    (user._id === product.seller._id || user._id === product.seller);
-
-  const handleAddToCart = async (e) => {
-    e.stopPropagation();
-    if (isAdding || product.stock === 0) return;
-
-    // check stock validation
-    const cartItem = cart?.items?.find(item => item.product._id === product._id);
-    const currentQuantityInCart = cartItem ? cartItem.quantity : 0;
-
-    if (currentQuantityInCart + 1 > product.stock) {
-      showError(`Cannot add more. Only ${product.stock - currentQuantityInCart} remaining.`);
-      return;
-    }
-
-    try {
-      setIsAdding(true);
-      await addItem(product._id, 1);
-    } catch (error) {
-      showError(error.message || 'Failed to add to cart');
-    } finally {
-      setTimeout(() => setIsAdding(false), 2000);
-    }
-  };
-
-  const handleFavorite = async (e) => {
-    e.stopPropagation();
-    try {
-      if (isFavorited) {
-        await removeFromFavorites(product._id);
-      } else {
-        await addToFavorites(product._id);
-        setJustAdded(true);
-        setTimeout(() => setJustAdded(false), 2000);
-      }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update favorites';
-      showError(errorMessage);
-    }
-  };
-
-  return (
-    <Link
-      to={`/products/${product._id}`}
-      className="group bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
-    >
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
-        <img
-          src={product.images?.[0] || '/api/placeholder/400/400'}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-
-        {/* Favorite Button */}
-        {!isOwnProduct && (
-          <button
-            onClick={handleFavorite}
-            className={`absolute top-2 right-2 sm:top-3 sm:right-3 p-2 hover:cursor-pointer rounded-full backdrop-blur-md transition-all duration-300 ${
-              isFavorited
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-white/90 text-gray-700 hover:bg-white'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''} ${justAdded ? 'animate-bounce' : ''}`} />
-          </button>
-        )}
-
-        {/* Stock Badge */}
-        {product.stock === 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-1 bg-gray-900/90 backdrop-blur-md rounded-lg text-xs font-medium text-white">
-            Out of stock
-          </div>
-        )}
-
-        {/* Own Product Badge */}
-        {isOwnProduct && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white">
-            Your Listing
-          </div>
-        )}
-      </div>
-
-      {/* Product Info */}
-      <div className="p-3 md:p-4 bg-gray-50">
-        <h3 className="font-medium text-gray-900 text-sm md:text-base mb-1.5 line-clamp-2 min-h-[2.5rem]">
-          {product.name}
-        </h3>
-
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-lg md:text-xl font-bold text-gray-900">
-            {formatCurrency(product.price)}
-          </span>
-
-          {!isOwnProduct && (
-            <button
-              onClick={handleAddToCart}
-              disabled={isAdding || product.stock === 0}
-              className={`p-2 hover:cursor-pointer rounded-lg transition-all duration-300 text-sm md:text-base ${
-                isAdding
-                  ? 'bg-green-600 text-white'
-                  : product.stock === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
-            >
-              {isAdding ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <ShoppingCart className="w-4 h-4" />
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-// Section component
-const Section = ({ title, subtitle, icon: Icon, viewAllLink, children, loading }) => {
+// section component
+const Section = ({ title, subtitle, viewAllLink, children, loading }) => {
   const navigate = useNavigate();
 
   return (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          {Icon && (
-            <div className="p-2 bg-green-600 rounded-lg">
-              <Icon className="w-5 h-5 text-white" />
-            </div>
+    <section className="mb-16">
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <h2 className="font-serif text-3xl md:text-4xl text-main mb-2 tracking-tight">{title}</h2>
+          {subtitle && (
+            <p className="text-secondary text-sm md:text-base font-light tracking-wide">{subtitle}</p>
           )}
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">{title}</h2>
-            {subtitle && <p className="text-sm text-gray-600 mt-0.5">{subtitle}</p>}
-          </div>
         </div>
 
         {viewAllLink && !loading && (
           <button
             onClick={() => navigate(viewAllLink)}
-            className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:gap-3 transition-all font-medium text-sm md:text-base hover:cursor-pointer"
+            className="group flex items-center gap-2 text-primary hover:text-primary/80 transition-all font-medium text-sm md:text-base hover:cursor-pointer hover:gap-3"
           >
-            View All
-            <ArrowRight className="w-4 h-4" />
+            <span className="hidden sm:inline">View All</span>
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
           </button>
         )}
       </div>
@@ -370,7 +218,7 @@ const Section = ({ title, subtitle, icon: Icon, viewAllLink, children, loading }
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-gray-100 rounded-xl h-80 animate-pulse" />
+            <div key={i} className="bg-gray-100 rounded-sm h-80 animate-pulse" />
           ))}
         </div>
       ) : (
@@ -445,7 +293,6 @@ const Home = () => {
         <Section
           title="Featured Products"
           subtitle="Handpicked items just for you"
-          icon={Sparkles}
           viewAllLink="/browse"
           loading={loading.featured}
         >
@@ -460,7 +307,6 @@ const Home = () => {
         <Section
           title="New Arrivals in Electronics"
           subtitle="Latest tech and gadgets"
-          icon={Tag}
           viewAllLink="/browse?category=Electronics&sort=newest"
           loading={loading.electronics}
         >
@@ -475,7 +321,6 @@ const Home = () => {
         <Section
           title="New Arrivals in Clothing"
           subtitle="Fresh styles and fashion"
-          icon={Clock}
           viewAllLink="/browse?category=Clothing&sort=newest"
           loading={loading.clothing}
         >
@@ -490,7 +335,6 @@ const Home = () => {
         <Section
           title="New Arrivals in Books"
           subtitle="Latest reads and textbooks"
-          icon={Clock}
           viewAllLink="/browse?category=Books&sort=newest"
           loading={loading.books}
         >
@@ -501,21 +345,25 @@ const Home = () => {
           </div>
         </Section>
 
-        {/* browse all cta */}
-        <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-8 md:p-12 text-white text-center">
-          <h3 className="text-2xl md:text-3xl font-bold mb-4">
-            Want to See More?
-          </h3>
-          <p className="text-green-50 mb-6 text-lg max-w-2xl mx-auto">
-            Browse our complete collection of products with advanced filters
-          </p>
-          <button
-            onClick={() => navigate('/browse')}
-            className="inline-flex items-center gap-2 bg-white text-green-700 px-8 py-4 rounded-lg font-medium text-lg hover:bg-green-50 transition-colors hover:cursor-pointer"
-          >
-            Browse All Products
-            <ArrowRight className="w-5 h-5" />
-          </button>
+        {/* {browse all cta} */}
+        <div className="relative bg-surface rounded-sm border border-gray-100 p-12 md:p-16 text-center overflow-hidden mt-20">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+
+          <div className="relative z-10">
+            <h3 className="font-serif text-3xl md:text-5xl text-main mb-4 tracking-tight">
+              Want to See More?
+            </h3>
+            <p className="text-secondary text-base md:text-lg max-w-2xl mx-auto mb-8 font-light">
+              Browse our complete collection of products with advanced filters
+            </p>
+            <button
+              onClick={() => navigate('/browse')}
+              className="group inline-flex items-center gap-3 bg-primary text-white px-10 py-4 rounded-full font-medium text-base md:text-lg hover:bg-primary/90 transition-all hover:gap-4 hover:cursor-pointer shadow-lg hover:shadow-xl"
+            >
+              Browse All Products
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </button>
+          </div>
         </div>
 
       </div>
