@@ -77,7 +77,7 @@ const ProductCard = ({ product }) => {
           <button
             onClick={handleFavorite}
             disabled={isProcessing}
-            className={`absolute top-3 right-3 px-3 py-2 rounded-full backdrop-blur-md transition-all duration-300 z-10 md:opacity-0 md:group-hover:opacity-100 flex items-center gap-1.5 ${
+            className={`absolute top-3 right-3 px-3 py-2 rounded-full backdrop-blur-md transition-all duration-300 z-[5] md:opacity-0 md:group-hover:opacity-100 flex items-center gap-1.5 ${
               isFavorited
                 ? 'bg-red-500 text-white hover:bg-red-600'
                 : 'bg-white/90 text-gray-700 hover:bg-white'
@@ -96,14 +96,14 @@ const ProductCard = ({ product }) => {
 
         {/* stock badge */}
         {product.stock === 0 && (
-          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-10">
+          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-[5]">
             Out of stock
           </div>
         )}
 
         {/* Own Product Badge */}
         {isOwnProduct && (
-          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-10">
+          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-[5]">
             Your Listing
           </div>
         )}
