@@ -147,8 +147,19 @@ const Profile = () => {
       setListingsError(null);
       try {
         const data = await getMyListings();
-        // expected response shape: array of products or { products: [...] }
-        const products = Array.isArray(data) ? data : data?.products || data?.data || [];
+        
+        // backend returns { success: true, data: { products: [...], total, page, pages } }
+        let products = [];
+        if (data?.data?.products) {
+          products = data.data.products;
+        } else if (data?.products) {
+          products = data.products;
+        } else if (Array.isArray(data?.data)) {
+          products = data.data;
+        } else if (Array.isArray(data)) {
+          products = data;
+        }
+        
         setMyListings(products);
       } catch (err) {
         setListingsError(err?.response?.data?.message || err.message || 'Failed to load listings');
@@ -167,8 +178,18 @@ const Profile = () => {
       setPurchasesError(null);
       try {
         const data = await getMyPurchases();
-        // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
-        const orders = Array.isArray(data) ? data : data?.orders || data?.data || [];
+        
+        // backend returns { success: true, data: { orders: [...] } }
+        let orders = [];
+        if (data?.data?.orders) {
+          orders = data.data.orders;
+        } else if (data?.orders) {
+          orders = data.orders;
+        } else if (Array.isArray(data?.data)) {
+          orders = data.data;
+        } else if (Array.isArray(data)) {
+          orders = data;
+        }
 
         // extract purchased products from orders defensively
         const items = [];
