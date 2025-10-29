@@ -61,12 +61,16 @@ const Browse = () => {
         limit: 16,
         ...(filters.category && { category: filters.category }),
         ...(filters.condition && { condition: filters.condition }),
-        ...(filters.minPrice && { minPrice: filters.minPrice }),
-        ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
-        sort: filters.sort
+        ...(filters.minPrice && { minPrice: Number(filters.minPrice) }),
+        ...(filters.maxPrice && { maxPrice: Number(filters.maxPrice) })
       };
       const response = await getProducts(params);
-      setProducts(response.data.products || []);
+
+      // client-side sorting
+      let fetchedProducts = response.data.products || [];
+      fetchedProducts = sortProducts(fetchedProducts, filters.sort);
+
+      setProducts(fetchedProducts);
       setPagination(response.data.pagination || {});
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -75,8 +79,30 @@ const Browse = () => {
     }
   };
 
+  // client-side sort function
+  const sortProducts = (productsArray, sortMethod) => {
+    const sorted = [...productsArray];
+    switch (sortMethod) {
+      case 'price-low':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'price-high':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'oldest':
+        return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case 'newest':
+      default:
+        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  };
+
   const updateFilter = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
+
+    let processedValue = value;
+    if ((key === 'minPrice' || key === 'maxPrice') && value) {
+      processedValue = parseFloat(value) || '';
+    }
+
+    const newFilters = { ...filters, [key]: processedValue };
     setFilters(newFilters);
 
     const params = new URLSearchParams();
