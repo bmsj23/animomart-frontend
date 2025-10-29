@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/formatCurrency';
-import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, X } from 'lucide-react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
 
@@ -141,161 +141,89 @@ const Cart = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Shopping Cart</h1>
 
       {hasItems ? (
-        <div className="space-y-8">
-          {/* Cart Items */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start">
+          {/* Left: Cart Items */}
           <div>
-            {/* Table Header */}
-            <div className="mb-6 hidden md:block">
-              <div className="bg-gray-50 rounded-2xl px-6 shadow-sm border border-gray-100 h-16">
-                <div className="grid grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] items-center h-full gap-4 text-gray-700 font-medium text-md">
-                  <div className="flex items-center justify-center">
-
-                  </div>
-                  <div className='pl-5'>Product</div>
-                  <div className="text-center">Unit Price</div>
-                  <div className="text-center">Quantity</div>
-                  <div className="text-center">Total</div>
-                  <div className="text-center">Actions</div>
-                </div>
-              </div>
-            </div>
-
             {/* Cart Items List */}
             <div className="space-y-4">
               {cart.items.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 hover:shadow-md transition-shadow"
+                  className="bg-white/60 rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 hover:shadow-xl transition-shadow relative overflow-hidden"
+                  style={{ borderRadius: '28px' }}
                 >
-                  <div className="flex flex-col gap-4 md:grid md:grid-cols-[auto_2.5fr_1fr_1fr_1fr_7rem] md:items-center md:gap-4">
-                    {/* Checkbox */}
-                    <div className="hidden md:flex md:items-center md:justify-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.has(item.product._id)}
-                        onChange={() => toggleItemSelection(item.product._id)}
-                        className="w-4 h-4 accent-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
-                      />
-                    </div>
+                  {/* Checkbox positioned in card top-left (not on image) */}
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.has(item.product._id)}
+                    onChange={() => toggleItemSelection(item.product._id)}
+                    className="absolute top-6 left-8 z-10 w-4 h-4 accent-green-600 border-gray-300 rounded cursor-pointer"
+                    aria-label="Select item"
+                  />
 
-                    {/* Product Info */}
-                    <div className="flex items-center gap-4 min-w-0">
-                      <img
-                        src={item.product?.images?.[0] || 'https://via.placeholder.com/100'}
-                        alt={item.product?.name}
-                        className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg flex-shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-gray-900 truncate">
-                          {item.product?.name || 'Unknown Product'}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {item.product?.condition || 'N/A'}
-                        </p>
-                        {item.product?.stock !== undefined && (
-                          <p className="text-xs text-gray-400 mt-1">
-                            {item.product.stock} in stock
-                          </p>
-                        )}
+                  {/* Close button top-right */}
+                  <button
+                    onClick={() => confirmDelete(item.product._id, item.product?.name)}
+                    className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 p-1 rounded-full"
+                    aria-label="Remove item"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex flex-col md:flex-row items-start gap-6">
+                    {/* Left area: checkbox + image + offer + return policy */}
+                    <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4">
+                      <div className="flex items-start md:items-center gap-3 w-full md:w-auto">
+                        {/* (checkbox removed from beside the image; using absolute checkbox at top-left) */}
+
+                        {/* Product image (with checkbox above it) */}
+                        <div className="flex-shrink-0 relative pt-3">
+                          <img
+                            src={item.product?.images?.[0] || '/EmptyCart.png'}
+                            alt={item.product?.name}
+                            className="w-40 h-32 md:w-48 md:h-40 object-cover rounded-md bg-white"
+                          />
+                        </div>
+
+                        {/* Text block to the right of image (condition on top, no size) */}
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm text-gray-800 font-medium truncate">
+                              {item.product?.name || 'Recife Logo Chromefree Sneakers'}
+                            </div>
+
+                            <div className="mt-1 text-xs text-gray-500">
+                              {item.product?.condition || 'N/A'}
+                            </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Price, Quantity, Total // desktop */}
-                    <div className="hidden md:flex md:items-center md:justify-center">
-                      <p className="font-medium text-gray-900">
-                        {formatCurrency(item.product?.price || 0)}
-                      </p>
-                    </div>
-
-                    <div className="hidden md:flex md:items-center md:justify-center">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-12 text-center font-medium">{item.quantity}</span>
-                        <button
-                          onClick={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
-                          disabled={item.quantity >= (item.product?.stock || 0)}
-                          className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="hidden md:flex md:items-center md:justify-center">
-                      <p className="font-bold text-green-600">
-                        {formatCurrency((item.product?.price || 0) * item.quantity)}
-                      </p>
-                    </div>
-
-                    <div className="hidden md:flex md:items-center md:justify-center">
-                      <button
-                        onClick={() => confirmDelete(item.product._id, item.product?.name)}
-                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {/* Mobile Layout */}
-                    <div className="md:hidden space-y-3">
-                      <div className="flex items-center gap-3 mb-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedItems.has(item.product._id)}
-                          onChange={() => toggleItemSelection(item.product._id)}
-                          className="w-4 h-4 accent-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
-                        />
-                        <span className="text-sm font-medium text-gray-700">Select this item</span>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Unit Price:</span>
-                        <span className="font-medium">
-                          {formatCurrency(item.product?.price || 0)}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Quantity:</span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center cursor-pointer"
+                    {/* Right area: qty selector & price */}
+                    <div className="flex flex-col items-end justify-between ml-auto">
+                      <div className="flex items-center gap-4">
+                        {/* Quantity selector (select) */}
+                        <label className="flex items-center gap-2 text-sm text-gray-600">
+                          <span className="text-sm text-gray-600">Qty:</span>
+                          <select
+                            value={item.quantity}
+                            onChange={(e) => handleUpdateQuantity(item.product._id, Number(e.target.value))}
+                            className="px-3 py-1 border border-gray-200 rounded-md bg-white text-sm cursor-pointer"
                           >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="w-12 text-center font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
-                            disabled={item.quantity >= (item.product?.stock || 0)}
-                            className="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center cursor-pointer"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
+                            {Array.from({ length: Math.max(5, item.product?.stock || 5) }).map((_, i) => (
+                              <option key={i + 1} value={i + 1}>
+                                {i + 1}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        {/* Price */}
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-gray-800">{formatCurrency(item.product?.price || 0)}</div>
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total:</span>
-                        <span className="font-bold text-green-600">
-                          {formatCurrency((item.product?.price || 0) * item.quantity)}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => confirmDelete(item.product._id, item.product?.name)}
-                        className="w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-700 py-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Remove Item
-                      </button>
+                      {/* offer and return removed per user request */}
                     </div>
                   </div>
                 </div>
@@ -303,46 +231,46 @@ const Cart = () => {
             </div>
           </div>
 
-          {/* Order Summary - Full Width Below Cart */}
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+        {/* Right: Order Summary (beside items on desktop) */}
+        <div className="w-full md:self-start">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:sticky md:top-24">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({selectedItems.size} selected items)</span>
-                  <span>{formatCurrency(calculateTotal())}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span className="text-green-600">Free</span>
-                </div>
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-green-600">
-                      {formatCurrency(calculateTotal())}
-                    </span>
-                  </div>
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal ({selectedItems.size} selected items)</span>
+                <span>{formatCurrency(calculateTotal())}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Shipping</span>
+                <span className="text-green-600">Free</span>
+              </div>
+              <div className="border-t border-gray-200 pt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-900">Total</span>
+                  <span className="text-2xl font-bold text-green-600">
+                    {formatCurrency(calculateTotal())}
+                  </span>
                 </div>
               </div>
-
-              <button
-                onClick={() => navigate('/checkout')}
-                disabled={selectedItems.size === 0}
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
-
-              <button
-                onClick={() => navigate('/')}
-                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
-              >
-                Continue Shopping
-              </button>
             </div>
+
+            <button
+              onClick={() => navigate('/checkout')}
+              disabled={selectedItems.size === 0}
+              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
+            >
+              Proceed to Checkout
+            </button>
+
+            <button
+              onClick={() => navigate('/')}
+              className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+            >
+              Continue Shopping
+            </button>
           </div>
+        </div>
         </div>
       ) : (
         // show only empty message when no items

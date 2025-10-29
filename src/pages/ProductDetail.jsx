@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { getProduct } from '../api/products';
+import { addToCart } from '../api/cart';
 import { addToFavorites, removeFromFavorites } from '../api/favorites';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
@@ -12,7 +13,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { addItem, cart } = useCart();
+  const { fetchCart } = useCart();
   const { success, error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
@@ -20,7 +21,6 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -49,31 +49,9 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     try {
-      // validate if product exists in cart, then check quantity in cart
-      const cartItem = cart?.items?.find(item => item.product._id === id);
-      const currentQuantityInCart = cartItem ? cartItem.quantity : 0;
-
-      //  validate first if adding the quantity exceeds stock
-      if (currentQuantityInCart >= product.stock) {
-        showError(`Cannot add more. Only ${product.stock} in stock.`);
-        return;
-      }
-
-      if (currentQuantityInCart + quantity > product.stock) {
-        const remaining = product.stock - currentQuantityInCart;
-        showError(`Cannot add ${quantity}. Only ${remaining} remaining in stock.`);
-        return;
-      }
-
-      await addItem(id, quantity);
-
-      // show success state on button
-      setAddedToCart(true);
-
-      // reset button state after 2 seconds
-      setTimeout(() => {
-        setAddedToCart(false);
-      }, 2000);
+      await addToCart({ productId: id, quantity });
+      await fetchCart();
+      success('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
       showError(err.response?.data?.message || 'Failed to add to cart');
@@ -246,20 +224,21 @@ const ProductDetail = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   -
                 </button>
                 <input
-                  type="text"
+                  type="number"
                   min="1"
                   max={product.stock}
                   value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
                   className="w-20 px-4 py-2 border border-gray-300 rounded-lg text-center"
                 />
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   +
                 </button>
@@ -274,17 +253,13 @@ const ProductDetail = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className={`flex-1 py-3 rounded-lg transition-all font-medium hover:cursor-pointer ${
-                    addedToCart
-                      ? 'bg-green-800 text-white'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  } disabled:bg-gray-300 disabled:cursor-not-allowed`}
+                  className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  {isOutOfStock ? 'Out of Stock' : addedToCart ? 'Added to Cart' : 'Add to Cart'}
+                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
                 <button
                   onClick={handleToggleFavorite}
-                  className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center hover:cursor-pointer"
+                  className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center"
                 >
                   <Heart
                     className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
