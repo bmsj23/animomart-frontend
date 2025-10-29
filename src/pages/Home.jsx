@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { Heart, ShoppingCart, ArrowRight, Sparkles, Clock, Tag, ChevronDown, Menu } from 'lucide-react';
 import { getProducts } from '../api/products';
 import { useCart } from '../hooks/useCart';
@@ -46,6 +47,9 @@ const CategoryBar = () => {
   const navigate = useNavigate();
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRefs = useRef({});
+  const closeTimeoutRef = useRef(null);
 
   const handleCategoryClick = (category) => {
     navigate(`/categories?category=${encodeURIComponent(category)}`);
@@ -53,22 +57,64 @@ const CategoryBar = () => {
     setHoveredCategory(null);
   };
 
+  const handleMouseEnter = (categoryName) => {
+    // clear any pending close timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
+    setHoveredCategory(categoryName);
+    // calculate position for portal
+    const buttonElement = buttonRefs.current[categoryName];
+    if (buttonElement) {
+      const rect = buttonElement.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.left
+      });
+    }
+  };
+
+
+
+  const handleMouseLeave = () => {
+    // add a small delay before closing to allow mouse to reach dropdown
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 100); // 100ms delay
+  };
+
+  const handleDropdownEnter = () => {
+    // cancel close timeout when entering dropdown
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleDropdownLeave = () => {
+    // close immediately when leaving dropdown
+    setHoveredCategory(null);
+  };
+
   return (
     <div className="bg-gray-50 border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         {/* desktop category bar */}
         <div className="hidden md:flex items-center gap-4 py-3">
           <h2 className="font-semibold text-gray-900 text-lg pr-8 whitespace-nowrap">Categories</h2>
 
-          <div className="flex items-center gap-2 flex-1 pl-4 pb-4">
+          <div className="flex items-center gap-2 flex-1 pl-4">
             {categoryData.map((category) => (
               <div
                 key={category.name}
                 className="relative group"
-                onMouseEnter={() => setHoveredCategory(category.name)}
-                onMouseLeave={() => setHoveredCategory(null)}
+                onMouseEnter={() => handleMouseEnter(category.name)}
+                onMouseLeave={handleMouseLeave}
               >
                 <button
+                  ref={el => buttonRefs.current[category.name] = el}
                   onClick={() => handleCategoryClick(category.name)}
                   className="flex items-center gap-1.5 px-6 h-14 bg-gray-100 hover:bg-green-50 hover:text-green-600 rounded-full text-sm font-medium text-gray-700 transition-all whitespace-nowrap border border-transparent hover:border-green-200 hover:cursor-pointer"
                 >
@@ -79,19 +125,17 @@ const CategoryBar = () => {
                 </button>
 
                 {/* dropdown */}
-                {category.subcategories.length > 0 && (
+                {category.subcategories.length > 0 && hoveredCategory === category.name && createPortal(
                   <div
-                    className={`absolute left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 py-3 min-w-[240px] ${
-                      hoveredCategory === category.name ? 'block' : 'hidden'
-                    }`}
+                    className="bg-white rounded-xl shadow-2xl border border-gray-200 py-3 max-w-50"
                     style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: '0',
-                      zIndex: 99999
+                      position: 'fixed',
+                      top: `${dropdownPosition.top}px`,
+                      left: `${dropdownPosition.left}px`,
+                      zIndex: 999999
                     }}
-                    onMouseEnter={() => setHoveredCategory(category.name)}
-                    onMouseLeave={() => setHoveredCategory(null)}
+                    onMouseEnter={handleDropdownEnter}
+                    onMouseLeave={handleDropdownLeave}
                   >
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100 mb-2">
                       {category.name}
@@ -107,7 +151,8 @@ const CategoryBar = () => {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             ))}
