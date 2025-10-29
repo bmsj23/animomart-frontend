@@ -171,7 +171,7 @@ const CategoryDetail = () => {
             className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors group text-sm tracking-wide uppercase"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium hover:cursor-pointer">Back to Collections</span>
+            <span className="font-medium hover:cursor-pointer">Back to Categories</span>
           </button>
 
           {/* title */}
