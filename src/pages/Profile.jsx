@@ -147,8 +147,19 @@ const Profile = () => {
       setListingsError(null);
       try {
         const data = await getMyListings();
-        // expected response shape: array of products or { products: [...] }
-        const products = Array.isArray(data) ? data : data?.products || data?.data || [];
+
+        // backend returns { success: true, data: { products: [...], total, page, pages } }
+        let products = [];
+        if (data?.data?.products) {
+          products = data.data.products;
+        } else if (data?.products) {
+          products = data.products;
+        } else if (Array.isArray(data?.data)) {
+          products = data.data;
+        } else if (Array.isArray(data)) {
+          products = data;
+        }
+
         setMyListings(products);
       } catch (err) {
         setListingsError(err?.response?.data?.message || err.message || 'Failed to load listings');
@@ -160,15 +171,25 @@ const Profile = () => {
     if (activeTab === 'listings') {
       loadListings();
     }
-    
+
     // load purchases when switching to purchases tab
     const loadPurchases = async () => {
       setPurchasesLoading(true);
       setPurchasesError(null);
       try {
         const data = await getMyPurchases();
-        // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
-        const orders = Array.isArray(data) ? data : data?.orders || data?.data || [];
+
+        // backend returns { success: true, data: { orders: [...] } }
+        let orders = [];
+        if (data?.data?.orders) {
+          orders = data.data.orders;
+        } else if (data?.orders) {
+          orders = data.orders;
+        } else if (Array.isArray(data?.data)) {
+          orders = data.data;
+        } else if (Array.isArray(data)) {
+          orders = data;
+        }
 
         // extract purchased products from orders defensively
         const items = [];
@@ -207,7 +228,7 @@ const Profile = () => {
     }
   }, [activeTab]);
 
-  //Keyboard navigation for Profile Menu 
+  //Keyboard navigation for Profile Menu
   const handleKeyDown = (e, index) => {
     const key = e.key;
     let newIndex = index;
@@ -259,7 +280,7 @@ const Profile = () => {
                     tabIndex={activeTab === tab.id ? 0 : -1}
                     onClick={() => setActiveTab(tab.id)}
                     onKeyDown={(e) => handleKeyDown(e, idx)}
-                    className={`w-full text-left px-4 py-3 text-md font-medium rounded-md transition-colors focus:outline-none ${
+                    className={`w-full text-left px-4 py-3 text-md font-medium rounded-md transition-colors focus:outline-none hover:cursor-pointer ${
                       activeTab === tab.id
                         ? "bg-green-50 border border-green-200 text-green-700"
                         : "text-gray-700 hover:bg-gray-50 hover:border hover:border-gray-200"
@@ -426,7 +447,7 @@ const Profile = () => {
                   </>
                 )}
               </div>
-              
+
               {/* My Listings Tab */}
               <div
                 id="panel-listings"
@@ -469,7 +490,7 @@ const Profile = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Purchases Tab */}
               <div
                 id="panel-purchases"
@@ -524,7 +545,7 @@ const Profile = () => {
                   Your sales history will appear here.
                 </p>
               </div>
-              
+
               {/* Reviews Tab */}
               <div
                 id="panel-reviews"

@@ -32,12 +32,12 @@ export const cancelOrder = async (id, reason) => {
 
 // get orders as buyer
 export const getMyPurchases = async () => {
-  const response = await api.get('/orders/my-purchases');
+  const response = await api.get('/orders/purchases');
   return response.data;
 };
 
 // get orders as seller
 export const getMySales = async () => {
-  const response = await api.get('/orders/my-sales');
+  const response = await api.get('/orders/sales');
   return response.data;
 };

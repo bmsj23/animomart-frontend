@@ -46,7 +46,7 @@ export const deleteProduct = async (id) => {
 
 // get my product listings (seller)
 export const getMyListings = async () => {
-  const response = await api.get('/products/my-listings');
+  const response = await api.get('/products/my/listings');
   return response.data;
 };
 
