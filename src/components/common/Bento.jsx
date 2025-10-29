@@ -58,29 +58,29 @@ const ProductCard = ({ product }) => {
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`group relative bg-white border border-gray-100 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 h-full ${
-        isHovered ? 'shadow-lg border-gray-200' : 'shadow-sm'
+      className={`group relative bg-white rounded-sm overflow-hidden cursor-pointer transition-all duration-500 h-full ${
+        isHovered ? 'shadow-2xl' : 'shadow-md'
       }`}
     >
-      {/* Product Image */}
+      {/* product image */}
       <div className="relative h-full w-full">
         <img
           src={product.image || '/api/placeholder/400/320'}
           alt={product.name}
-          className={`w-full h-full object-cover transition-transform duration-700 ${
-            isHovered ? 'scale-105' : 'scale-100'
+          className={`w-full h-full object-cover transition-transform duration-700 ease-out ${
+            isHovered ? 'scale-110' : 'scale-100'
           }`}
         />
 
-        {/* favorite button (always visible on mobile, hover on desktop, hidden for own prods)  */}
+        {/* favorite button  */}
         {!isOwnProduct && (
           <button
             onClick={handleFavorite}
             disabled={isProcessing}
-            className={`absolute top-3 right-3 px-3 py-2 rounded-full backdrop-blur-md transition-all duration-300 z-[5] md:opacity-0 md:group-hover:opacity-100 flex items-center gap-1.5 ${
+            className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-300 z-[5] md:opacity-0 md:group-hover:opacity-100 hover:cursor-pointer ${
               isFavorited
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-white/90 text-gray-700 hover:bg-white'
+                ? 'bg-white/95 text-red-500'
+                : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
             } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
           >
             {isProcessing ? (
@@ -88,72 +88,64 @@ const ProductCard = ({ product }) => {
             ) : (
               <Heart className={`w-4 h-4 transition-transform ${isFavorited ? 'fill-current scale-110' : ''} ${justAdded ? 'animate-bounce' : ''}`} />
             )}
-            {justAdded && (
-              <span className="text-xs font-medium whitespace-nowrap animate-fade-in">Added!</span>
-            )}
           </button>
         )}
 
-        {/* stock badge */}
+        {/* badges */}
         {product.stock === 0 && (
-          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-[5]">
-            Out of stock
+          <div className="absolute top-3 left-3 px-4 py-1.5 bg-black/90 backdrop-blur-sm rounded-full text-xs font-medium text-white tracking-wide z-[5]">
+            Sold Out
           </div>
         )}
 
-        {/* Own Product Badge */}
+        {/* own product badge */}
         {isOwnProduct && (
-          <div className="absolute top-3 left-3 px-3 py-1.5 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white z-[5]">
+          <div className="absolute top-3 left-3 px-4 py-1.5 bg-primary rounded-full text-xs font-medium text-white tracking-wide z-[5]">
             Your Listing
           </div>
         )}
 
-        {/* hover overlay (slides up from bottom of bento card) */}
+        {/* hover overlay */}
         <div
-          className={`hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent transition-all duration-500 ${
+          className={`hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent transition-all duration-700 ease-out ${
             isHovered ? 'h-2/5' : 'h-0'
           }`}
         >
           {/* product info (appears on hover) */}
           <div
-            className={`absolute bottom-0 inset-x-0 p-4 sm:p-5 text-white transition-all duration-500 ${
-              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`absolute bottom-0 inset-x-0 p-5 sm:p-6 text-white transition-all duration-700 ease-out ${
+              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <h3 className="font-semibold text-sm sm:text-base mb-1.5 line-clamp-2">
+
+            <h3 className="font-serif text-base sm:text-lg font-normal mb-1 line-clamp-2 tracking-tight text-white drop-shadow-lg">
               {product.name}
             </h3>
-
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex items-end justify-between">
               <div>
-                <span className="text-lg sm:text-xl font-bold">
+                <span className="text-xl sm:text-2xl font-bold tracking-tight drop-shadow-lg">
                   {formatCurrency(product.price)}
                 </span>
-                {product.stock > 0 && (
-                  <p className="text-xs text-white/80 mt-0.5">
-                    {product.stock} in stock
-                  </p>
-                )}
               </div>
 
-              <div className="flex items-center gap-2 text-white/80 text-sm">
-                <span>View Details</span>
-                <ArrowRight className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-white/90 text-sm font-medium tracking-wide group-hover:gap-3 transition-all duration-300">
+                <span>View</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile: always-visible bottom info bar */}
-        <div className="md:hidden absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-          <h3 className="font-semibold text-white text-xs line-clamp-1 mb-1">
+        {/* mobile */}
+        <div className="md:hidden absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4">
+          <h3 className="font-serif text-white text-sm font-normal line-clamp-1 mb-1.5 tracking-tight drop-shadow-lg">
             {product.name}
           </h3>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-white">
+            <span className="text-base font-bold text-white tracking-tight">
               {formatCurrency(product.price)}
             </span>
-            <div className="flex items-center gap-1 text-white text-xs">
+            <div className="flex items-center gap-1.5 text-white/90 text-xs font-medium">
               <span>View</span>
               <ArrowRight className="w-3 h-3" />
             </div>
@@ -173,20 +165,26 @@ const CategoryCard = ({ title, subtitle, icon: Icon, bgColor = 'bg-gray-50', tex
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`group relative ${bgColor} border border-gray-100 rounded-xl p-4 sm:p-5 cursor-pointer transition-all duration-300 h-full ${
-        isHovered ? 'shadow-lg border-gray-200' : 'shadow-sm'
-      } flex flex-col justify-between min-h-[100px] sm:min-h-[120px]`}
+      className={`group relative ${bgColor} rounded-sm cursor-pointer transition-all duration-500 h-full shadow-sm hover:shadow-xl ${
+        isHovered ? 'scale-[1.02]' : 'scale-100'
+      } flex flex-col justify-between min-h-[100px] sm:min-h-[120px] p-5 sm:p-6`}
     >
       <div className="flex flex-col flex-grow">
-        <div className={`w-8 h-8 sm:w-10 sm:h-10 border border-gray-200 rounded-lg flex items-center justify-center mb-2 sm:mb-3 ${textColor}`}>
-          {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 sm:mb-4 transition-all duration-300 ${
+          isHovered ? 'bg-white/80 scale-110' : ''
+        }`}>
+          {Icon && <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${textColor}`} />}
         </div>
-        <h3 className={`text-sm sm:text-base font-semibold ${textColor} mb-0.5 sm:mb-1`}>{title}</h3>
-        <p className="text-gray-600 text-xs sm:text-sm">{subtitle}</p>
+        <h3 className={`text-base sm:text-lg font-serif font-light ${textColor} mb-1 tracking-tight`}>
+          {title}
+        </h3>
+        <p className="text-gray-600 text-xs sm:text-sm font-light">{subtitle}</p>
       </div>
 
-      <div className={`mt-2 sm:mt-3 flex items-center justify-end transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`}>
-        <ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 ${textColor}`} />
+      <div className={`mt-3 sm:mt-4 flex items-center justify-end transition-all duration-300 ${
+        isHovered ? 'translate-x-2' : 'translate-x-0'
+      }`}>
+        <ArrowRight className={`w-5 h-5 ${textColor} transition-all duration-300`} />
       </div>
     </div>
   );
@@ -194,14 +192,14 @@ const CategoryCard = ({ title, subtitle, icon: Icon, bgColor = 'bg-gray-50', tex
 
 // Loading Skeleton
 const SkeletonCard = () => (
-  <div className="bg-gray-100 border border-gray-100 rounded-xl overflow-hidden shadow-sm h-full animate-pulse" />
+  <div className="bg-gray-100 rounded-sm overflow-hidden shadow-md h-full animate-pulse" />
 );
 
 const SkeletonCategory = () => (
-  <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 sm:p-5 h-full animate-pulse min-h-[100px] sm:min-h-[120px]">
-    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded-lg mb-2 sm:mb-3" />
-    <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-1.5 sm:mb-2" />
-    <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2" />
+  <div className="bg-gray-50 rounded-sm p-5 sm:p-6 h-full animate-pulse min-h-[100px] sm:min-h-[120px]">
+    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full mb-3 sm:mb-4" />
+    <div className="h-4 sm:h-5 bg-gray-200 rounded w-3/4 mb-2" />
+    <div className="h-3 bg-gray-200 rounded w-1/2" />
   </div>
 );
 
@@ -251,13 +249,11 @@ const BentoBox = () => {
   const categories = [
     {
       title: 'New Arrivals',
-      subtitle: 'Fresh from sellers',
+      subtitle: 'Fresh collections',
       icon: Sparkles,
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-900',
-      onClick: () => {
-        // todo: create /new-arrivals page and scroll to new arrivals section in home
-      }
+      onClick: () => navigate('/browse?sort=newest')
     },
     {
       title: 'Trending',
@@ -265,18 +261,15 @@ const BentoBox = () => {
       icon: TrendingUp,
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-900',
-      onClick: () => {
-        // todo: create /trending page, scroll down to trending section in home, and trending algorithm
-        console.log('Trending - Coming soon!');
-      }
+      onClick: () => navigate('/browse?sort=popular')
     },
     {
       title: 'Electronics',
-      subtitle: 'Tech & gadgets',
+      subtitle: 'Tech essentials',
       icon: Package,
       bgColor: 'bg-amber-50',
       textColor: 'text-amber-900',
-      onClick: () => navigate('/categories')
+      onClick: () => navigate('/categories/Electronics')
     },
     {
       title: 'All Items',
@@ -290,11 +283,11 @@ const BentoBox = () => {
 
   if (error) {
     return (
-      <div className="w-full p-8 text-center">
-        <p className="text-red-500">Error loading products: {error}</p>
+      <div className="w-full p-12 text-center">
+        <p className="text-red-500 mb-4 font-light">Error loading products: {error}</p>
         <button
           onClick={fetchProducts}
-          className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+          className="px-8 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-all duration-300 font-medium tracking-wide"
         >
           Retry
         </button>
@@ -306,9 +299,9 @@ const BentoBox = () => {
     <div className="w-full max-w-7xl mx-auto">
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 auto-rows-[180px] sm:auto-rows-[200px] md:auto-rows-[240px] mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[180px] md:auto-rows-[220px] mb-8">
 
-        {/* LEFT: Large Featured Product - 2 cols, 3 rows */}
+        {/* left: featured product */}
         <div className="col-span-2 row-span-3">
           {loading ? (
             <SkeletonCard />
@@ -317,8 +310,8 @@ const BentoBox = () => {
           )}
         </div>
 
-        {/* MIDDLE: Category Grid - 2x2 grid, 2 cols, 2 rows */}
-        <div className="col-span-2 row-span-2 grid grid-cols-2 gap-3 sm:gap-4">
+        {/* middle: category grid */}
+        <div className="col-span-2 row-span-2 grid grid-cols-2 gap-4 sm:gap-5">
           {loading ? (
             <>
               <SkeletonCategory />
@@ -333,7 +326,7 @@ const BentoBox = () => {
           )}
         </div>
 
-        {/* RIGHT: Medium Product - 2 cols, 2 rows */}
+        {/* right: medium product */}
         <div className="hidden md:block col-span-2 row-span-2">
           {loading ? (
             <SkeletonCard />
@@ -342,7 +335,7 @@ const BentoBox = () => {
           )}
         </div>
 
-        {/* BOTTOM MIDDLE: Wide Product - 2 cols, 1 row */}
+        {/* bottom middle: wide product */}
         <div className="col-span-2 row-span-1">
           {loading ? (
             <SkeletonCard />
@@ -351,7 +344,7 @@ const BentoBox = () => {
           )}
         </div>
 
-        {/* BOTTOM RIGHT: Small Product - 2 cols, 1 row */}
+        {/* bottom right: compact product */}
         <div className="hidden md:block col-span-2 row-span-1">
           {loading ? (
             <SkeletonCard />
@@ -360,7 +353,7 @@ const BentoBox = () => {
           )}
         </div>
 
-        {/* mobile only: additional products in 2-column grid */}
+        {/* mobile: additional products */}
         <div className="md:hidden col-span-1 row-span-1">
           {loading ? (
             <SkeletonCard />
