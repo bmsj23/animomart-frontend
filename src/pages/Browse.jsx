@@ -160,7 +160,7 @@ const Browse = () => {
         {/* Header */}
         <div className="mb-10 md:mb-12">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-main mb-3 tracking-tight">Browse All Products</h1>
-          <p className="text-secondary text-base md:text-lg font-light">
+          <p className="text-gray text-base md:text-lg font-light">
             Showing {products.length} of {pagination.totalProducts || 0} products
           </p>
         </div>
@@ -185,7 +185,7 @@ const Browse = () => {
 
                     {/* sort section */}
                     <div>
-                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Sort by</p>
+                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Sort by</p>
                       <div className="space-y-1">
                         {SORT_OPTIONS.map((opt) => (
                           <button
@@ -208,7 +208,7 @@ const Browse = () => {
 
                     {/* category filter */}
                     <div>
-                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Category</p>
+                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Category</p>
                       <select
                         value={filters.category}
                         onChange={(e) => updateFilter('category', e.target.value)}
@@ -222,7 +222,7 @@ const Browse = () => {
 
                     {/* condition filter */}
                     <div>
-                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Condition</p>
+                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Condition</p>
                       <select
                         value={filters.condition}
                         onChange={(e) => updateFilter('condition', e.target.value)}
@@ -236,7 +236,7 @@ const Browse = () => {
 
                     {/* price range */}
                     <div>
-                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Price Range</p>
+                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Price Range</p>
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           type="number"
@@ -276,7 +276,7 @@ const Browse = () => {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors text-sm font-medium hover:cursor-pointer"
+                className="flex items-center gap-2 text-gray hover:text-primary transition-colors text-sm font-medium hover:cursor-pointer"
               >
                 <X className="w-4 h-4" />
                 Clear Filters
@@ -383,7 +383,7 @@ const Browse = () => {
                         </button>
                       );
                     } else if (page === currentPage - 2 || page === currentPage + 2) {
-                      return <span key={page} className="px-2 text-secondary">...</span>;
+                      return <span key={page} className="px-2 text-gray">...</span>;
                     }
                     return null;
                   })}
@@ -402,7 +402,7 @@ const Browse = () => {
         ) : (
           <div className="text-center py-20">
             <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">No products found</h3>
-            <p className="text-secondary text-base md:text-lg mb-6 font-light">Try adjusting your filters or check back later</p>
+            <p className="text-gray text-base md:text-lg mb-6 font-light">Try adjusting your filters or check back later</p>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}

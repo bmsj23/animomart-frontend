@@ -204,7 +204,7 @@ const CategoryDetail = () => {
               {showFilters && (
                 <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden animate-fade-in">
                   <div className="p-2">
-                    <p className="px-3 py-2 text-xs font-medium text-secondary uppercase tracking-wider">Sort by</p>
+                    <p className="px-3 py-2 text-xs font-medium text-gray uppercase tracking-wider">Sort by</p>
                     <button
                       onClick={() => handleSortChange('newest')}
                       className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
@@ -243,7 +243,7 @@ const CategoryDetail = () => {
             </div>
 
             {!loading && (
-              <p className="text-secondary text-sm">
+              <p className="text-gray text-sm">
                 {products.length} {products.length === 1 ? 'product' : 'products'}
               </p>
             )}
@@ -280,7 +280,7 @@ const CategoryDetail = () => {
             <div className="flex justify-center items-center py-32">
               <div className="text-center">
                 <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-secondary font-light text-sm tracking-wide">Loading collection...</p>
+                <p className="text-gray font-light text-sm tracking-wide">Loading collection...</p>
               </div>
             </div>
           ) : products.length === 0 ? (
@@ -291,7 +291,7 @@ const CategoryDetail = () => {
               <h3 className="text-3xl font-light text-main mb-3">
                 No products found
               </h3>
-              <p className="text-secondary text-base leading-relaxed">Check back later or explore other collections</p>
+              <p className="text-gray text-base leading-relaxed">Check back later or explore other collections</p>
             </div>
           ) : (
             <>
@@ -317,7 +317,7 @@ const CategoryDetail = () => {
                     <div className="flex items-center gap-2">
                       {getPageNumbers().map((page, index) => (
                         page === '...' ? (
-                          <span key={`ellipsis-${index}`} className="px-3 text-secondary font-light">...</span>
+                          <span key={`ellipsis-${index}`} className="px-3 text-gray font-light">...</span>
                         ) : (
                           <button
                             key={page}
@@ -343,7 +343,7 @@ const CategoryDetail = () => {
                     </button>
                   </div>
 
-                  <p className="text-center mt-6 text-secondary text-sm">
+                  <p className="text-center mt-6 text-gray text-sm">
                     Page {currentPage} of {totalPages}
                   </p>
                 </div>

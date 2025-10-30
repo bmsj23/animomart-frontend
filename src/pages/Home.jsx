@@ -351,7 +351,7 @@ const Home = () => {
             <h3 className="font-serif text-3xl md:text-5xl text-main mb-4 tracking-tight">
               Want to See More?
             </h3>
-            <p className="text-secondary text-base md:text-lg max-w-2xl mx-auto mb-8 font-light">
+            <p className="text-gray text-base md:text-lg max-w-2xl mx-auto mb-8 font-light">
               Browse our complete collection of products with advanced filters
             </p>
             <button

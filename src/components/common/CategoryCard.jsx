@@ -40,7 +40,7 @@ const CategoryCard = ({ category }) => {
         <h3 className="text-2xl md:text-3xl font-light text-main group-hover:text-primary transition-colors duration-300">
           {category.name}
         </h3>
-        <p className="text-sm text-secondary leading-relaxed line-clamp-2 max-w-xs mx-auto">
+        <p className="text-sm text-gray leading-relaxed line-clamp-2 max-w-xs mx-auto">
           {category.description}
         </p>
       </div>
