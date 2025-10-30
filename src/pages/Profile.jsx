@@ -104,7 +104,6 @@ const Profile = () => {
       setSelectedFile(null);
       setPreviewUrl("");
 
-      showSuccess("Profile updated");
       setIsEditing(false);
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || "Failed to update profile";
@@ -121,7 +120,7 @@ const Profile = () => {
       await handleSave();
       // ensure we exit edit mode and show updated profile
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       // handleSave already shows errors via toasts
     }
   };

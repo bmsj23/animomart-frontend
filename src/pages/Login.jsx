@@ -19,7 +19,6 @@ const Login = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       await login(credentialResponse.credential);
-      showSuccess('Welcome to AnimoMart!');
       navigate('/');
     } catch (err) {
       console.error('Login failed:', err);

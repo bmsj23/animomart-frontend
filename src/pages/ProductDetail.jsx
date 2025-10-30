@@ -51,7 +51,6 @@ const ProductDetail = () => {
     try {
       await addToCart({ productId: id, quantity });
       await fetchCart();
-      success('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
       showError(err.response?.data?.message || 'Failed to add to cart');
@@ -63,11 +62,9 @@ const ProductDetail = () => {
       if (isFavorite) {
         await removeFromFavorites(id);
         setIsFavorite(false);
-        success('Removed from favorites');
       } else {
         await addToFavorites({ productId: id });
         setIsFavorite(true);
-        success('Added to favorites!');
       }
     } catch (err) {
       console.error('Failed to toggle favorite:', err);
