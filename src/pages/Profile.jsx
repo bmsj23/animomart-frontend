@@ -23,7 +23,7 @@ const Profile = () => {
   ];
 
   const { user, updateUser } = useAuth();
-  const { success: showSuccess, error: showError } = useToast();
+  const { error: showError } = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

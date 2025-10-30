@@ -19,7 +19,7 @@ const CONDITIONS = [
 const Sell = () => {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
-  const { success, error: showError } = useToast();
+  const { error: showError } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);

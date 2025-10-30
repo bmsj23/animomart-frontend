@@ -7,7 +7,7 @@ import { useToast } from '../hooks/useToast';
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
-  const { error: showError, success: showSuccess } = useToast();
+  const { error: showError } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {

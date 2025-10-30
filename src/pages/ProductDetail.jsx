@@ -14,7 +14,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchCart } = useCart();
-  const { success, error: showError } = useToast();
+  const { error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
