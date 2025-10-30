@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
@@ -27,8 +27,22 @@ export const AuthProvider = ({ children }) => {
 
         // check if token is expired
         if (decoded.exp > currentTime) {
+          // set user from localStorage first for immediate UI
           setUser(JSON.parse(userData));
           setIsAuthenticated(true);
+
+          // then fetch fresh data from backend to ensure data  is up to date
+          try {
+            const response = await authApi.getCurrentUser();
+            const freshUserData = response.data?.user || response.user || response.data || response;
+            if (freshUserData) {
+              setUser(freshUserData);
+              localStorage.setItem('user', JSON.stringify(freshUserData));
+            }
+          } catch (error) {
+            console.error('Failed to fetch fresh user data:', error);
+            // continue with cached data if fetch fails
+          }
         } else {
           logout();
         }
@@ -53,9 +67,14 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Only @dlsl.edu.ph email addresses are allowed');
       }
 
+      const normalizedUser = {
+        ...userData,
+        profilePicture: userData.profilePicture || userData.picture
+      };
+
       localStorage.setItem('token', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+      setUser(normalizedUser);
       setIsAuthenticated(true);
       return response.data;
     } catch (error) {
@@ -78,8 +97,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+
+    const normalizedUser = {
+      ...userData,
+      profilePicture: userData.profilePicture || userData.picture
+    };
+    setUser(normalizedUser);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
   };
 
   const value = {
