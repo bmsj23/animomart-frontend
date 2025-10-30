@@ -168,10 +168,10 @@ const CategoryDetail = () => {
         <div className="mb-12 text-center">
           <button
             onClick={() => navigate('/categories')}
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors group text-sm tracking-wide uppercase"
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors group text-sm tracking-wide uppercase hover:cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium hover:cursor-pointer">Back to Categories</span>
+            <span className="font-medium">Back to Categories</span>
           </button>
 
           {/* title */}

@@ -30,8 +30,8 @@ const CategoryCard = ({ category }) => {
         </div>
 
         {/* floating chevron button */}
-        <div className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm group-hover:bg-primary rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ease-out transform group-hover:scale-110">
-          <ChevronRight className="w-5 h-5 text-main group-hover:text-white transition-colors duration-300" />
+        <div className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm group-hover:bg-green-800 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ease-out transform group-hover:scale-110">
+          <ChevronRight className="w-5 h-5 text-main group-hover:text-[rgb(var(--color-secondary))] transition-colors duration-300" />
         </div>
       </div>
 
