@@ -11,7 +11,7 @@ import Modal from '../components/common/Modal';
 const Cart = () => {
   const navigate = useNavigate();
   const { cart, setCart, fetchCart, loading, updateItem, removeItem } = useCart();
-  const { error: showError, success: showSuccess } = useToast();
+  const { error: showError } = useToast();
   const placeholderRef = useRef(null);
   const fixedRef = useRef(null);
   const [fixedLeft, setFixedLeft] = useState(null);
@@ -155,7 +155,6 @@ const Cart = () => {
       window.removeEventListener('orientationchange', updateLeft);
       clearTimeout(t);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart?.items]);
 
   const calculateTotal = () => {
@@ -257,7 +256,7 @@ const Cart = () => {
                             className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Decrease quantity"
                           >
-                            <Minus className="w-4 h-4" /> 
+                            <Minus className="w-4 h-4" />
                           </button>
 
                           <div className="px-4 py-1 text-sm font-semibold text-gray-900">{item.quantity}</div>
