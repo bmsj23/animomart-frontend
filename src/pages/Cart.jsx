@@ -154,7 +154,7 @@ const Cart = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Shopping Cart</h1>
 
       {hasItems ? (
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start min-h-screen">
           {/* Left: Cart Items */}
           <div>
             {/* Cart Items List */}
@@ -253,52 +253,52 @@ const Cart = () => {
           </div>
 
         {/* Right: Order Summary (beside items on desktop) */}
-        <div className="w-full md:self-start">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:sticky md:top-24">
+        <div className="w-full h-fit sticky top-24">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-gray-600">
-                <span className="text-black">{selectedItems.size} Selected Item(s)</span>
-                <span className="text-black">{formatCurrency(calculateTotal())}</span>
-              </div>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-gray-600">
+                  <span className="text-black">{selectedItems.size} Selected Item(s)</span>
+                  <span className="text-black">{formatCurrency(calculateTotal())}</span>
+                </div>
 
-              <div className="flex justify-between text-gray-600">
-                <span className="text-black">Subtotal</span>
-                <span className="text-black">{formatCurrency(calculateTotal())}</span>
-              </div>
+                <div className="flex justify-between text-gray-600">
+                  <span className="text-black">Subtotal</span>
+                  <span className="text-black">{formatCurrency(calculateTotal())}</span>
+                </div>
 
-              <div className="flex justify-between text-gray-600">
-                <span className="text-black">Shipping</span>
-                <span className="text-black">Free</span>
-              </div>
+                <div className="flex justify-between text-gray-600">
+                  <span className="text-black">Shipping</span>
+                  <span className="text-black">Free</span>
+                </div>
 
-              <div className="border-t border-gray-200 pt-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-green-600">
-                    {formatCurrency(calculateTotal())}
-                  </span>
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      {formatCurrency(calculateTotal())}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              <button
+                onClick={() => navigate('/checkout')}
+                disabled={selectedItems.size === 0}
+                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Proceed to Checkout
+              </button>
+
+              <button
+                onClick={() => navigate('/')}
+                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+              >
+                Continue Shopping
+              </button>
             </div>
-
-            <button
-              onClick={() => navigate('/checkout')}
-              disabled={selectedItems.size === 0}
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
-            >
-              Proceed to Checkout
-            </button>
-
-            <button
-              onClick={() => navigate('/')}
-              className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
-            >
-              Continue Shopping
-            </button>
           </div>
-        </div>
         </div>
       ) : (
         // show only empty message when no items
