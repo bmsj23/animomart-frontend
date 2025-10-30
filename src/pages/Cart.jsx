@@ -265,7 +265,7 @@ const Cart = () => {
 
                 <div className="flex justify-between text-gray-600">
                   <span className="text-black">Subtotal</span>
-                  <span className="text-black">{formatCurrency(calculateTotal())}</span>
+                  <span className="font-semibold text-black">{formatCurrency(calculateTotal())}</span>
                 </div>
 
                 <div className="flex justify-between text-gray-600">
