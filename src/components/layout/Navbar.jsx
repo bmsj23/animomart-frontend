@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
+import SearchBar from './SearchBar';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,7 +11,6 @@ const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
   const profileRef = useRef(null);
   const location = useLocation();
   const prevItemCountRef = useRef(0);
@@ -29,15 +29,6 @@ const Navbar = () => {
     await logout();
     setIsMenuOpen(false);
     navigate('/login');
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const q = query.trim();
-    if (q) {
-      navigate(`/search?q=${encodeURIComponent(q)}`);
-      setQuery('');
-    }
   };
 
   // Close profile dropdown on outside click, touch, or Escape key
@@ -82,30 +73,8 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* mobile & desktop: search area */}
-          <div className="flex flex-1 items-center">
-            <div className="relative w-full max-w-4xl">
-              <form onSubmit={handleSearch} className="w-full"
-              >
-                <input
-                  aria-label="Search products"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search for products..."
-                  className="w-full pr-12 md:pr-44 h-10 md:h-14 pl-3 md:pl-6 rounded-full bg-[#F5F5F5] text-gray-700 placeholder-gray-400 shadow-sm border border-transparent focus:outline-none focus:ring-0 text-sm md:text-base"
-                />
-
-                <button
-                  type="submit"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-black text-white p-4 md:px-6 h-10 md:h-14 rounded-full shadow-md flex items-center justify-center gap-2 transition hover:bg-black/90 hover: cursor-pointer"
-                  aria-label="Search"
-                >
-                  <span className="hidden md:inline font-medium">Search</span>
-                  <Search className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
-          </div>
+          {/* search bar component */}
+          <SearchBar />
 
           {/* desktop: action buttons */}
           <div className="hidden md:flex items-center gap-2">
