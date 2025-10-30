@@ -14,7 +14,7 @@ const SearchBar = () => {
     limit: 100,
     maxResults: 5,
     enableCache: true,
-    debounceMs: 300
+    debounceMs: 500
   });
 
   useEffect(() => {

@@ -69,7 +69,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center flex-none w-14 md:w-32">
             <div className="bg-white rounded-md px-3 py-2.5 md:px-6 md:py-2 shadow-sm">
-              <img src="tr_animomart_1.png" alt="AnimoMart" className="h-5 md:h-10 w-auto" />
+              <img src="/tr_animomart_1.png" alt="AnimoMart" className="h-5 md:h-10 w-auto" />
             </div>
           </Link>
 

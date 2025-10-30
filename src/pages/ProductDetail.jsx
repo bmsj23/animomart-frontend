@@ -1,29 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import { getProduct } from '../api/products';
+import { getProduct, getSimilarProducts } from '../api/products';
 import { addToCart } from '../api/cart';
 import { addToFavorites, removeFromFavorites } from '../api/favorites';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ProductCard from '../components/common/ProductCard';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchCart } = useCart();
-  const { success, error: showError } = useToast();
+  const { error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     fetchProduct();
+    fetchSimilarProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -47,11 +52,25 @@ const ProductDetail = () => {
     }
   };
 
+  const fetchSimilarProducts = async () => {
+    try {
+      setLoadingSimilar(true);
+      const response = await getSimilarProducts(id, { limit: 6 });
+      if (response.success && response.data) {
+        setSimilarProducts(response.data);
+      }
+    } catch (err) {
+      console.warn('failed to fetch similar products:', err);
+      // we will not show error to user. just skip the section
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
+
   const handleAddToCart = async () => {
     try {
       await addToCart({ productId: id, quantity });
       await fetchCart();
-      success('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
       showError(err.response?.data?.message || 'Failed to add to cart');
@@ -63,11 +82,9 @@ const ProductDetail = () => {
       if (isFavorite) {
         await removeFromFavorites(id);
         setIsFavorite(false);
-        success('Removed from favorites');
       } else {
         await addToFavorites({ productId: id });
         setIsFavorite(true);
-        success('Added to favorites!');
       }
     } catch (err) {
       console.error('Failed to toggle favorite:', err);
@@ -128,7 +145,9 @@ const ProductDetail = () => {
         <nav className="flex text-sm text-gray-500">
           <Link to="/" className="hover:text-green-600">Home</Link>
           <span className="mx-2">/</span>
-          <Link to={`/?category=${product.category?.toLowerCase()}`} className="hover:text-green-600">
+          <Link to="/browse" className="hover:text-green-600">Browse</Link>
+          <span className="mx-2">/</span>
+          <Link to={`/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-green-600">
             {formatCategory(product.category)}
           </Link>
           <span className="mx-2">/</span>
@@ -224,7 +243,7 @@ const ProductDetail = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
                 >
                   -
                 </button>
@@ -238,7 +257,7 @@ const ProductDetail = () => {
                 />
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
                 >
                   +
                 </button>
@@ -301,7 +320,28 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* related products or reviews section can go here */}
+      {/* you may also like section */}
+      {similarProducts.length > 0 && (
+        <div className="mt-12 border-t border-gray-200 pt-12">
+          <h2 className="text-2xl font-serif font-light text-gray-900 mb-6">You May Also Like</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {similarProducts.map((similarProduct) => (
+              <ProductCard key={similarProduct._id} product={similarProduct} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loadingSimilar && !similarProducts.length && (
+        <div className="mt-12 border-t border-gray-200 pt-12">
+          <h2 className="text-2xl font-serif font-light text-gray-900 mb-6">You May Also Like</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

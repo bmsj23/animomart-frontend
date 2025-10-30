@@ -19,7 +19,7 @@ const CONDITIONS = [
 const Sell = () => {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
-  const { success, error: showError } = useToast();
+  const { error: showError } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
@@ -124,7 +124,6 @@ const Sell = () => {
       };
 
       updateUser(updatedUser);
-      success('You are now a seller!');
       setShowBecomeSellerForm(false);
     } catch (err) {
       console.error('Failed to become seller:', err);
@@ -185,7 +184,6 @@ const Sell = () => {
       // create product
       const response = await createProduct(productData);
       console.log('Product created:', response);
-      success('Product created successfully!');
       navigate(`/products/${response.data._id}`);
     } catch (err) {
       console.error('Failed to create product:', err);

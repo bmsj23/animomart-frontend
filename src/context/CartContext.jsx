@@ -24,7 +24,7 @@ export const CartProvider = ({ children }) => {
   // update item count whenever cart changes
   useEffect(() => {
     if (cart?.items) {
-      const count = cart.items.reduce((total, item) => total + item.quantity, 0);
+      const count = cart.items.length;
       setItemCount(count);
     } else {
       setItemCount(0);

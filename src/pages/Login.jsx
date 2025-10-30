@@ -7,7 +7,7 @@ import { useToast } from '../hooks/useToast';
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
-  const { error: showError, success: showSuccess } = useToast();
+  const { error: showError } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +19,6 @@ const Login = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       await login(credentialResponse.credential);
-      showSuccess('Welcome to AnimoMart!');
       navigate('/');
     } catch (err) {
       console.error('Login failed:', err);
