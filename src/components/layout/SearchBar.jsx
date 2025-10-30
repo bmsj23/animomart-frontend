@@ -91,7 +91,7 @@ const SearchBar = () => {
           {showSuggestions && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in">
               {isSearching ? (
-                <div className="p-4 text-center text-secondary text-sm">Searching...</div>
+                <div className="p-4 text-center text-gray text-sm">Searching...</div>
               ) : searchSuggestions.length > 0 ? (
                 <>
                   <div className="py-2">
@@ -115,7 +115,7 @@ const SearchBar = () => {
                   </div>
                 </>
               ) : (
-                <div className="p-4 text-center text-secondary text-sm">No results found</div>
+                <div className="p-4 text-center text-gray text-sm">No results found</div>
               )}
             </div>
           )}
@@ -163,11 +163,11 @@ const SearchBar = () => {
           {/* search results */}
           <div className="flex-1 overflow-y-auto">
             {query.length < 2 ? (
-              <div className="p-8 text-center text-secondary text-sm">
+              <div className="p-8 text-center text-gray text-sm">
                 Type at least 2 characters to search
               </div>
             ) : isSearching ? (
-              <div className="p-8 text-center text-secondary text-sm">Searching...</div>
+              <div className="p-8 text-center text-gray text-sm">Searching...</div>
             ) : searchSuggestions.length > 0 ? (
               <div className="py-2">
                 {searchSuggestions.map((product) => (
@@ -187,7 +187,7 @@ const SearchBar = () => {
                 </button>
               </div>
             ) : query.length >= 2 ? (
-              <div className="p-8 text-center text-secondary text-sm">No results found</div>
+              <div className="p-8 text-center text-gray text-sm">No results found</div>
             ) : null}
           </div>
         </div>

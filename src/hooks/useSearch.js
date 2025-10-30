@@ -49,19 +49,21 @@ export const useSearch = (query, options = {}) => {
           }
         }
 
-        // search logic: match against name and category
+        // search logic: match against name, description, and category
         const searchTerm = query.toLowerCase();
         const filtered = products.filter(product => {
           const productName = product.name?.toLowerCase() || '';
+          const productDescription = product.description?.toLowerCase() || '';
           const productCategory = product.category?.toLowerCase() || '';
 
           // get parent category if product category is a subcategory
           const parentCategory = getParentCategory(product.category);
           const parentCategoryLower = parentCategory?.toLowerCase() || '';
 
-          // match against name and category
+          // match against name, description, and category
           return (
             productName.includes(searchTerm) ||
+            productDescription.includes(searchTerm) ||
             productCategory.includes(searchTerm) ||
             parentCategoryLower.includes(searchTerm)
           );

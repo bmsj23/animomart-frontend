@@ -191,23 +191,21 @@ const CategoryBar = () => {
 };
 
 // section component
-const Section = ({ title, subtitle, viewAllLink, children, loading }) => {
+const Section = ({ title, viewAllLink, children, loading }) => {
   const navigate = useNavigate();
 
   return (
     <section className="mb-16">
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="font-serif text-3xl md:text-4xl text-main mb-2 tracking-tight">{title}</h2>
-          {subtitle && (
-            <p className="text-secondary text-sm md:text-base font-light tracking-wide">{subtitle}</p>
-          )}
+
         </div>
 
         {viewAllLink && !loading && (
           <button
             onClick={() => navigate(viewAllLink)}
-            className="group flex items-center gap-2 text-primary hover:text-primary/80 transition-all font-medium text-sm md:text-base hover:cursor-pointer hover:gap-3"
+            className="group flex items-center align-text-top gap-2 text-primary hover:text-primary/80 transition-all font-medium text-sm md:text-base hover:cursor-pointer hover:gap-3"
           >
             <span className="hidden sm:inline">View All</span>
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />

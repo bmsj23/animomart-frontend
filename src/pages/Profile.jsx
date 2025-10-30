@@ -9,6 +9,7 @@ import { formatCurrency } from "../utils/formatCurrency";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { Link } from "react-router-dom";
 import Modal from "../components/common/Modal";
+import { User } from "lucide-react";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -29,6 +30,7 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+
   const [myListings, setMyListings] = useState([]);
   const [listingsLoading, setListingsLoading] = useState(false);
   const [listingsError, setListingsError] = useState(null);
@@ -40,7 +42,7 @@ const Profile = () => {
   const [form, setForm] = useState({
     username: user?.username || "",
     phone: user?.phone || "",
-    profilePicture: user?.profilePicture || "",
+    profilePicture: user?.profilePicture || user?.picture || "",
   });
 
   const onChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
@@ -129,7 +131,7 @@ const Profile = () => {
     setForm({
       username: user?.username || "",
       phone: user?.phone || "",
-      profilePicture: user?.profilePicture || "",
+      profilePicture: user?.profilePicture || user?.picture || "",
     });
     if (previewUrl) {
       try {
@@ -316,11 +318,17 @@ const Profile = () => {
                     </div>
 
                     <div className="flex items-center space-x-6">
-                      <img
-                        src={user?.profilePicture || 'https://via.placeholder.com/80'}
-                        alt="Profile"
-                        className="w-40 h-40 rounded-full object-cover"
-                      />
+                      {(user?.profilePicture || user?.picture) ? (
+                        <img
+                          src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
+                          alt="Profile"
+                          className="w-40 h-40 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-300">
+                          <User className="w-20 h-20 text-gray-500" />
+                        </div>
+                      )}
 
                       <div>
                         <h3 className="text-lg font-semibold">
@@ -345,11 +353,17 @@ const Profile = () => {
                     <div className="flex items-center space-x-6">
                       <div className="flex-shrink-0">
                         <label className="block text-md font-medium text-gray-700">Profile Image</label>
-                        <img
-                          src={previewUrl || form.profilePicture || 'https://via.placeholder.com/80'}
-                          alt="Profile"
-                          className="w-40 h-40 rounded-full object-cover"
-                        />
+                        {previewUrl || (form.profilePicture || user?.picture) ? (
+                          <img
+                            src={previewUrl || (form.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
+                            alt="Profile"
+                            className="w-40 h-40 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-300">
+                            <User className="w-20 h-20 text-gray-500" />
+                          </div>
+                        )}
                         <button
                             type="button"
                             onClick={() => document.getElementById('profile-file-input')?.click()}
