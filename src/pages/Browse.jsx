@@ -35,7 +35,7 @@ const Browse = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef(null);
 
@@ -48,13 +48,16 @@ const Browse = () => {
   });
 
   useEffect(() => {
-    fetchProducts(1);
-    setCurrentPage(1);
+    const pageFromUrl = parseInt(searchParams.get('page')) || 1;
+    fetchProducts(pageFromUrl);
+    setCurrentPage(pageFromUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchProducts = async (page = 1) => {
     try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
       setLoading(true);
       const params = {
         page,
@@ -109,6 +112,7 @@ const Browse = () => {
     Object.entries(newFilters).forEach(([k, v]) => {
       if (v) params.set(k, v);
     });
+    params.set('page', '1');
     setSearchParams(params);
   };
 
@@ -127,6 +131,11 @@ const Browse = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchProducts(page);
+
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    setSearchParams(params);
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -289,7 +298,7 @@ const Browse = () => {
             <div className="flex items-center gap-2 flex-wrap mt-4">
               {filters.category && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                  {CATEGORIES.find(c => c.value === filters.category)?.label}
+                  {CATEGORIES.find(c => c.value === filters.category)?.label || filters.category}
                   <button
                     onClick={() => updateFilter('category', '')}
                     className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
@@ -356,7 +365,7 @@ const Browse = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
+                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
                 >
                   Previous
                 </button>
@@ -373,7 +382,7 @@ const Browse = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`min-w-[44px] px-4 py-2.5 rounded-full transition-all font-medium text-sm ${
+                          className={`min-w-[44px] px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
                             currentPage === page
                               ? 'bg-primary text-white shadow-md'
                               : 'border border-gray-200 hover:bg-surface text-main'
@@ -392,7 +401,7 @@ const Browse = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === pagination.totalPages}
-                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
+                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
                 >
                   Next
                 </button>
