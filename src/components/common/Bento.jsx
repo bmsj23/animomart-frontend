@@ -207,8 +207,6 @@ const SkeletonCategory = () => (
 const BentoBox = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [newArrivals, setNewArrivals] = useState([]);
-  const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -222,12 +220,6 @@ const BentoBox = () => {
 
       // fetch general products for bento display
       const generalData = await getProducts({ limit: 6 });
-
-      // fetch new arrivals (newest products)
-      const newArrivalsData = await getProducts({ limit: 10, sort: 'createdAt', order: 'desc' });
-
-      // fetch all products to calculate trending (products with best engagement)
-      const trendingData = await getProducts({ limit: 50 });
 
       if (generalData.success) {
         // map general products
@@ -246,49 +238,6 @@ const BentoBox = () => {
             : '/api/placeholder/400/320'
         }));
         setProducts(mappedProducts);
-
-        // map new arrivals
-        if (newArrivalsData.success) {
-          const mappedNewArrivals = newArrivalsData.data.products.map(product => ({
-            _id: product._id,
-            name: product.name,
-            price: product.price,
-            stock: product.stock,
-            seller: product.seller,
-            rating: product.averageRating || 0,
-            reviewCount: product.totalReviews || 0,
-            category: product.category,
-            createdAt: product.createdAt,
-            image: product.images && product.images.length > 0
-              ? product.images[0]
-              : '/api/placeholder/400/320'
-          }));
-          setNewArrivals(mappedNewArrivals);
-        }
-
-        // calculate trending based on engagement score
-        if (trendingData.success) {
-          const mappedTrending = trendingData.data.products
-            .map(product => ({
-              _id: product._id,
-              name: product.name,
-              price: product.price,
-              stock: product.stock,
-              seller: product.seller,
-              rating: product.averageRating || 0,
-              reviewCount: product.totalReviews || 0,
-              category: product.category,
-              createdAt: product.createdAt,
-              image: product.images && product.images.length > 0
-                ? product.images[0]
-                : '/api/placeholder/400/320',
-              // engagement score is a weighted combination of rating and reviews
-              engagementScore: (product.averageRating || 0) * 0.4 + (product.totalReviews || 0) * 0.6
-            }))
-            .sort((a, b) => b.engagementScore - a.engagementScore)
-            .slice(0, 10);
-          setTrending(mappedTrending);
-        }
       } else {
         throw new Error(generalData.message || 'Failed to fetch products');
       }
@@ -303,7 +252,7 @@ const BentoBox = () => {
   const categories = [
     {
       title: 'New Arrivals',
-      subtitle: `${newArrivals.length} fresh items`,
+      subtitle: 'Latest listings',
       icon: Sparkles,
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-900',
@@ -311,7 +260,7 @@ const BentoBox = () => {
     },
     {
       title: 'Trending',
-      subtitle: `${trending.length} popular items`,
+      subtitle: 'Popular on campus',
       icon: TrendingUp,
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-900',
