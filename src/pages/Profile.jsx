@@ -4,10 +4,11 @@ import { useToast } from "../hooks/useToast";
 import { updateMyProfile } from "../api/users";
 import { uploadProfilePicture } from "../api/upload";
 import { getMyListings } from "../api/products";
-import { getMyPurchases } from "../api/orders";
+import { getMyPurchases, getMySales } from "../api/orders";
+import { getMyReviews } from "../api/reviews";
 import { formatCurrency } from "../utils/formatCurrency";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Modal from "../components/common/Modal";
 import { User } from "lucide-react";
 
@@ -24,6 +25,7 @@ const Profile = () => {
 
   const { user, updateUser } = useAuth();
   const { success: showSuccess, error: showError } = useToast();
+  const location = useLocation();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,6 +40,14 @@ const Profile = () => {
   const [purchases, setPurchases] = useState([]);
   const [purchasesLoading, setPurchasesLoading] = useState(false);
   const [purchasesError, setPurchasesError] = useState(null);
+
+  const [sales, setSales] = useState([]);
+  const [salesLoading, setSalesLoading] = useState(false);
+  const [salesError, setSalesError] = useState(null);
+
+  const [authoredReviews, setAuthoredReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState(null);
 
   const [form, setForm] = useState({
     username: user?.username || "",
@@ -195,16 +205,21 @@ const Profile = () => {
 
         // extract purchased products from orders defensively
         const items = [];
-        orders.forEach((order) => {
-          const orderItems = order.items || order.products || order.orderItems || [];
-          if (Array.isArray(orderItems) && orderItems.length) {
-            orderItems.forEach((it) => {
-              // item might wrap a product object or be a direct product
-              const product = it.product || it.productId || it.productInfo || it;
-              if (product) items.push(product);
-            });
-          }
-        });
+        if (Array.isArray(orders)) {
+          orders.forEach((order) => {
+            const orderItems = order.items || order.products || order.orderItems || [];
+            if (Array.isArray(orderItems) && orderItems.length) {
+              orderItems.forEach((it) => {
+                // item might wrap a product object or be a direct product
+                const product = it.product || it.productId || it.productInfo || it;
+                if (product) items.push(product);
+              });
+            }
+          });
+        } else {
+          // defensive logging to help identify unexpected shapes from the backend
+          console.error('loadPurchases: expected orders array but got:', orders, 'raw response:', data);
+        }
 
         // de-duplicate by _id if present
         const unique = [];
@@ -227,6 +242,73 @@ const Profile = () => {
 
     if (activeTab === 'purchases') {
       loadPurchases();
+    }
+
+    // load sales when switching to sales tab
+    const loadSales = async () => {
+      setSalesLoading(true);
+      setSalesError(null);
+      try {
+        const data = await getMySales();
+        // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
+        const orders = Array.isArray(data) ? data : data?.orders || data?.data || [];
+
+        // flatten order items into sale entries with buyer + order metadata
+        const saleEntries = [];
+        if (Array.isArray(orders)) {
+          orders.forEach((order) => {
+            const orderItems = order.items || order.products || order.orderItems || [];
+            if (Array.isArray(orderItems) && orderItems.length) {
+              orderItems.forEach((it) => {
+                const product = it.product || it.productId || it.productInfo || it;
+                const quantity = it.quantity || it.qty || it.count || 1;
+                const price = it.price || it.amount || product?.price || order.total || 0;
+                saleEntries.push({
+                  orderId: order._id || order.id,
+                  product,
+                  buyer: order.buyer || order.customer || order.user || order.buyerInfo,
+                  quantity,
+                  price,
+                  status: order.status || order.orderStatus,
+                  createdAt: order.createdAt || order.date || order.purchasedAt,
+                });
+              });
+            }
+          });
+        } else {
+          console.error('loadSales: expected orders array but got:', orders, 'raw response:', data);
+        }
+
+        setSales(saleEntries);
+      } catch (err) {
+        setSalesError(err?.response?.data?.message || err.message || 'Failed to load sales');
+      } finally {
+        setSalesLoading(false);
+      }
+    };
+
+    if (activeTab === 'sales') {
+      loadSales();
+    }
+
+    // load authored reviews when Reviews tab is active
+    const loadAuthoredReviews = async () => {
+      setReviewsLoading(true);
+      setReviewsError(null);
+      try {
+        const data = await getMyReviews();
+        // expected shapes: array OR { reviews: [...] } OR { data: [...] }
+        const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+        setAuthoredReviews(reviews);
+      } catch (err) {
+        setReviewsError(err?.response?.data?.message || err.message || 'Failed to load reviews');
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    if (activeTab === 'reviews') {
+      loadAuthoredReviews();
     }
   }, [activeTab]);
 
@@ -255,6 +337,13 @@ const Profile = () => {
       e.preventDefault();
     }
   };
+
+  // if URL contains ?tab=... set the active tab on mount/navigation
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [location.search]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -513,7 +602,9 @@ const Profile = () => {
                 hidden={activeTab !== "purchases"}
                 tabIndex={0}
               >
-                <h2 className="text-xl font-semibold mb-4">My Purchases</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold mb-4">My Purchases</h2>
+                </div>
                 {purchasesLoading ? (
                   <LoadingSpinner size="lg" />
                 ) : purchasesError ? (
@@ -521,6 +612,7 @@ const Profile = () => {
                 ) : purchases.length === 0 ? (
                   <div className="py-8 text-center">
                     <p className="text-gray-700 mb-4">You haven't purchased any products yet.</p>
+                    <Link to="/browse" className="px-4 py-2 bg-green-600 text-white rounded-md">Browse products</Link>
                   </div>
                 ) : (
                   <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -555,12 +647,44 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Sales</h2>
-                <p className="text-gray-600">
-                  Your sales history will appear here.
-                </p>
+                {salesLoading ? (
+                  <LoadingSpinner size="lg" />
+                ) : salesError ? (
+                  <p className="text-red-600">{salesError}</p>
+                ) : sales.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-700 mb-4">You haven't made any sales yet.</p>
+                    <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-600 text-white rounded-md">View my listings</Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {sales.map((entry, idx) => (
+                      <div key={entry.orderId + '-' + idx} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-4">
+                        <div className="w-32 flex-shrink-0">
+                          <img src={entry.product?.image || entry.product?.images?.[0] || '/api/placeholder/400/320'} alt={entry.product?.name || 'Product'} className="w-full h-24 object-cover rounded" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{entry.product?.name || 'Product'}</h3>
+                          <p className="text-sm text-gray-600">Buyer: {entry.buyer?.name || entry.buyer?.email || entry.buyer?.username || 'Unknown'}</p>
+                          <div className="mt-2 flex items-center gap-4 text-sm text-gray-700">
+                            <span className="font-medium text-green-700">{formatCurrency(entry.price)}</span>
+                            <span>Qty: {entry.quantity}</span>
+                            {entry.createdAt && <span>• {new Date(entry.createdAt).toLocaleDateString()}</span>}
+                            {entry.status && <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded">{entry.status}</span>}
+                          </div>
+                        </div>
+                        <div>
+                          {entry.orderId ? (
+                            <Link to={`/orders/${entry.orderId}`} className="px-3 py-1 border rounded text-sm">View order</Link>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Reviews Tab */}
+              {/* Reviews Tab (to test pa) */}
               <div
                 id="panel-reviews"
                 role="tabpanel"
@@ -568,10 +692,39 @@ const Profile = () => {
                 hidden={activeTab !== "reviews"}
                 tabIndex={0}
               >
-                <h2 className="text-xl font-semibold mb-4">Reviews</h2>
-                <p className="text-gray-600">
-                  Reviews you've received will appear here.
-                </p>
+                <h2 className="text-xl font-semibold mb-4">My Reviews</h2>
+                {reviewsLoading ? (
+                  <LoadingSpinner size="lg" />
+                ) : reviewsError ? (
+                  <p className="text-red-600">{reviewsError}</p>
+                ) : authoredReviews.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-700 mb-4">You haven't written any reviews yet.</p>
+                    <Link to="/browse" className="px-4 py-2 bg-green-600 text-white rounded-md">Browse products</Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {authoredReviews.map((r) => (
+                      <div key={r._id || r.id || `${r.product?._id || r.product?.id}-${r.createdAt}` } className="bg-white border border-gray-100 rounded-lg p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="w-20 flex-shrink-0">
+                            <Link to={r.product?._id ? `/products/${r.product._id}` : '#'}>
+                              <img src={r.product?.image || r.product?.images?.[0] || '/api/placeholder/160/160'} alt={r.product?.name || 'Product'} className="w-full h-16 object-cover rounded" />
+                            </Link>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-sm">{r.product?.name || r.title || 'Product'}</h3>
+                              <span className="text-xs text-gray-500">{r.rating ? `${r.rating}/5` : ''}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 mt-2">{r.body || r.comment || r.text}</p>
+                            {r.createdAt && <p className="text-xs text-gray-400 mt-2">Reviewed on {new Date(r.createdAt).toLocaleDateString()}</p>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
