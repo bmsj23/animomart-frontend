@@ -87,11 +87,11 @@
   }
 
   .text-main {
-    color: #333;
+    color: rgb(var(--color-text));
   }
 
   .text-secondary {
-    color: #888;
+    color: rgb(var(--color-secondary));
   }
 
   .border-primary {

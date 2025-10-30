@@ -25,7 +25,7 @@ export const CATEGORY_DATA = [
     description: 'Campus fashion and everyday wear'
   },
   {
-    name: 'Food & Beverages',
+    name: 'Food & Drinks',
     subcategories: ['Snacks', 'Drinks', 'Meal Prep', 'Other Food'],
     image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=800&q=80',
     description: 'Snacks and drinks for busy students'
@@ -37,7 +37,7 @@ export const CATEGORY_DATA = [
     description: 'Gear for fitness and sports activities'
   },
   {
-    name: 'Others',
+    name: 'Other',
     subcategories: [],
     image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&q=80',
     description: 'Miscellaneous items and more'
