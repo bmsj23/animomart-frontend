@@ -51,10 +51,10 @@ const Search = () => {
         ) : (
           <div className="text-center py-20">
             <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">No Results Found</h3>
-            <p className="text-secondary text-base md:text-lg mb-6 font-light">
+            <p className="text-gray text-base md:text-lg mb-6 font-light">
               We couldn&apos;t find any products matching &quot;{query}&quot;
             </p>
-            <p className="text-secondary text-sm">
+            <p className="text-gray text-sm">
               Try using different keywords or browse our {" "}
               <Link to="/categories" className="font-medium text-primary hover:underline">categories</Link>.
             </p>
