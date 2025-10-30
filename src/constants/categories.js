@@ -20,7 +20,7 @@ export const CATEGORY_DATA = [
   },
   {
     name: 'Clothing',
-    subcategories: ['Shirts', 'Pants', 'Shoes', 'Other Clothing'],
+    subcategories: ['Shirts', 'Pants', 'Shorts', 'Shoes', 'Other Clothing'],
     image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80',
     description: 'Campus fashion and everyday wear'
   },
