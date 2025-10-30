@@ -4,13 +4,17 @@ import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/formatCurrency';
 import { ShoppingCart, Trash2, Plus, Minus, X } from 'lucide-react';
+import { addToFavorites } from '../api/favorites';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
 
 const Cart = () => {
   const navigate = useNavigate();
   const { cart, setCart, fetchCart, loading, updateItem, removeItem } = useCart();
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const placeholderRef = useRef(null);
+  const fixedRef = useRef(null);
+  const [fixedLeft, setFixedLeft] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' });
   const [selectedItems, setSelectedItems] = useState(new Set());
   const pendingUpdates = useRef({});
@@ -116,6 +120,44 @@ const Cart = () => {
     setDeleteConfirm({ show: true, productId, productName });
   };
 
+  const moveToWishlist = async (productId) => {
+    if (!productId) return;
+    try {
+      await addToFavorites(productId);
+      // remove from cart after adding to wishlist
+      await handleRemoveItem(productId);
+    } catch (err) {
+      console.error('Failed to move to wishlist:', err);
+      showError(err.response?.data?.message || 'Failed to move item to wishlist');
+    }
+  };
+
+  // compute fixed overlay position so it sits beside the product cards (matches placeholder)
+  useEffect(() => {
+    const updateLeft = () => {
+      if (!placeholderRef.current) return setFixedLeft(null);
+      const rect = placeholderRef.current.getBoundingClientRect();
+      setFixedLeft(Math.round(rect.left));
+    };
+
+    // initial
+    updateLeft();
+
+    // update on resize and when fonts/images load
+    window.addEventListener('resize', updateLeft);
+    window.addEventListener('orientationchange', updateLeft);
+
+    // also run after a short delay to allow layout to settle
+    const t = setTimeout(updateLeft, 250);
+
+    return () => {
+      window.removeEventListener('resize', updateLeft);
+      window.removeEventListener('orientationchange', updateLeft);
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart?.items]);
+
   const calculateTotal = () => {
     if (!cart?.items) return 0;
     return cart.items.reduce((total, item) => {
@@ -149,7 +191,7 @@ const Cart = () => {
               {cart.items.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white/60 rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 hover:shadow-xl transition-shadow relative overflow-hidden"
+                  className="bg-white/60 rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 hover:shadow-xl transition-shadow relative overflow-hidden min-h-[20vh]"
                   style={{ borderRadius: '28px' }}
                 >
                   {/* Checkbox positioned in card top-left (not on image) */}
@@ -157,74 +199,82 @@ const Cart = () => {
                     type="checkbox"
                     checked={selectedItems.has(item.product._id)}
                     onChange={() => toggleItemSelection(item.product._id)}
-                    className="absolute top-6 left-8 z-10 w-4 h-4 accent-green-600 border-gray-300 rounded cursor-pointer"
+                    className="absolute top-9 left-8 z-10 w-4 h-4 accent-green-600 border-gray-300 rounded cursor-pointer"
                     aria-label="Select item"
                   />
 
                   {/* Close button top-right */}
                   <button
                     onClick={() => confirmDelete(item.product._id, item.product?.name)}
-                    className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 p-1 rounded-full"
+                    className="absolute top-7 right-6 text-gray-600 hover:text-gray-800 p-1 rounded-full"
                     aria-label="Remove item"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
 
-                  <div className="flex flex-col md:flex-row items-start gap-6">
-                    {/* Left area: checkbox + image + offer + return policy */}
-                    <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4">
-                      <div className="flex items-start md:items-center gap-3 w-full md:w-auto">
-                        {/* (checkbox removed from beside the image; using absolute checkbox at top-left) */}
+                  {/* Per-item subtotal on the right side of the card (single line) */}
+                  <div className="absolute top-72 right-9 text-right">
+                    <div className="font-semibold text-md text-black-400">
+                      Subtotal: <span className="font-bold text-black-900 text-lg">{formatCurrency(((item.product?.price || 0) * (item.quantity || 1)))}</span>
+                    </div>
+                  </div>
 
-                        {/* Product image (with checkbox above it) */}
-                        <div className="flex-shrink-0 relative pt-3">
-                          <img
-                            src={item.product?.images?.[0] || '/EmptyCart.png'}
-                            alt={item.product?.name}
-                            className="w-40 h-32 md:w-48 md:h-40 object-cover rounded-md bg-white"
-                          />
-                        </div>
-
-                        {/* Text block to the right of image (condition on top, no size) */}
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm text-gray-800 font-medium truncate">
-                              {item.product?.name || 'Recife Logo Chromefree Sneakers'}
-                            </div>
-
-                            <div className="mt-1 text-xs text-gray-500">
-                              {item.product?.condition || 'N/A'}
-                            </div>
-                        </div>
-                      </div>
+                  {/* Grid layout: image (left) | text (right). Quantity placed in a second row under the image on md+ so it's under price but aligned beneath the image.
+                      On mobile (grid-cols-1) items stack: image, text, then quantity (so qty is under price there as well). */}
+                  <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-6 w-full items-start">
+                    {/* Left column: image + desktop-only qty (stacked) */}
+                    <div className="flex-shrink-0 relative">
+                      <img
+                        src={item.product?.images?.[0] || '/EmptyCart.png'}
+                        alt={item.product?.name}
+                        className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
+                      />
                     </div>
 
-                    {/* Right area: qty selector & price */}
-                    <div className="flex flex-col items-end justify-between ml-auto">
-                      <div className="flex items-center gap-4">
-                        {/* Quantity selector (select) */}
-                        <label className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="text-sm text-gray-600">Qty:</span>
-                          <select
-                            value={item.quantity}
-                            onChange={(e) => handleUpdateQuantity(item.product._id, Number(e.target.value))}
-                            className="px-3 py-1 border border-gray-200 rounded-md bg-white text-sm cursor-pointer"
+                    {/* Text block: name, condition, price (and mobile qty below price) */}
+                    <div className="min-w-0">
+                      <div className="mt-6 text-base md:text-lg text-black font-semibold truncate">
+                        {item.product?.name || 'Recife Logo Chromefree Sneakers'}
+                      </div>
+
+                      <div className="text-md text-gray-500">
+                        {item.product?.condition || 'N/A'}
+                      </div>
+
+                      <div className="mt-2 text-base md:text-md font-semibold text-black-900">
+                        {formatCurrency(item.product?.price || 0)}
+                      </div>
+
+                      {/* Quantity: keep in DOM under price, but position under image visually on md+ */}
+                      <div className="mt-3 md:mt-29 md:col-start-1 md:row-start-2">
+                        <div className="text-md font-semibold text-black mb-1">Quantity</div>
+
+                        <div className="inline-flex items-center border border-gray-200 rounded-md overflow-hidden bg-white">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(item.product._id, Math.max(1, item.quantity - 1))}
+                            disabled={item.quantity <= 1}
+                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Decrease quantity"
                           >
-                            {Array.from({ length: Math.max(5, item.product?.stock || 5) }).map((_, i) => (
-                              <option key={i + 1} value={i + 1}>
-                                {i + 1}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                            <Minus className="w-4 h-4" /> 
+                          </button>
 
-                        {/* Price */}
-                        <div className="text-right">
-                          <div className="text-lg font-semibold text-gray-800">{formatCurrency(item.product?.price || 0)}</div>
+                          <div className="px-4 py-1 text-sm font-semibold text-gray-900">{item.quantity}</div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(item.product._id, Math.min(item.product?.stock || 99, item.quantity + 1))}
+                            disabled={item.product?.stock ? item.quantity >= item.product.stock : false}
+                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
-
-                      {/* offer and return removed per user request */}
                     </div>
+                    {/* end grid */}
                   </div>
                 </div>
               ))}
@@ -233,18 +283,29 @@ const Cart = () => {
 
         {/* Right: Order Summary (beside items on desktop) */}
         <div className="w-full md:self-start">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:sticky md:top-24">
+          {/* Placeholder: visible on mobile, invisible but occupying space on md+ so we can measure its position */}
+          <div
+            ref={placeholderRef}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:invisible md:h-[auto] md:w-[360px]"
+          >
             <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
-                <span>Subtotal ({selectedItems.size} selected items)</span>
-                <span>{formatCurrency(calculateTotal())}</span>
+                <span className="text-black">{selectedItems.size} Selected Item(s)</span>
+                <span className="text-black">{formatCurrency(calculateTotal())}</span>
               </div>
+
               <div className="flex justify-between text-gray-600">
-                <span>Shipping</span>
-                <span className="text-green-600">Free</span>
+                <span className="text-black">Subtotal</span>
+                <span className="text-black">{formatCurrency(calculateTotal())}</span>
               </div>
+
+              <div className="flex justify-between text-gray-600">
+                <span className="text-black">Shipping</span>
+                <span className="text-black">Free</span>
+              </div>
+
               <div className="border-t border-gray-200 pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-gray-900">Total</span>
@@ -269,6 +330,58 @@ const Cart = () => {
             >
               Continue Shopping
             </button>
+          </div>
+
+          {/* Fixed overlay: visible on md+ and positioned to match placeholder */}
+          <div
+            ref={fixedRef}
+            className="hidden md:block fixed top-43.5 z-50"
+            style={{ left: fixedLeft !== null ? `${fixedLeft}px` : 'auto', width: '360px' }}
+          >
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-gray-600">
+                  <span className="font-medium text-black">{selectedItems.size} Selected Item(s)</span>
+                  <span className="font-medium text-black">{formatCurrency(calculateTotal())}</span>
+                </div>
+
+                <div className="flex justify-between text-gray-600">
+                  <span className="text-black">Subtotal</span>
+                  <span className="text-black">{formatCurrency(calculateTotal())}</span>
+                </div>
+
+                <div className="flex justify-between text-gray-600">
+                  <span className="text-black">Shipping</span>
+                  <span className="text-black">Free</span>
+                </div>
+
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      {formatCurrency(calculateTotal())}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => navigate('/checkout')}
+                disabled={selectedItems.size === 0}
+                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Proceed to Checkout
+              </button>
+
+              <button
+                onClick={() => navigate('/')}
+                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+              >
+                Continue Shopping
+              </button>
+            </div>
           </div>
         </div>
         </div>
@@ -298,16 +411,16 @@ const Cart = () => {
           </p>
           <div className="flex gap-3 justify-end">
             <button
-              onClick={() => setDeleteConfirm({ show: false, productId: null, productName: '' })}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
               onClick={() => handleRemoveItem(deleteConfirm.productId)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               Remove
+            </button>
+            <button
+              onClick={() => moveToWishlist(deleteConfirm.productId)}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Move to Wishlist
             </button>
           </div>
         </div>
