@@ -23,7 +23,7 @@ const Search = () => {
             Search Results
           </h1>
           {query && (
-            <p className="text-secondary text-base md:text-lg font-light">
+            <p className="text-gray text-base md:text-lg font-light">
               Showing {products.length} {products.length === 1 ? 'result' : 'results'} for &quot;{query}&quot;
             </p>
           )}
@@ -38,7 +38,7 @@ const Search = () => {
         ) : !query ? (
           <div className="text-center py-20">
             <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">Start Searching</h3>
-            <p className="text-secondary text-base md:text-lg font-light">
+            <p className="text-gray text-base md:text-lg font-light">
               Use the search bar above to find products
             </p>
           </div>

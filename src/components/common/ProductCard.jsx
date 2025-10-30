@@ -108,7 +108,7 @@ const ProductCard = ({ product }) => {
               <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
             ))}
           </div>
-          <span className="text-xs text-secondary">(24)</span>
+          <span className="text-xs text-gray">(24)</span>
         </div>
         */}
 
