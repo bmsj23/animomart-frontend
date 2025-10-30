@@ -99,10 +99,6 @@ const ProductCard = ({ product }) => {
           {product.name}
         </h3>
 
-        {/* subtitle */}
-        <p className="text-sm text-secondary italic leading-relaxed line-clamp-1">
-          {product.condition}
-        </p>
 
         {/* star rating + review count */}
         {/* uncomment nalang when reviews are already implemented....
