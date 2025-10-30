@@ -12,9 +12,6 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cart, setCart, fetchCart, loading, updateItem, removeItem } = useCart();
   const { error: showError } = useToast();
-  const placeholderRef = useRef(null);
-  const fixedRef = useRef(null);
-  const [fixedLeft, setFixedLeft] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' });
   const [selectedItems, setSelectedItems] = useState(new Set());
   const pendingUpdates = useRef({});
@@ -131,31 +128,6 @@ const Cart = () => {
       showError(err.response?.data?.message || 'Failed to move item to wishlist');
     }
   };
-
-  // compute fixed overlay position so it sits beside the product cards (matches placeholder)
-  useEffect(() => {
-    const updateLeft = () => {
-      if (!placeholderRef.current) return setFixedLeft(null);
-      const rect = placeholderRef.current.getBoundingClientRect();
-      setFixedLeft(Math.round(rect.left));
-    };
-
-    // initial
-    updateLeft();
-
-    // update on resize and when fonts/images load
-    window.addEventListener('resize', updateLeft);
-    window.addEventListener('orientationchange', updateLeft);
-
-    // also run after a short delay to allow layout to settle
-    const t = setTimeout(updateLeft, 250);
-
-    return () => {
-      window.removeEventListener('resize', updateLeft);
-      window.removeEventListener('orientationchange', updateLeft);
-      clearTimeout(t);
-    };
-  }, [cart?.items]);
 
   const calculateTotal = () => {
     if (!cart?.items) return 0;
@@ -282,11 +254,7 @@ const Cart = () => {
 
         {/* Right: Order Summary (beside items on desktop) */}
         <div className="w-full md:self-start">
-          {/* Placeholder: visible on mobile, invisible but occupying space on md+ so we can measure its position */}
-          <div
-            ref={placeholderRef}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:invisible md:h-[auto] md:w-[360px]"
-          >
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:sticky md:top-24">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
             <div className="space-y-3 mb-6">
@@ -329,58 +297,6 @@ const Cart = () => {
             >
               Continue Shopping
             </button>
-          </div>
-
-          {/* Fixed overlay: visible on md+ and positioned to match placeholder */}
-          <div
-            ref={fixedRef}
-            className="hidden md:block fixed top-43.5 z-50"
-            style={{ left: fixedLeft !== null ? `${fixedLeft}px` : 'auto', width: '360px' }}
-          >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span className="font-medium text-black">{selectedItems.size} Selected Item(s)</span>
-                  <span className="font-medium text-black">{formatCurrency(calculateTotal())}</span>
-                </div>
-
-                <div className="flex justify-between text-gray-600">
-                  <span className="text-black">Subtotal</span>
-                  <span className="text-black">{formatCurrency(calculateTotal())}</span>
-                </div>
-
-                <div className="flex justify-between text-gray-600">
-                  <span className="text-black">Shipping</span>
-                  <span className="text-black">Free</span>
-                </div>
-
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-green-600">
-                      {formatCurrency(calculateTotal())}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => navigate('/checkout')}
-                disabled={selectedItems.size === 0}
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
-
-              <button
-                onClick={() => navigate('/')}
-                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
-              >
-                Continue Shopping
-              </button>
-            </div>
           </div>
         </div>
         </div>
