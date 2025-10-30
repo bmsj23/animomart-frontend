@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import SearchBar from './SearchBar';
@@ -119,12 +119,18 @@ const Navbar = () => {
 
             {/* Profile avatar matching search height */}
             <div ref={profileRef} className="relative">
-              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn hover:cursor-pointer">
-                <img
-                  src={user?.profilePicture || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=60'}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn hover:cursor-pointer bg-gray-200">
+                {(user?.profilePicture || user?.picture) ? (
+                  <img
+                    src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                    <User className="w-7 h-7 text-gray-500" />
+                  </div>
+                )}
               </button>
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
@@ -196,11 +202,17 @@ const Navbar = () => {
                 {/* profile section */}
                 <div className="mb-8 pt-2">
                   <div className="flex items-center gap-4">
-                    <img
-                      src={user?.profilePicture || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=60'}
-                      alt="Profile"
-                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                    />
+                    {(user?.profilePicture || user?.picture) ? (
+                      <img
+                        src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                        alt="Profile"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-300 border-2 border-gray-200">
+                        <User className="w-8 h-8 text-gray-500" />
+                      </div>
+                    )}
                     <div>
                       <p className="font-semibold text-gray-900">{user?.name || 'User'}</p>
                       <p className="text-sm text-gray-500">{user?.email}</p>
