@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Heart, ShoppingCart, Filter, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { getProducts } from '../api/products';
-import { useCart } from '../hooks/useCart';
-import { useFavorites } from '../hooks/useFavorites';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { formatCurrency } from '../utils/formatCurrency';
+import ProductCard from '../components/common/ProductCard';
 
 const CATEGORIES = [
   { value: '', label: 'All Categories' },
@@ -21,7 +17,7 @@ const CATEGORIES = [
 
 const CONDITIONS = [
   { value: '', label: 'All Conditions' },
-  { value: 'New', label: 'Brand New' },
+  { value: 'Brand New', label: 'Brand New' },
   { value: 'Like New', label: 'Like New' },
   { value: 'Good', label: 'Good' },
   { value: 'Fair', label: 'Fair' }
@@ -30,128 +26,9 @@ const CONDITIONS = [
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' }
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' }
 ];
-
-// Product Card component
-const ProductCard = ({ product }) => {
-  const { user } = useAuth();
-  const { addItem, cart } = useCart();
-  const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
-  const { error: showError } = useToast();
-  const [isAdding, setIsAdding] = useState(false);
-  const [justAdded, setJustAdded] = useState(false);
-
-  const isFavorited = favorites?.some(fav => {
-    const favProductId = fav._id || fav.product?._id || fav.product;
-    return favProductId === product._id;
-  });
-  const isOwnProduct = product.seller && user?._id &&
-    (user._id === product.seller._id || user._id === product.seller);
-
-  const handleAddToCart = async (e) => {
-    e.stopPropagation();
-    if (isAdding || product.stock === 0) return;
-
-    const cartItem = cart?.items?.find(item => item.product._id === product._id);
-    const currentQuantityInCart = cartItem ? cartItem.quantity : 0;
-
-    if (currentQuantityInCart + 1 > product.stock) {
-      showError(`Cannot add more. Only ${product.stock - currentQuantityInCart} remaining.`);
-      return;
-    }
-
-    try {
-      setIsAdding(true);
-      await addItem(product._id, 1);
-    } catch (error) {
-      showError(error.message || 'Failed to add to cart');
-    } finally {
-      setTimeout(() => setIsAdding(false), 2000);
-    }
-  };
-
-  const handleFavorite = async (e) => {
-    e.stopPropagation();
-    try {
-      if (isFavorited) {
-        await removeFromFavorites(product._id);
-      } else {
-        await addToFavorites(product._id);
-        setJustAdded(true);
-        setTimeout(() => setJustAdded(false), 2000);
-      }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update favorites';
-      showError(errorMessage);
-    }
-  };
-
-  return (
-    <Link
-      to={`/products/${product._id}`}
-      className="group bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
-    >
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
-        <img
-          src={product.images?.[0] || '/api/placeholder/400/400'}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-
-        {!isOwnProduct && (
-          <button
-            onClick={handleFavorite}
-            className={`absolute top-2 right-2 sm:top-3 sm:right-3 p-2 rounded-full backdrop-blur-md transition-all duration-300 ${
-              isFavorited
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-white/90 text-gray-700 hover:bg-white'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''} ${justAdded ? 'animate-bounce' : ''}`} />
-          </button>
-        )}
-
-        {product.stock === 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-1 bg-green-600/90 backdrop-blur-md rounded-lg text-xs font-medium text-white">
-            Out of stock
-          </div>
-        )}
-      </div>
-
-      <div className="p-3 md:p-4">
-        <h3 className="font-medium text-gray-900 text-sm md:text-base mb-1.5 line-clamp-2 min-h-[2.5rem]">
-          {product.name}
-        </h3>
-
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-lg md:text-xl font-bold text-gray-900">
-            {formatCurrency(product.price)}
-          </span>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={isAdding || product.stock === 0}
-            className={`p-2 rounded-lg transition-all duration-300 text-sm md:text-base ${
-              isAdding
-                ? 'bg-green-600 text-white'
-                : product.stock === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-            {isAdding ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <ShoppingCart className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-      </div>
-    </Link>
-  );
-};
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -159,7 +36,8 @@ const Browse = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const filterRef = useRef(null);
 
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
@@ -183,12 +61,16 @@ const Browse = () => {
         limit: 16,
         ...(filters.category && { category: filters.category }),
         ...(filters.condition && { condition: filters.condition }),
-        ...(filters.minPrice && { minPrice: filters.minPrice }),
-        ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
-        sort: filters.sort
+        ...(filters.minPrice && { minPrice: Number(filters.minPrice) }),
+        ...(filters.maxPrice && { maxPrice: Number(filters.maxPrice) })
       };
       const response = await getProducts(params);
-      setProducts(response.data.products || []);
+
+      // client-side sorting
+      let fetchedProducts = response.data.products || [];
+      fetchedProducts = sortProducts(fetchedProducts, filters.sort);
+
+      setProducts(fetchedProducts);
       setPagination(response.data.pagination || {});
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -197,8 +79,30 @@ const Browse = () => {
     }
   };
 
+  // client-side sort function
+  const sortProducts = (productsArray, sortMethod) => {
+    const sorted = [...productsArray];
+    switch (sortMethod) {
+      case 'price-low':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'price-high':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'oldest':
+        return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case 'newest':
+      default:
+        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  };
+
   const updateFilter = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
+
+    let processedValue = value;
+    if ((key === 'minPrice' || key === 'maxPrice') && value) {
+      processedValue = parseFloat(value) || '';
+    }
+
+    const newFilters = { ...filters, [key]: processedValue };
     setFilters(newFilters);
 
     const params = new URLSearchParams();
@@ -217,6 +121,7 @@ const Browse = () => {
       sort: 'newest'
     });
     setSearchParams({});
+    setShowFilters(false);
   };
 
   const handlePageChange = (page) => {
@@ -225,121 +130,221 @@ const Browse = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const hasActiveFilters = filters.category || filters.condition || filters.minPrice || filters.maxPrice;
 
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.condition) count++;
+    if (filters.minPrice) count++;
+    if (filters.maxPrice) count++;
+    return count;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-surface">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Browse All Products</h1>
-          <p className="text-gray-600 mt-1">
+        <div className="mb-10 md:mb-12">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-main mb-3 tracking-tight">Browse All Products</h1>
+          <p className="text-secondary text-base md:text-lg font-light">
             Showing {products.length} of {pagination.totalProducts || 0} products
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 mb-8">
-          <div className="md:hidden mb-4">
-            <button
-              onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-green-50 text-green-700 rounded-lg font-medium hover:bg-green-100 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Filter className="w-5 h-5" />
-                Filters {hasActiveFilters && `(${[filters.category, filters.condition, filters.minPrice, filters.maxPrice].filter(Boolean).length})`}
-              </span>
-              <X className={`w-5 h-5 transition-transform ${showMobileFilters ? 'rotate-90' : ''}`} />
-            </button>
-          </div>
+        <div className="mb-10 pb-6 border-b border-gray-200">
+          <div className="flex items-center justify-between gap-4">
+            <div className="relative" ref={filterRef}>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 text-main hover:text-primary transition-colors text-sm tracking-wide hover:cursor-pointer"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="font-medium">
+                  Filter and Sort
+                  {hasActiveFilters && ` (${getActiveFilterCount()})`}
+                </span>
+              </button>
 
-          <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => updateFilter('category', e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                </select>
-              </div>
+              {showFilters && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[320px] overflow-hidden animate-fade-in">
+                  <div className="p-4 space-y-4 max-h-[80vh] overflow-y-auto">
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-                <select
-                  value={filters.condition}
-                  onChange={(e) => updateFilter('condition', e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                >
-                  {CONDITIONS.map(cond => (
-                    <option key={cond.value} value={cond.value}>{cond.label}</option>
-                  ))}
-                </select>
-              </div>
+                    {/* sort section */}
+                    <div>
+                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Sort by</p>
+                      <div className="space-y-1">
+                        {SORT_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => {
+                              updateFilter('sort', opt.value);
+                              setShowFilters(false);
+                            }}
+                            className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
+                              filters.sort === opt.value ? 'bg-primary text-white' : 'text-main hover:bg-surface'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Min Price</label>
-                <input
-                  type="number"
-                  value={filters.minPrice}
-                  onChange={(e) => updateFilter('minPrice', e.target.value)}
-                  placeholder="₱0"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                />
-              </div>
+                    <div className="h-px bg-gray-200" />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
-                <input
-                  type="number"
-                  value={filters.maxPrice}
-                  onChange={(e) => updateFilter('maxPrice', e.target.value)}
-                  placeholder="₱10,000"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                />
-              </div>
+                    {/* category filter */}
+                    <div>
+                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Category</p>
+                      <select
+                        value={filters.category}
+                        onChange={(e) => updateFilter('category', e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm hover:cursor-pointer"
+                      >
+                        {CATEGORIES.map(cat => (
+                          <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                <select
-                  value={filters.sort}
-                  onChange={(e) => updateFilter('sort', e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                >
-                  {SORT_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
+                    {/* condition filter */}
+                    <div>
+                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Condition</p>
+                      <select
+                        value={filters.condition}
+                        onChange={(e) => updateFilter('condition', e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm hover:cursor-pointer"
+                      >
+                        {CONDITIONS.map(cond => (
+                          <option key={cond.value} value={cond.value}>{cond.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* price range */}
+                    <div>
+                      <p className="text-xs font-medium text-secondary uppercase tracking-wider mb-2 px-1">Price Range</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          value={filters.minPrice}
+                          onChange={(e) => updateFilter('minPrice', e.target.value)}
+                          placeholder="Min ₱"
+                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm"
+                        />
+                        <input
+                          type="number"
+                          value={filters.maxPrice}
+                          onChange={(e) => updateFilter('maxPrice', e.target.value)}
+                          placeholder="Max ₱"
+                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* clear filters button */}
+                    {hasActiveFilters && (
+                      <>
+                        <div className="h-px bg-gray-200" />
+                        <button
+                          onClick={clearFilters}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-primary hover:bg-surface rounded-lg transition-colors font-medium text-sm hover:cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                          Clear all filters
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="mt-4 flex items-center gap-2 text-green-600 hover:text-green-700 font-medium text-sm transition-colors"
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors text-sm font-medium hover:cursor-pointer"
               >
                 <X className="w-4 h-4" />
-                Clear all filters
+                Clear Filters
               </button>
             )}
           </div>
+
+          {/* active filter indicators */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-2 flex-wrap mt-4">
+              {filters.category && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                  {CATEGORIES.find(c => c.value === filters.category)?.label}
+                  <button
+                    onClick={() => updateFilter('category', '')}
+                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {filters.condition && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                  {CONDITIONS.find(c => c.value === filters.condition)?.label}
+                  <button
+                    onClick={() => updateFilter('condition', '')}
+                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {filters.minPrice && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                  Min: ₱{filters.minPrice}
+                  <button
+                    onClick={() => updateFilter('minPrice', '')}
+                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {filters.maxPrice && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                  Max: ₱{filters.maxPrice}
+                  <button
+                    onClick={() => updateFilter('maxPrice', '')}
+                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-xl h-80 animate-pulse" />
+              <div key={i} className="bg-gray-100 rounded-sm h-80 animate-pulse" />
             ))}
           </div>
         ) : products.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {products.map(product => (
                 <ProductCard key={product._id} product={product} />
               ))}
@@ -347,16 +352,16 @@ const Browse = () => {
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
+              <div className="flex items-center justify-center gap-2 mt-12">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
                 >
                   Previous
                 </button>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   {[...Array(pagination.totalPages)].map((_, i) => {
                     const page = i + 1;
                     if (
@@ -368,17 +373,17 @@ const Browse = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`px-4 py-2 rounded-lg transition-colors ${
+                          className={`min-w-[44px] px-4 py-2.5 rounded-full transition-all font-medium text-sm ${
                             currentPage === page
-                              ? 'bg-green-600 text-white hover:bg-green-700'
-                              : 'border border-gray-300 hover:bg-gray-50'
+                              ? 'bg-primary text-white shadow-md'
+                              : 'border border-gray-200 hover:bg-surface text-main'
                           }`}
                         >
                           {page}
                         </button>
                       );
                     } else if (page === currentPage - 2 || page === currentPage + 2) {
-                      return <span key={page} className="px-2">...</span>;
+                      return <span key={page} className="px-2 text-secondary">...</span>;
                     }
                     return null;
                   })}
@@ -387,7 +392,7 @@ const Browse = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === pagination.totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
                 >
                   Next
                 </button>
@@ -396,12 +401,12 @@ const Browse = () => {
           </>
         ) : (
           <div className="text-center py-20">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600 mb-4">Try adjusting your filters or check back later</p>
+            <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">No products found</h3>
+            <p className="text-secondary text-base md:text-lg mb-6 font-light">Try adjusting your filters or check back later</p>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-green-600 hover:text-green-700 font-medium"
+                className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Clear all filters
               </button>
