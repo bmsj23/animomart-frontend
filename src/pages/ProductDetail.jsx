@@ -23,6 +23,7 @@ const ProductDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     fetchProduct();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -125,7 +126,9 @@ const ProductDetail = () => {
         <nav className="flex text-sm text-gray-500">
           <Link to="/" className="hover:text-green-600">Home</Link>
           <span className="mx-2">/</span>
-          <Link to={`/?category=${product.category?.toLowerCase()}`} className="hover:text-green-600">
+          <Link to="/browse" className="hover:text-green-600">Browse</Link>
+          <span className="mx-2">/</span>
+          <Link to={`/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-green-600">
             {formatCategory(product.category)}
           </Link>
           <span className="mx-2">/</span>
