@@ -45,7 +45,7 @@ const ProductCard = ({ product }) => {
       className="group cursor-pointer"
     >
       {/* product image*/}
-      <div className="relative bg-white rounded-sm overflow-hidden mb-4 shadow-sm hover:shadow-xl transition-shadow duration-300 ease-in-out"
+      <div className="relative bg-white rounded-2xl overflow-hidden mb-4 shadow-sm hover:shadow-xl transition-shadow duration-300 ease-in-out"
            style={{ aspectRatio: '4/5' }}
       >
         {/* image with hover zoom */}

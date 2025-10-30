@@ -67,3 +67,25 @@ export const createProductReview = async (id, reviewData) => {
   const response = await api.post(`/products/${id}/reviews`, reviewData);
   return response.data;
 };
+
+// get similar products (vector embeddings)
+export const getSimilarProducts = async (id, params = {}) => {
+  const response = await api.get(`/products/${id}/similar`, { params });
+  return response.data;
+};
+
+// semantic search (vector embeddings)
+export const semanticSearch = async (query, params = {}) => {
+  const response = await api.get('/search/semantic', {
+    params: { q: query, ...params }
+  });
+  return response.data;
+};
+
+// hybrid search (keyword + vector embeddings)
+export const hybridSearch = async (query, params = {}) => {
+  const response = await api.get('/search/hybrid', {
+    params: { q: query, ...params }
+  });
+  return response.data;
+};

@@ -217,26 +217,29 @@ const BentoBox = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await getProducts({ limit: 6 });
 
-      if (data.success) {
-        // backend products mapping for component structure matching
-        const mappedProducts = data.data.products.map(product => ({
+      // fetch general products for bento display
+      const generalData = await getProducts({ limit: 6 });
+
+      if (generalData.success) {
+        // map general products
+        const mappedProducts = generalData.data.products.map(product => ({
           _id: product._id,
           name: product.name,
           price: product.price,
           stock: product.stock,
           seller: product.seller,
-          rating: product.averageRating || 4.5,
+          rating: product.averageRating || 0,
           reviewCount: product.totalReviews || 0,
           category: product.category,
+          createdAt: product.createdAt,
           image: product.images && product.images.length > 0
             ? product.images[0]
             : '/api/placeholder/400/320'
         }));
         setProducts(mappedProducts);
       } else {
-        throw new Error(data.message || 'Failed to fetch products');
+        throw new Error(generalData.message || 'Failed to fetch products');
       }
       setLoading(false);
     } catch (err) {
@@ -249,7 +252,7 @@ const BentoBox = () => {
   const categories = [
     {
       title: 'New Arrivals',
-      subtitle: 'Fresh collections',
+      subtitle: 'Latest listings',
       icon: Sparkles,
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-900',
@@ -261,7 +264,7 @@ const BentoBox = () => {
       icon: TrendingUp,
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-900',
-      onClick: () => navigate('/browse?sort=popular')
+      onClick: () => navigate('/browse?sort=trending')
     },
     {
       title: 'Electronics',
