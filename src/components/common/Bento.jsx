@@ -93,21 +93,21 @@ const ProductCard = ({ product }) => {
 
         {/* badges */}
         {product.stock === 0 && (
-          <div className="absolute top-3 left-3 px-4 py-1.5 bg-black/90 backdrop-blur-sm rounded-full text-xs font-medium text-white tracking-wide z-[5]">
+          <div className="absolute top-3 left-3 px-4 py-1.5 bg-black/90 backdrop-blur-sm rounded-full text-xs font-medium text-white tracking-wide z-5">
             Sold Out
           </div>
         )}
 
         {/* own product badge */}
         {isOwnProduct && (
-          <div className="absolute top-3 left-3 px-4 py-1.5 bg-primary rounded-full text-xs font-medium text-white tracking-wide z-[5]">
+          <div className="absolute top-3 left-3 px-4 py-1.5 bg-primary rounded-full text-xs font-medium text-white tracking-wide z-5">
             Your Listing
           </div>
         )}
 
         {/* hover overlay */}
         <div
-          className={`hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent transition-all duration-700 ease-out ${
+          className={`hidden md:block absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/85 to-transparent transition-all duration-700 ease-out ${
             isHovered ? 'h-2/5' : 'h-0'
           }`}
         >
@@ -137,7 +137,7 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* mobile */}
-        <div className="md:hidden absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4">
+        <div className="md:hidden absolute bottom-0 inset-x-0 bg-linear-to-t from-black via-black/80 to-transparent p-4">
           <h3 className="font-serif text-white text-sm font-normal line-clamp-1 mb-1.5 tracking-tight drop-shadow-lg">
             {product.name}
           </h3>

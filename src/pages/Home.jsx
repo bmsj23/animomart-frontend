@@ -345,7 +345,7 @@ const Home = () => {
 
         {/* {browse all cta} */}
         <div className="relative bg-surface rounded-sm border border-gray-100 p-12 md:p-16 text-center overflow-hidden mt-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-accent/5" />
 
           <div className="relative z-10">
             <h3 className="font-serif text-3xl md:text-5xl text-main mb-4 tracking-tight">

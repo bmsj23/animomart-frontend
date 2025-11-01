@@ -15,7 +15,7 @@ const Categories = () => {
           </p>
 
           {/* subtle divider line */}
-          <div className="mt-8 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="mt-8 mx-auto w-16 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
         </div>
 
         {/* category grid */}
