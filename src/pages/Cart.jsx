@@ -284,18 +284,30 @@ const Cart = () => {
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-6 w-full items-start">
                     {/* Left column: image + desktop-only qty (stacked) */}
                     <div className="shrink-0 relative">
-                      <img
-                        src={item.product?.images?.[0] || '/EmptyCart.png'}
-                        alt={item.product?.name}
-                        className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/products/${item.product._id}`)}
+                        className="block focus:outline-none cursor-pointer"
+                        aria-label={`View ${item.product?.name}`}
+                      >
+                        <img
+                          src={item.product?.images?.[0] || '/EmptyCart.png'}
+                          alt={item.product?.name}
+                          className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
+                        />
+                      </button>
                     </div>
 
                     {/* Text block: name, condition, price (and mobile qty below price) */}
                     <div className="min-w-0">
-                      <div className="mt-6 text-base md:text-lg text-black font-semibold truncate">
-                        {item.product?.name || 'Recife Logo Chromefree Sneakers'}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/products/${item.product._id}`)}
+                        className="mt-6 text-base md:text-lg text-black font-semibold truncate text-left focus:outline-none cursor-pointer"
+                        aria-label={`View ${item.product?.name}`}
+                      >
+                        {item.product?.name}
+                      </button>
 
                       <div className="text-md text-gray-500">
                         {item.product?.condition || 'N/A'}
