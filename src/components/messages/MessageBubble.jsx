@@ -104,7 +104,7 @@ const MessageBubble = ({
 
           {/* text content */}
           {(message.content || message.messageText || message.text) && (
-            <p className="break-words text-sm sm:text-base">
+            <p className="wrap-break-word text-sm sm:text-base">
               {message.content || message.messageText || message.text}
             </p>
           )}

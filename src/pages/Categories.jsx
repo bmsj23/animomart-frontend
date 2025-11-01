@@ -4,7 +4,7 @@ import CategoryCard from '../components/common/CategoryCard';
 const Categories = () => {
   return (
     <div className="min-h-screen bg-surface">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* header */}
         <div className="mb-16 text-center">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-main mb-4 tracking-tight">
@@ -15,7 +15,7 @@ const Categories = () => {
           </p>
 
           {/* subtle divider line */}
-          <div className="mt-8 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="mt-8 mx-auto w-16 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
         </div>
 
         {/* category grid */}

@@ -11,12 +11,12 @@ const MessageInput = ({
   onTyping
 }) => {
   return (
-    <div className="p-3 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0">
+    <div className="p-3 sm:p-4 border-t border-gray-200 bg-white shrink-0">
       {/* image previews */}
       {imagePreviews.length > 0 && (
         <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
           {imagePreviews.map((preview, index) => (
-            <div key={index} className="relative flex-shrink-0">
+            <div key={index} className="relative shrink-0">
               <img
                 src={preview}
                 alt={`Preview ${index + 1}`}
@@ -35,7 +35,7 @@ const MessageInput = ({
 
       <form onSubmit={onSubmit} className="flex items-end gap-2">
         {/* image upload */}
-        <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+        <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
           <ImageIcon className="w-5 h-5 text-gray-600" />
           <input
             type="file"
@@ -64,7 +64,7 @@ const MessageInput = ({
         <button
           type="submit"
           disabled={sending || (!messageText.trim() && imagePreviews.length === 0)}
-          className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />

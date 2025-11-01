@@ -390,7 +390,7 @@ const Browse = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`min-w-[44px] px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
+                          className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
                             currentPage === page
                               ? 'bg-primary text-white shadow-md'
                               : 'border border-gray-200 hover:bg-surface text-main'
