@@ -192,7 +192,7 @@ const Cart = () => {
           <button
             onClick={deleteSelected}
             disabled={selectedItems.size === 0}
-            className="text-md text-gray-600 hover:underline disabled"
+            className="text-md text-black-600 hover:underline disabled cursor-pointer"
           >
             Delete
           </button>
