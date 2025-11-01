@@ -1,34 +1,34 @@
 import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useFavorites } from '../../hooks/useFavorites';
+import { useWishlist } from '../../hooks/useWishlist';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   const isOwnProduct = () => {
     return product.seller && user?._id &&
       (user._id === product.seller._id || user._id === product.seller);
   };
 
-  const isFavorited = () => {
-    return favorites.some(fav => fav._id === product._id);
+  const isInWishlist = () => {
+    return wishlist.some(item => item._id === product._id);
   };
 
   const handleFavorite = async (e) => {
     e.stopPropagation(); // prevent navigation when clicking favorite
-    const isFav = isFavorited();
+    const inWishlist = isInWishlist();
     try {
-      if (isFav) {
-        await removeFromFavorites(product._id);
+      if (inWishlist) {
+        await removeFromWishlist(product._id);
       } else {
-        await addToFavorites(product._id);
+        await addToWishlist(product._id);
       }
     } catch (error) {
-      console.error('failed to update favorites:', error);
+      console.error('failed to update wishlist:', error);
     }
   };
 
@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
   };
 
   const isOwn = isOwnProduct();
-  const isFav = isFavorited();
+  const inWishlist = isInWishlist();
 
   return (
     <div
@@ -66,7 +66,7 @@ const ProductCard = ({ product }) => {
 
         {/* top-left badge pill*/}
         {isOwn && (
-          <div className="absolute top-3 left-3 px-4 py-1.5 bg-primary rounded-full text-xs font-medium text-white tracking-wide z-[5]">
+          <div className="absolute top-3 left-3 px-4 py-1.5 bg-primary rounded-full text-xs font-medium text-white tracking-wide z-5">
             Your Listing
           </div>
         )}
@@ -82,12 +82,12 @@ const ProductCard = ({ product }) => {
           <button
             onClick={handleFavorite}
             className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all duration-300 z-10 hover:cursor-pointer ${
-              isFav
+              inWishlist
                 ? 'bg-white/95 text-red-500'
                 : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
             }`}
           >
-            <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+            <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
           </button>
         )}
       </div>
