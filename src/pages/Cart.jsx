@@ -4,7 +4,7 @@ import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/formatCurrency';
 import { ShoppingCart, Trash2, Plus, Minus, X } from 'lucide-react';
-import { addToFavorites } from '../api/favorites';
+import { addToWishlist } from '../api/wishlist';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
 
@@ -130,12 +130,12 @@ const Cart = () => {
   const moveToWishlist = async (productId) => {
     if (!productId) return;
     try {
-      await addToFavorites(productId);
+      await addToWishlist(productId);
       // remove from cart after adding to wishlist
       await handleRemoveItem(productId);
     } catch (err) {
-      console.error('Failed to move to wishlist:', err);
-      showError(err.response?.data?.message || 'Failed to move item to wishlist');
+      console.error('failed to move to wishlist:', err);
+      showError(err.response?.data?.message || 'failed to move item to wishlist');
     }
   };
 
@@ -165,15 +165,15 @@ const Cart = () => {
     // close modal
     setBulkDeleteConfirm({ show: false });
     try {
-      // add to favorites first
-      await Promise.all(ids.map(id => addToFavorites(id)));
+      // add to wishlist first
+      await Promise.all(ids.map(id => addToWishlist(id)));
       // then remove from cart on server
       await Promise.all(ids.map(id => removeItem(id)));
     } catch (err) {
       // revert on error
       setCart(previousCart);
-      console.error('Failed to move selected items to wishlist:', err);
-      showError(err.response?.data?.message || 'Failed to move selected items to wishlist');
+      console.error('failed to move selected items to wishlist:', err);
+      showError(err.response?.data?.message || 'failed to move selected items to wishlist');
     }
   };
 
