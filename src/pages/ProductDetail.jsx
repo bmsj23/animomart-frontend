@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { getProduct, getSimilarProducts } from '../api/products';
 import { addToCart } from '../api/cart';
-import { addToFavorites, removeFromFavorites } from '../api/favorites';
+import { addToWishlist, removeFromWishlist } from '../api/wishlist';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
@@ -80,15 +80,15 @@ const ProductDetail = () => {
   const handleToggleFavorite = async () => {
     try {
       if (isFavorite) {
-        await removeFromFavorites(id);
+        await removeFromWishlist(id);
         setIsFavorite(false);
       } else {
-        await addToFavorites({ productId: id });
+        await addToWishlist({ productId: id });
         setIsFavorite(true);
       }
     } catch (err) {
-      console.error('Failed to toggle favorite:', err);
-      showError('Failed to update favorites');
+      console.error('failed to toggle wishlist:', err);
+      showError('failed to update wishlist');
     }
   };
 

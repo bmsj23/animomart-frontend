@@ -95,7 +95,7 @@ const Navbar = () => {
             </Link>
 
             <Link
-              to="/favorites"
+              to="/wishlist"
               className="group bg-white px-5 h-14 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-200"
             >
               <Heart className="w-5 h-5 text-red-500 transform transition duration-150 group-hover:scale-105" />
@@ -241,12 +241,12 @@ const Navbar = () => {
                   </Link>
 
                   <Link
-                    to="/favorites"
+                    to="/wishlist"
                     className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="w-5 h-5" />
-                    <span className="font-medium">Favorites</span>
+                    <span className="font-medium">Wishlist</span>
                   </Link>
 
                   <Link
