@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, X } from "lucide-react";
-import { useFavorites } from "../hooks/useFavorites";
+import { useWishlist } from "../hooks/useWishlist";
 import ProductCard from "../components/common/ProductCard";
 
 const CATEGORIES = [
@@ -31,12 +31,12 @@ const SORT_OPTIONS = [
   { value: "price-high", label: "Price: High to Low" },
 ];
 
-const Favorites = () => {
+const Wishlist = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
-  const { favorites, loading: favLoading } = useFavorites();
+  const { wishlist, loading: wishlistLoading } = useWishlist();
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get("page")) || 1
   );
@@ -51,7 +51,7 @@ const Favorites = () => {
     sort: searchParams.get("sort") || "newest",
   });
 
-  // compute filtered favorites whenever favorites or filters change
+  // compute filtered wishlisht whenever wishlist or filters change
   const applyFiltersAndSort = (items, sortMethod) => {
     let result = [...(items || [])];
 
@@ -91,8 +91,8 @@ const Favorites = () => {
     const pageFromUrl = parseInt(searchParams.get("page")) || 1;
     setCurrentPage(pageFromUrl);
 
-    // when favorites change or filters change, update visible products
-    const filtered = applyFiltersAndSort(favorites || [], filters.sort);
+    // when wishlist changes or filters change, update visible products
+    const filtered = applyFiltersAndSort(wishlist || [], filters.sort);
 
     // pagination
     const limit = 16;
@@ -103,11 +103,11 @@ const Favorites = () => {
 
     setProducts(paged);
     setPagination({ totalProducts, totalPages });
-    setLoading(favLoading);
+    setLoading(wishlistLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [favorites, filters, favLoading, searchParams]);
+  }, [wishlist, filters, wishlistLoading, searchParams]);
 
-  // fetching removed: Favorites page shows only the user's favorites from context
+  // fetching removed: wishlist page shows only the user's wishlist from context
 
   // client-side sort function
   const sortProducts = (productsArray, sortMethod) => {
@@ -174,8 +174,8 @@ const Favorites = () => {
     params.set("page", page.toString());
     setSearchParams(params);
 
-    // recompute paged results from favorites
-    const filtered = applyFiltersAndSort(favorites || [], filters.sort);
+    // recompute paged results from wishlist
+    const filtered = applyFiltersAndSort(wishlist || [], filters.sort);
     const limit = 16;
     const start = (page - 1) * limit;
     const paged = filtered.slice(start, start + limit);
@@ -217,7 +217,7 @@ const Favorites = () => {
         {/* Header */}
         <div className="mb-10 md:mb-12">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-main mb-3 tracking-tight">
-            Favorites
+            Wishlist
           </h1>
           <p className="text-gray text-base md:text-lg font-light">
             Showing {products.length} of {pagination.totalProducts || 0}{" "}
@@ -458,7 +458,7 @@ const Favorites = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`min-w-[44px] px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
+                          className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
                             currentPage === page
                               ? "bg-primary text-white shadow-md"
                               : "border border-gray-200 hover:bg-surface text-main"
@@ -514,4 +514,4 @@ const Favorites = () => {
   );
 };
 
-export default Favorites;
+export default Wishlist;
