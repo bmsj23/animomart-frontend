@@ -163,7 +163,7 @@ const CategoryDetail = () => {
 
   return (
     <div className="min-h-screen bg-surface">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* <- back header */}
         <div className="mb-12 text-center">
           <button
@@ -322,7 +322,7 @@ const CategoryDetail = () => {
                           <button
                             key={page}
                             onClick={() => handlePageChange(page)}
-                            className={`min-w-[40px] h-10 rounded-full font-medium transition-all duration-300 text-sm ${
+                            className={`min-w-10 h-10 rounded-full font-medium transition-all duration-300 text-sm ${
                               currentPage === page
                                 ? 'bg-primary text-white shadow-md'
                                 : 'bg-white border border-gray-200 text-main hover:border-primary/50 hover:bg-primary/5'
