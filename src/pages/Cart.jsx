@@ -194,7 +194,7 @@ const Cart = () => {
                       On mobile (grid-cols-1) items stack: image, text, then quantity (so qty is under price there as well). */}
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-6 w-full items-start">
                     {/* Left column: image + desktop-only qty (stacked) */}
-                    <div className="flex-shrink-0 relative">
+                    <div className="shrink-0 relative">
                       <img
                         src={item.product?.images?.[0] || '/EmptyCart.png'}
                         alt={item.product?.name}

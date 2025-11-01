@@ -72,13 +72,13 @@ const ToastItem = ({ toast, onClose }) => {
 
   return (
     <div className={`flex items-center gap-3 ${style.bg} ${style.text} border-l-4 ${style.border} p-4 rounded-lg shadow-lg min-w-[320px] max-w-md animate-slide-in`}>
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {style.icon}
       </div>
       <p className="flex-1 text-sm font-medium">{toast.message}</p>
       <button
         onClick={onClose}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+        className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

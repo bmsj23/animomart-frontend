@@ -77,7 +77,7 @@ const ProductCard = ({ product }) => {
           <button
             onClick={handleFavorite}
             disabled={isProcessing}
-            className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-300 z-[5] md:opacity-0 md:group-hover:opacity-100 hover:cursor-pointer ${
+            className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-300 z-5 md:opacity-0 md:group-hover:opacity-100 hover:cursor-pointer ${
               isFavorited
                 ? 'bg-white/95 text-red-500'
                 : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
@@ -169,7 +169,7 @@ const CategoryCard = ({ title, subtitle, icon: Icon, bgColor = 'bg-gray-50', tex
         isHovered ? 'scale-[1.02]' : 'scale-100'
       } flex flex-col justify-between min-h-[100px] sm:min-h-[120px] p-5 sm:p-6`}
     >
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-col grow">
         <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 sm:mb-4 transition-all duration-300 ${
           isHovered ? 'bg-white/80 scale-110' : ''
         }`}>

@@ -350,7 +350,7 @@ const Profile = () => {
                   <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
                     <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
                     <div className="flex items-center space-x-6">
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <label className="block text-md font-medium text-gray-700">Profile Image</label>
                         {previewUrl || (form.profilePicture || user?.picture) ? (
                           <img

@@ -197,7 +197,7 @@ const Messages = () => {
           } w-full md:w-[380px] flex-col border-r border-gray-200`}>
 
             {/* conversations header */}
-            <div className="h-[73px] flex-shrink-0 p-4 border-b border-gray-200 bg-white flex items-center">
+            <div className="h-[73px] shrink-0 p-4 border-b border-gray-200 bg-white flex items-center">
               <h2 className="font-semibold text-gray-900">Conversations</h2>
             </div>
 
@@ -280,7 +280,7 @@ const Messages = () => {
                   </div>
 
                 {/* message input */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <MessageInput
                     messageText={messageText}
                     setMessageText={setMessageText}
