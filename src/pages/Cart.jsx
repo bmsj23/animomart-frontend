@@ -14,7 +14,19 @@ const Cart = () => {
   const { error: showError } = useToast();
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' });
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState({ show: false });
-  const [selectedItems, setSelectedItems] = useState(new Set());
+  const [selectedItems, setSelectedItems] = useState(() => {
+
+    // restore selected items from localStorage on initial mount
+    const saved = localStorage.getItem('cart-selected-items');
+    if (saved) {
+      try {
+        return new Set(JSON.parse(saved));
+      } catch {
+        return new Set();
+      }
+    }
+    return new Set();
+  });
   const pendingUpdates = useRef({});
 
   useEffect(() => {
@@ -22,10 +34,19 @@ const Cart = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Select all items when cart loads
+  // save selected items to localStorage whenever they change
   useEffect(() => {
-    if (cart?.items && cart.items.length > 0) {
-      setSelectedItems(new Set(cart.items.map(item => item.product._id)));
+    localStorage.setItem('cart-selected-items', JSON.stringify(Array.from(selectedItems)));
+  }, [selectedItems]);
+
+  // sync selected items with cart items (also remove selections for items no longer in cart)
+  useEffect(() => {
+    if (cart?.items) {
+      const currentProductIds = new Set(cart.items.map(item => item.product._id));
+      setSelectedItems(prev => {
+        const filtered = new Set(Array.from(prev).filter(id => currentProductIds.has(id)));
+        return filtered;
+      });
     }
   }, [cart?.items]);
 
