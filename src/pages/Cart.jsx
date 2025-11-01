@@ -13,6 +13,7 @@ const Cart = () => {
   const { cart, setCart, fetchCart, loading, updateItem, removeItem } = useCart();
   const { error: showError } = useToast();
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' });
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState({ show: false });
   const [selectedItems, setSelectedItems] = useState(new Set());
   const pendingUpdates = useRef({});
 
@@ -154,6 +155,28 @@ const Cart = () => {
     }
   };
 
+  const moveSelectedToWishlist = async () => {
+    if (!selectedItems || selectedItems.size === 0) return;
+    const ids = Array.from(selectedItems);
+    const previousCart = cart;
+    // optimistic remove from UI
+    setCart({ ...cart, items: cart.items.filter(item => !selectedItems.has(item.product._id)) });
+    setSelectedItems(new Set());
+    // close modal
+    setBulkDeleteConfirm({ show: false });
+    try {
+      // add to favorites first
+      await Promise.all(ids.map(id => addToFavorites(id)));
+      // then remove from cart on server
+      await Promise.all(ids.map(id => removeItem(id)));
+    } catch (err) {
+      // revert on error
+      setCart(previousCart);
+      console.error('Failed to move selected items to wishlist:', err);
+      showError(err.response?.data?.message || 'Failed to move selected items to wishlist');
+    }
+  };
+
   const calculateTotal = () => {
     if (!cart?.items) return 0;
     return cart.items.reduce((total, item) => {
@@ -178,7 +201,7 @@ const Cart = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-        <div className="flex items-center gap-4 ml-107">
+        <div className="flex items-center gap-4 ml-103">
           <label className="inline-flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -190,15 +213,14 @@ const Cart = () => {
             <span className="text-md">Select All ({cart?.items?.length || 0})</span>
           </label>
           <button
-            onClick={deleteSelected}
+            onClick={() => setBulkDeleteConfirm({ show: true })}
             disabled={selectedItems.size === 0}
-            className="text-md text-gray-600 hover:underline disabled"
+            className="text-md text-black-600 hover:underline disabled cursor-pointer"
           >
-            Delete
+            Remove
           </button>
         </div>
       </div>
-
       {hasItems ? (
         <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start min-h-screen">
           {/* Left: Cart Items */}
@@ -361,6 +383,34 @@ const Cart = () => {
       )}
 
       {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={bulkDeleteConfirm.show}
+        onClose={() => setBulkDeleteConfirm({ show: false })}
+        title="Remove Selected Items"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            Are you sure you want to remove all {selectedItems.size > 1 ? 'items' : 'item'} from your cart?
+          </p>
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={async () => {
+                setBulkDeleteConfirm({ show: false });
+                await deleteSelected();
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+            >
+              Remove
+            </button>
+            <button
+              onClick={() => moveSelectedToWishlist()}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Add to Wishlist
+            </button>
+          </div>
+        </div>
+      </Modal>
       <Modal
         isOpen={deleteConfirm.show}
         onClose={() => setDeleteConfirm({ show: false, productId: null, productName: '' })}
