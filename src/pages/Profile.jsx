@@ -97,7 +97,7 @@ const Profile = () => {
       if (previewUrl) {
         try {
           URL.revokeObjectURL(previewUrl);
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
@@ -135,7 +135,9 @@ const Profile = () => {
     if (previewUrl) {
       try {
         URL.revokeObjectURL(previewUrl);
-      } catch (e) {}
+      } catch {
+        // ignore revoke errors
+      }
     }
     setSelectedFile(null);
     setPreviewUrl("");
