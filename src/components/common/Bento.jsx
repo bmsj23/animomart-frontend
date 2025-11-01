@@ -3,7 +3,7 @@ import { Heart, ArrowRight, Sparkles, TrendingUp, Package, Grid3x3 } from 'lucid
 import { getProducts } from '../../api/products';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useNavigate } from 'react-router-dom';
-import { useFavorites } from '../../hooks/useFavorites';
+import { useWishlist } from '../../hooks/useWishlist';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 
@@ -11,16 +11,16 @@ import { useToast } from '../../hooks/useToast';
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { error: showError } = useToast();
   const [isHovered, setIsHovered] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const isFavorited = favorites?.some(fav => {
-    // favorites structure
-    const favProductId = fav._id || fav.product?._id || fav.product;
-    return favProductId === product._id;
+  const isInWishlist = wishlist?.some(item => {
+    // wishlist structure
+    const itemProductId = item._id || item.product?._id || item.product;
+    return itemProductId === product._id;
   });
   // check if product belongs to current user
   const isOwnProduct = product.seller && user?._id &&
@@ -32,17 +32,17 @@ const ProductCard = ({ product }) => {
 
     try {
       setIsProcessing(true);
-      if (isFavorited) {
-        await removeFromFavorites(product._id);
+      if (isInWishlist) {
+        await removeFromWishlist(product._id);
       } else {
-        await addToFavorites(product._id);
+        await addToWishlist(product._id);
 
         // show "Added!" feedback
         setJustAdded(true);
         setTimeout(() => setJustAdded(false), 2000);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update favorites';
+      const errorMessage = err.response?.data?.message || err.message || 'failed to update wishlist';
       showError(errorMessage);
     } finally {
       setIsProcessing(false);
@@ -78,7 +78,7 @@ const ProductCard = ({ product }) => {
             onClick={handleFavorite}
             disabled={isProcessing}
             className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-300 z-5 md:opacity-0 md:group-hover:opacity-100 hover:cursor-pointer ${
-              isFavorited
+              isInWishlist
                 ? 'bg-white/95 text-red-500'
                 : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
             } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
@@ -86,7 +86,7 @@ const ProductCard = ({ product }) => {
             {isProcessing ? (
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
             ) : (
-              <Heart className={`w-4 h-4 transition-transform ${isFavorited ? 'fill-current scale-110' : ''} ${justAdded ? 'animate-bounce' : ''}`} />
+              <Heart className={`w-4 h-4 transition-transform ${isInWishlist ? 'fill-current scale-110' : ''} ${justAdded ? 'animate-bounce' : ''}`} />
             )}
           </button>
         )}
