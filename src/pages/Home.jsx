@@ -41,13 +41,15 @@ const CategoryBar = () => {
     }
 
     setHoveredCategory(categoryName);
-    // calculate position for portal
+    // calculate position for portal - align left edge with button's left edge
     const buttonElement = buttonRefs.current[categoryName];
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
+      // account for css zoom (0.8) - divide by zoom level to get correct position
+      const zoom = parseFloat(getComputedStyle(document.documentElement).zoom || 1);
       setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.left
+        top: (rect.bottom + window.scrollY + 8) / zoom,
+        left: (rect.left + window.scrollX) / zoom
       });
     }
   };
@@ -103,7 +105,7 @@ const CategoryBar = () => {
                 {/* dropdown */}
                 {category.subcategories.length > 0 && hoveredCategory === category.name && createPortal(
                   <div
-                    className="bg-white rounded-xl shadow-2xl border border-gray-200 py-3 max-w-50"
+                    className="bg-white rounded-xl shadow-2xl border border-gray-200 py-3 w-[200px]"
                     style={{
                       position: 'fixed',
                       top: `${dropdownPosition.top}px`,
