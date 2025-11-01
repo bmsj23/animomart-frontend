@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
-import { FavoritesProvider } from './context/FavoritesContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { ToastProvider } from './context/ToastContext';
 import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -20,7 +20,7 @@ import CategoryDetail from './pages/CategoryDetail';
 import ProductDetail from './pages/ProductDetail';
 import Search from './pages/Search';
 import Cart from './pages/Cart';
-import Favorites from './pages/Favorites';
+import Wishlist from './pages/Wishlist';
 import Checkout from './pages/Checkout';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
@@ -38,7 +38,7 @@ function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <FavoritesProvider>
+          <WishlistProvider>
             <SocketProvider>
               <ToastProvider>
                 <Routes>
@@ -117,11 +117,11 @@ function App() {
                 }
               />
               <Route
-                path="/favorites"
+                path="/wishlist"
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <Favorites />
+                      <Wishlist />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -227,7 +227,7 @@ function App() {
             </Routes>
           </ToastProvider>
         </SocketProvider>
-        </FavoritesProvider>
+        </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </Router>
