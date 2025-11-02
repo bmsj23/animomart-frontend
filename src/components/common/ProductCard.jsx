@@ -9,6 +9,10 @@ const ProductCard = ({ product }) => {
   const { user } = useAuth();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
+  if (!product || !product._id || !product.name || product.price === undefined) {
+    return null;
+  }
+
   const isOwnProduct = () => {
     return product.seller && user?._id &&
       (user._id === product.seller._id || user._id === product.seller);

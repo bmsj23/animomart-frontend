@@ -17,6 +17,10 @@ const ProductCard = ({ product }) => {
   const [justAdded, setJustAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  if (!product || !product._id || !product.name || product.price === undefined) {
+    return null;
+  }
+
   const isInWishlist = wishlist?.some(item => {
     // wishlist structure
     const itemProductId = item._id || item.product?._id || item.product;
