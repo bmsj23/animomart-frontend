@@ -228,25 +228,27 @@ const Cart = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-        <div className="flex items-center gap-4 ml-103">
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={cart?.items && selectedItems.size === cart.items.length}
-              onChange={toggleSelectAll}
-              className="w-4 h-4 accent-green-600 border-gray-300 rounded"
-              aria-label="Select all items"
-            />
-            <span className="text-md">Select All ({cart?.items?.length || 0})</span>
-          </label>
-          <button
-            onClick={() => setBulkDeleteConfirm({ show: true })}
-            disabled={selectedItems.size === 0}
-            className="text-md text-black-600 hover:underline disabled cursor-pointer"
-          >
-            Remove
-          </button>
-        </div>
+        {hasItems && (
+          <div className="flex items-center gap-4 ml-103">
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={cart?.items && selectedItems.size === cart.items.length}
+                onChange={toggleSelectAll}
+                className="w-4 h-4 accent-green-600 border-gray-300 rounded"
+                aria-label="Select all items"
+              />
+              <span className="text-md">Select All ({cart?.items?.length || 0})</span>
+            </label>
+            <button
+              onClick={() => setBulkDeleteConfirm({ show: true })}
+              disabled={selectedItems.size === 0}
+              className="text-md text-black-600 hover:underline disabled cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+        )}
       </div>
       {hasItems ? (
         <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start min-h-screen">
@@ -299,9 +301,14 @@ const Cart = () => {
 
                     {/* Text block: name, condition, price (and mobile qty below price) */}
                     <div className="min-w-0">
-                      <div className="mt-6 text-base md:text-lg text-black font-semibold truncate">
-                        {item.product?.name || 'Recife Logo Chromefree Sneakers'}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/products/${item.product._id}`)}
+                        className="mt-6 text-base md:text-lg text-black font-semibold truncate text-left focus:outline-none cursor-pointer"
+                        aria-label={`View ${item.product?.name}`}
+                      >
+                        {item.product?.name}
+                      </button>
 
                       <div className="text-md text-gray-500">
                         {item.product?.condition || 'N/A'}
