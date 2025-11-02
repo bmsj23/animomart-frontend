@@ -11,6 +11,7 @@ import { CATEGORY_DATA } from '../constants/categories';
 const CategoryBar = () => {
   const navigate = useNavigate();
   const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [showLeftScroll, setShowLeftScroll] = useState(false);
@@ -18,6 +19,7 @@ const CategoryBar = () => {
   const buttonRefs = useRef({});
   const closeTimeoutRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const animationTimeoutRef = useRef(null);
 
   // check scroll position to show/hide scroll indicators
   const handleScroll = () => {
@@ -81,8 +83,13 @@ const CategoryBar = () => {
       closeTimeoutRef.current = null;
     }
 
-    setHoveredCategory(categoryName);
-    // calculate position for portal - align left edge with button's left edge
+    // clear any pending animation timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+
+    // calculate position first
     const buttonElement = buttonRefs.current[categoryName];
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
@@ -93,15 +100,24 @@ const CategoryBar = () => {
         left: (rect.left + window.scrollX) / zoom
       });
     }
+
+    // set category and start with invisible state
+    setHoveredCategory(categoryName);
+    setIsDropdownVisible(false);
+
+    setTimeout(() => {
+      setIsDropdownVisible(true);
+    }, 10);
   };
 
 
 
   const handleMouseLeave = () => {
     // add a small delay before closing to allow mouse to reach dropdown
+    setIsDropdownVisible(false);
     closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
-    }, 100); // 100ms delay
+    }, 200); // 200ms delay
   };
 
   const handleDropdownEnter = () => {
@@ -110,56 +126,79 @@ const CategoryBar = () => {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
     }
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+    setIsDropdownVisible(true);
   };
 
   const handleDropdownLeave = () => {
-    // close immediately when leaving dropdown
-    setHoveredCategory(null);
+    // close with animation
+    setIsDropdownVisible(false);
+    animationTimeoutRef.current = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 200);
   };
 
   return (
-    <div className="bg-gray-50 border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+    <div className="bg-transparent">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pb-2 pt-3">
         {/* desktop category bar */}
-        <div className="hidden md:flex items-center gap-4 py-3">
-          <h2 className="font-semibold text-gray-900 text-lg pr-4 whitespace-nowrap">Categories</h2>
+        <div className="hidden md:block">
+          <div className="flex items-start gap-1.5 md:gap-6">
+            {/* categories header */}
+            <div className="flex-none w-14 md:w-32">
+              <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1 pt-2">Categories</h2>
+            </div>
 
-          {/* scroll container */}
-          <div className="relative flex-1 min-w-0 group">
-            {/* left fade & scroll button */}
-            {showLeftScroll && (
-              <>
-                <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+            {/* scroll container */}
+            <div className="relative flex-1 min-w-0 group">
+
+              {showLeftScroll && (
                 <button
                   onClick={() => scroll('left')}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-5 h-5 text-gray-700" />
                 </button>
-              </>
-            )}
+              )}
 
-            {/* right fade & scroll button */}
-            {showRightScroll && (
-              <>
-                <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+
+              {showRightScroll && (
                 <button
                   onClick={() => scroll('right')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-5 h-5 text-gray-700" />
                 </button>
-              </>
-            )}
+              )}
 
-            {/* scrollable category pills */}
-            <div
-              ref={scrollContainerRef}
-              className="flex items-center gap-2 overflow-x-auto scrollbar-hide scroll-smooth min-w-0 pl-6 lg:pl-8"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
+              {/* scrollable category pills */}
+              <div
+                ref={scrollContainerRef}
+                className="flex items-center gap-2 overflow-x-auto scrollbar-hide scroll-smooth min-w-0"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  maskImage: showLeftScroll && showRightScroll
+                    ? 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+                    : showLeftScroll
+                      ? 'linear-gradient(to right, transparent 0%, black 5%, black 100%)'
+                      : showRightScroll
+                        ? 'linear-gradient(to right, black 0%, black 95%, transparent 100%)'
+                        : 'none',
+                  WebkitMaskImage: showLeftScroll && showRightScroll
+                    ? 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+                    : showLeftScroll
+                      ? 'linear-gradient(to right, transparent 0%, black 5%, black 100%)'
+                      : showRightScroll
+                        ? 'linear-gradient(to right, black 0%, black 95%, transparent 100%)'
+                        : 'none'
+                }}
+              >
             {CATEGORY_DATA.map((category) => (
               <div
                 key={category.name}
@@ -170,7 +209,7 @@ const CategoryBar = () => {
                 <button
                   ref={el => buttonRefs.current[category.name] = el}
                   onClick={() => handleCategoryClick(category.name)}
-                  className="flex items-center gap-1.5 px-6 h-14 bg-gray-100 hover:bg-green-50 hover:text-green-600 rounded-full text-sm font-medium text-gray-700 transition-all whitespace-nowrap border border-transparent hover:border-green-200 hover:cursor-pointer"
+                  className="flex items-center gap-1.5 px-6 h-14 bg-white hover:bg-white rounded-full text-sm font-medium text-gray-800 transition-all whitespace-nowrap hover:cursor-pointer"
                 >
                   {category.name}
                   {category.subcategories.length > 0 && (
@@ -181,12 +220,18 @@ const CategoryBar = () => {
                 {/* dropdown */}
                 {category.subcategories.length > 0 && hoveredCategory === category.name && createPortal(
                   <div
-                    className="bg-white rounded-xl shadow-2xl border border-gray-200 py-3 w-[200px]"
+                    className={`bg-white rounded-xl border border-gray-200 shadow-xl py-3 w-[200px] ${
+                      isDropdownVisible
+                        ? 'opacity-100 scale-100 translate-y-0'
+                        : 'opacity-0 scale-95 -translate-y-4'
+                    }`}
                     style={{
                       position: 'fixed',
                       top: `${dropdownPosition.top}px`,
                       left: `${dropdownPosition.left}px`,
-                      zIndex: 999999
+                      zIndex: 999999,
+                      transformOrigin: 'top left',
+                      transition: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
@@ -223,12 +268,13 @@ const CategoryBar = () => {
             </div>
           </div>
         </div>
+      </div>
 
         {/* mobile category dropdown */}
         <div className="md:hidden py-3">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex items-center gap-2 w-full px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700"
+            className="flex items-center gap-2 w-full px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-800 transition-all"
           >
             <Menu className="w-4 h-4" />
             Categories
@@ -237,7 +283,7 @@ const CategoryBar = () => {
 
           {/* mobile dropdown menu */}
           {mobileMenuOpen && (
-            <div className="mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto">
+            <div className="mt-2 bg-white rounded-lg border border-gray-200 max-h-[400px] overflow-y-auto">
               {CATEGORY_DATA.map((category) => (
                 <div key={category.name} className="border-b border-gray-100 last:border-0">
                   <button
