@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
 import { formatCurrency } from '../../utils/formatCurrency';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onGreenBg = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -99,7 +99,7 @@ const ProductCard = ({ product }) => {
       {/* product info*/}
       <div className="space-y-2">
         {/* product name*/}
-        <h3 className="font-semibold text-main text-base leading-tight group-hover:text-primary transition-colors duration-300 line-clamp-2">
+        <h3 className={`font-extrabold ${onGreenBg ? 'text-white group-hover:text-white/80' : 'text-main group-hover:text-primary'} text-base leading-tight transition-colors duration-300 line-clamp-2`}>
           {product.name}
         </h3>
 
@@ -117,7 +117,7 @@ const ProductCard = ({ product }) => {
         */}
 
         {/* price */}
-        <p className="text-lg font-bold text-main pt-1">
+        <p className={`text-lg font-semibold ${onGreenBg ? 'text-white' : 'text-main'} pt-1`}>
           {formatCurrency(product.price)}
         </p>
       </div>
