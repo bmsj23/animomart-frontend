@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Menu, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Menu, ArrowRight } from 'lucide-react';
 import { getProducts } from '../api/products';
 import BentoBox from '../components/common/Bento';
 import ProductCard from '../components/common/ProductCard';
@@ -13,8 +13,49 @@ const CategoryBar = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(true);
   const buttonRefs = useRef({});
   const closeTimeoutRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+
+  // check scroll position to show/hide scroll indicators
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollLeft = container.scrollLeft;
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+      setShowLeftScroll(scrollLeft > 5);
+      setShowRightScroll(scrollLeft < maxScrollLeft - 5);
+    }
+  };
+
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      handleScroll();
+      container.addEventListener('scroll', handleScroll);
+
+      const resizeObserver = new ResizeObserver(() => {
+        handleScroll();
+      });
+      resizeObserver.observe(container);
+
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+        resizeObserver.disconnect();
+      };
+    }
+  }, []);
 
   const handleCategoryClick = (categoryName, isSubcategory = false) => {
     if (isSubcategory) {
@@ -81,9 +122,44 @@ const CategoryBar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         {/* desktop category bar */}
         <div className="hidden md:flex items-center gap-4 py-3">
-          <h2 className="font-semibold text-gray-900 text-lg pr-8 whitespace-nowrap">Categories</h2>
+          <h2 className="font-semibold text-gray-900 text-lg pr-4 whitespace-nowrap">Categories</h2>
 
-          <div className="flex items-center gap-2 flex-1 pl-4">
+          {/* scroll container */}
+          <div className="relative flex-1 min-w-0 group">
+            {/* left fade & scroll button */}
+            {showLeftScroll && (
+              <>
+                <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+                <button
+                  onClick={() => scroll('left')}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-700" />
+                </button>
+              </>
+            )}
+
+            {/* right fade & scroll button */}
+            {showRightScroll && (
+              <>
+                <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+                <button
+                  onClick={() => scroll('right')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-700" />
+                </button>
+              </>
+            )}
+
+            {/* scrollable category pills */}
+            <div
+              ref={scrollContainerRef}
+              className="flex items-center gap-2 overflow-x-auto scrollbar-hide scroll-smooth min-w-0 pl-6 lg:pl-8"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
             {CATEGORY_DATA.map((category) => (
               <div
                 key={category.name}
@@ -144,6 +220,7 @@ const CategoryBar = () => {
                 )}
               </div>
             ))}
+            </div>
           </div>
         </div>
 
