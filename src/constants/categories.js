@@ -37,8 +37,38 @@ export const CATEGORY_DATA = [
     description: 'Gear for fitness and sports activities'
   },
   {
+    name: 'Beauty & Wellness',
+    subcategories: ['Skincare', 'Makeup', 'Hair Care', 'Health & Fitness', 'Other Wellness'],
+    image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80',
+    description: 'Beauty, cosmetics, and wellness products'
+  },
+  {
+    name: 'Furniture & Decor',
+    subcategories: ['Furniture', 'Bedding', 'Room Decor', 'Storage', 'Other Decor'],
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+    description: 'Furniture and room decoration items'
+  },
+  {
+    name: 'Musical Instruments',
+    subcategories: ['Guitars', 'Keyboards', 'Drums', 'Strings & Wind', 'Other Instruments'],
+    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80',
+    description: 'Musical instruments and equipment'
+  },
+  {
+    name: 'Gaming & Hobbies',
+    subcategories: ['Video Games', 'Board Games', 'Collectibles', 'Art Supplies', 'Other Hobbies'],
+    image: 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=800&q=80',
+    description: 'Gaming, collectibles, and hobby items'
+  },
+  {
+    name: 'Pet Supplies',
+    subcategories: ['Pet Food', 'Pet Toys', 'Pet Accessories', 'Pet Care', 'Other Pet Supplies'],
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80',
+    description: 'Everything for your pets'
+  },
+  {
     name: 'Other',
-    subcategories: [],
+    subcategories: ['Other'],
     image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&q=80',
     description: 'Miscellaneous items and more'
   }

@@ -356,12 +356,13 @@ const Sell = () => {
               value={formData.mainCategory}
               onChange={(e) => {
                 const mainCat = e.target.value;
+                const subcats = getSubcategories(mainCat);
                 setFormData({
                   ...formData,
                   mainCategory: mainCat,
-                  subcategory: '' // reset subcategory when main category changes
+                  subcategory: subcats.length === 1 ? subcats[0] : ''
                 });
-                setAvailableSubcategories(getSubcategories(mainCat));
+                setAvailableSubcategories(subcats);
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               required

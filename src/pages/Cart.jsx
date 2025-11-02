@@ -168,7 +168,10 @@ const Cart = () => {
     setCart({ ...cart, items: cart.items.filter(item => !selectedItems.has(item.product._id)) });
     setSelectedItems(new Set());
     try {
-      await Promise.all(ids.map(id => removeItem(id)));
+      // remove items one by one to avoid version conflicts in mongodb
+      for (const id of ids) {
+        await removeItem(id);
+      }
     } catch (err) {
       // revert on error
       setCart(previousCart);
@@ -180,16 +183,19 @@ const Cart = () => {
     if (!selectedItems || selectedItems.size === 0) return;
     const ids = Array.from(selectedItems);
     const previousCart = cart;
-    // optimistic remove from UI
-    setCart({ ...cart, items: cart.items.filter(item => !selectedItems.has(item.product._id)) });
-    setSelectedItems(new Set());
-    // close modal
+    // close modal first
     setBulkDeleteConfirm({ show: false });
+
     try {
-      // add to wishlist first
+      // add to wishlist first (can run in parallel)
       await Promise.all(ids.map(id => addToWishlist(id)));
-      // then remove from cart on server
-      await Promise.all(ids.map(id => removeItem(id)));
+
+      // then remove from cart one by one to avoid version conflicts
+      for (const id of ids) {
+        await removeItem(id);
+      }
+
+      setSelectedItems(new Set());
     } catch (err) {
       // revert on error
       setCart(previousCart);
@@ -286,18 +292,11 @@ const Cart = () => {
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-6 w-full items-start">
                     {/* Left column: image + desktop-only qty (stacked) */}
                     <div className="shrink-0 relative">
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/products/${item.product._id}`)}
-                        className="block focus:outline-none cursor-pointer"
-                        aria-label={`View ${item.product?.name}`}
-                      >
-                        <img
-                          src={item.product?.images?.[0] || '/EmptyCart.png'}
-                          alt={item.product?.name}
-                          className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
-                        />
-                      </button>
+                      <img
+                        src={item.product?.images?.[0] || '/assets/emptycart.png'}
+                        alt={item.product?.name}
+                        className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
+                      />
                     </div>
 
                     {/* Text block: name, condition, price (and mobile qty below price) */}
@@ -417,17 +416,25 @@ const Cart = () => {
         </div>
       )}
 
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={bulkDeleteConfirm.show}
         onClose={() => setBulkDeleteConfirm({ show: false })}
         title="Remove Selected Items"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            Are you sure you want to remove all {selectedItems.size > 1 ? 'items' : 'item'} from your cart?
-          </p>
-          <div className="flex gap-3 justify-end">
+        description={`Are you sure you want to remove ${selectedItems.size > 1 ? 'all selected items' : 'this item'} from your cart?`}
+        icon={<Trash2 className="w-5 h-5" />}
+        iconBgColor="bg-red-100"
+        iconColor="text-red-600"
+        size="sm"
+        actions={
+          <>
+            <button
+              onClick={() => moveSelectedToWishlist()}
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            >
+              Move to Wishlist
+            </button>
             <button
               onClick={async () => {
                 setBulkDeleteConfirm({ show: false });
@@ -437,40 +444,35 @@ const Cart = () => {
             >
               Remove
             </button>
-            <button
-              onClick={() => moveSelectedToWishlist()}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              Move to Wishlist
-            </button>
-          </div>
-        </div>
-      </Modal>
+          </>
+        }
+      />
       <Modal
         isOpen={deleteConfirm.show}
         onClose={() => setDeleteConfirm({ show: false, productId: null, productName: '' })}
         title="Remove Item from Cart"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            Are you sure you want to remove <span className="font-semibold text-gray-900">{deleteConfirm.productName}</span> from your cart?
-          </p>
-          <div className="flex gap-3 justify-end">
+        description={`Are you sure you want to remove ${deleteConfirm.productName} from your cart?`}
+        icon={<Trash2 className="w-5 h-5" />}
+        iconBgColor="bg-red-100"
+        iconColor="text-red-600"
+        size="sm"
+        actions={
+          <>
+            <button
+              onClick={() => moveToWishlist(deleteConfirm.productId)}
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            >
+              Move to Wishlist
+            </button>
             <button
               onClick={() => handleRemoveItem(deleteConfirm.productId)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               Remove
             </button>
-            <button
-              onClick={() => moveToWishlist(deleteConfirm.productId)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              Move to Wishlist
-            </button>
-          </div>
-        </div>
-      </Modal>
+          </>
+        }
+      />
     </div>
   );
 };

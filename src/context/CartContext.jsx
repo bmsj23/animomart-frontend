@@ -35,7 +35,20 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       const data = await cartApi.getCart();
-      setCart(data);
+
+      // filter out items with null/deleted products
+      if (data?.items) {
+        const validItems = data.items.filter(item => {
+          return item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+        });
+
+        setCart({
+          ...data,
+          items: validItems
+        });
+      } else {
+        setCart(data);
+      }
     } catch (error) {
       console.error('Error fetching cart:', error);
     } finally {
@@ -46,7 +59,21 @@ export const CartProvider = ({ children }) => {
   const addItem = async (productId, quantity = 1) => {
     try {
       const data = await cartApi.addToCart({ productId, quantity });
-      setCart(data);
+
+      // filter out items with null/deleted products
+      if (data?.items) {
+        const validItems = data.items.filter(item => {
+          return item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+        });
+
+        setCart({
+          ...data,
+          items: validItems
+        });
+      } else {
+        setCart(data);
+      }
+
       return data;
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -58,7 +85,19 @@ export const CartProvider = ({ children }) => {
     try {
       const data = await cartApi.updateCartItem(productId, quantity);
       if (!skipStateUpdate) {
-        setCart(data);
+        // filter out items with null/deleted products
+        if (data?.items) {
+          const validItems = data.items.filter(item => {
+            return item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+          });
+
+          setCart({
+            ...data,
+            items: validItems
+          });
+        } else {
+          setCart(data);
+        }
       }
       return data;
     } catch (error) {
@@ -70,7 +109,21 @@ export const CartProvider = ({ children }) => {
   const removeItem = async (productId) => {
     try {
       const data = await cartApi.removeFromCart(productId);
-      setCart(data);
+
+      // filter out items with null/deleted products
+      if (data?.items) {
+        const validItems = data.items.filter(item => {
+          return item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+        });
+
+        setCart({
+          ...data,
+          items: validItems
+        });
+      } else {
+        setCart(data);
+      }
+
       return data;
     } catch (error) {
       console.error('Error removing from cart:', error);

@@ -1,13 +1,18 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const Modal = ({
   isOpen,
   onClose,
   title,
+  description,
   children,
+  icon,
+  iconBgColor = 'bg-red-100',
+  iconColor = 'text-red-600',
   size = 'md',
-  showCloseButton = true,
+  actions,
 }) => {
   useEffect(() => {
     const handleEscape = (e) => {
@@ -28,50 +33,78 @@ const Modal = ({
   if (!isOpen) return null;
 
   const sizes = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* blurred backdrop */}
+  return createPortal(
+    <div className="fixed inset-0 overflow-y-auto z-41">
+      {/* backdrop */}
       <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-all"
+        className="fixed inset-0 bg-black/50 transition-all"
         onClick={onClose}
       />
 
-      {/* Modal */}
+      {/* modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`relative bg-white rounded-lg shadow-xl w-full ${sizes[size]} transform transition-all`}
+          className={`relative bg-white rounded-xl shadow-2xl w-full ${sizes[size]} transform transition-all animate-fade-in`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-4 border-b">
-              {title && (
-                <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-              )}
-              {showCloseButton && (
-                <button
-                  onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              )}
-            </div>
-          )}
+          {/* x button */}
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors hover:cursor-pointer z-10"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
-          {/* Content */}
-          <div className="p-4">
-            {children}
+          <div className="p-6">
+            {/* header with icon, title, description - all stacked vertically */}
+            {(icon || title || description) && (
+              <div className="mb-6">
+                {icon && (
+                  <div className="flex justify-center mb-4">
+                    <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
+                      <div className={iconColor}>
+                        {icon}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {title && (
+                  <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+                    {title}
+                  </h3>
+                )}
+                {description && (
+                  <p className="text-sm text-gray-600 text-center">
+                    {description}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* content */}
+            {children && (
+              <div className="mb-6">
+                {children}
+              </div>
+            )}
+
+            {/* actions */}
+            {actions && (
+              <div className="flex gap-3 justify-end">
+                {actions}
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

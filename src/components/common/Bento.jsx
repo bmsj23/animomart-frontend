@@ -17,6 +17,10 @@ const ProductCard = ({ product }) => {
   const [justAdded, setJustAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  if (!product || !product._id || !product.name || product.price === undefined) {
+    return null;
+  }
+
   const isInWishlist = wishlist?.some(item => {
     // wishlist structure
     const itemProductId = item._id || item.product?._id || item.product;
@@ -58,7 +62,7 @@ const ProductCard = ({ product }) => {
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`group relative bg-white rounded-sm overflow-hidden cursor-pointer transition-all duration-500 h-full ${
+      className={`group relative bg-white rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 h-full ${
         isHovered ? 'shadow-2xl' : 'shadow-md'
       }`}
     >
@@ -107,7 +111,7 @@ const ProductCard = ({ product }) => {
 
         {/* hover overlay */}
         <div
-          className={`hidden md:block absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/85 to-transparent transition-all duration-700 ease-out ${
+          className={`hidden md:block absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/65 to-transparent transition-all duration-700 ease-out ${
             isHovered ? 'h-2/5' : 'h-0'
           }`}
         >
@@ -165,7 +169,7 @@ const CategoryCard = ({ title, subtitle, icon: Icon, bgColor = 'bg-gray-50', tex
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`group relative ${bgColor} rounded-sm cursor-pointer transition-all duration-500 h-full shadow-sm hover:shadow-xl ${
+      className={`group relative ${bgColor} rounded-3xl cursor-pointer transition-all duration-500 h-full shadow-sm hover:shadow-xl ${
         isHovered ? 'scale-[1.02]' : 'scale-100'
       } flex flex-col justify-between min-h-[100px] sm:min-h-[120px] p-5 sm:p-6`}
     >
