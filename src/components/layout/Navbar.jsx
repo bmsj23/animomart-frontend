@@ -62,9 +62,22 @@ const Navbar = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  // check if we're on home page to apply green background
+  const isHomePage = location.pathname === '/';
+
   return (
-    <nav className="bg-gray-50 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+    <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isHomePage ? 'bg-green-700 shadow-none' : 'bg-gray-50'}`}>
+      {/* noise texture overlay for home page */}
+      {isHomePage && (
+        <div
+          className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none z-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '200px 200px'
+          }}
+        />
+      )}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10">
         <div className="flex items-center h-16 md:h-20 gap-1.5 md:gap-6">
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center flex-none w-14 md:w-32">

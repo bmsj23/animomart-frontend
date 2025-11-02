@@ -316,21 +316,21 @@ const CategoryBar = () => {
 };
 
 // section component
-const Section = ({ title, viewAllLink, children, loading }) => {
+const Section = ({ title, viewAllLink, children, loading, onGreenBg = false }) => {
   const navigate = useNavigate();
 
   return (
     <section className="mb-16">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="font-serif text-3xl md:text-4xl text-main mb-2 tracking-tight">{title}</h2>
+          <h2 className={`font-serif text-3xl md:text-4xl mb-2 tracking-tight ${onGreenBg ? 'text-white' : 'text-main'}`}>{title}</h2>
 
         </div>
 
         {viewAllLink && !loading && (
           <button
             onClick={() => navigate(viewAllLink)}
-            className="group flex items-center align-text-top gap-2 text-primary hover:text-primary/80 transition-all font-medium text-sm md:text-base hover:cursor-pointer hover:gap-3"
+            className={`group flex items-center align-text-top gap-2 transition-all font-medium text-sm md:text-base hover:cursor-pointer hover:gap-3 ${onGreenBg ? 'text-white hover:text-white/80' : 'text-primary hover:text-primary/80'}`}
           >
             <span className="hidden sm:inline">View All</span>
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
@@ -403,31 +403,70 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* category bar*/}
-      <CategoryBar />
+    <div className="min-h-screen">
+      {/* green hero section (extends through featured products) */}
+      <div className="relative bg-green-700 overflow-hidden">
+        {/* noise texture overlay */}
+        <div
+          className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '200px 200px'
+          }}
+        />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+        {/* category bar */}
+        <div className="relative z-10">
+          <CategoryBar />
+        </div>
 
-        {/* Bento Grid */}
-        <BentoBox />
-
-        {/* Featured Section */}
-        <Section
-          title="Featured Products"
-          subtitle="Handpicked items just for you"
-          viewAllLink="/browse"
-          loading={loading.featured}
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {featuredProducts.slice(0, 8).map(product => (
-              <ProductCard key={product._id} product={product} />
-            ))}
+        {/* bento section  */}
+        <div className="relative z-10 min-h-screen flex items-center">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <BentoBox />
           </div>
-        </Section>
+        </div>
 
-        {/* New Arrivals (Electronics) */}
-        <Section
+        {/* featured products section */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-8">
+          <Section
+            title="Featured Products"
+            subtitle="Handpicked items just for you"
+            viewAllLink="/browse"
+            loading={loading.featured}
+            onGreenBg={true}
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {featuredProducts.slice(0, 8).map(product => (
+                <ProductCard key={product._id} product={product} onGreenBg={true} />
+              ))}
+            </div>
+          </Section>
+        </div>
+
+        {/* wave transition*/}
+        <div className="absolute bottom-0 left-0 right-0 h-24">
+          <svg
+            viewBox="0 0 1440 120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-full"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0,64 C240,100 480,100 720,80 C960,60 1200,40 1440,64 L1440,120 L0,120 Z"
+              fill="rgb(249, 250, 251)"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* gray section for new arrivals and below */}
+      <div className="bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-12">
+
+          {/* New Arrivals (Electronics) */}
+          <Section
           title="New Arrivals in Electronics"
           subtitle="Latest tech and gadgets"
           viewAllLink="/browse?category=Electronics&sort=newest"
@@ -489,6 +528,7 @@ const Home = () => {
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   );
