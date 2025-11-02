@@ -27,7 +27,12 @@ export const WishlistProvider = ({ children }) => {
       // backend returns { data: { products: [...] } }
       const wishlistItems = data.data?.products || data.data || [];
 
-      setWishlist(wishlistItems);
+      // filter out null/deleted products
+      const validItems = wishlistItems.filter(item => {
+        return item && item._id && item.name && item.price !== undefined;
+      });
+
+      setWishlist(validItems);
     } catch (error) {
       console.error('error fetching wishlist:', error);
       setWishlist([]);
