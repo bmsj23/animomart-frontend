@@ -36,7 +36,7 @@ const Wishlist = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
-  const { wishlist, loading: wishlistLoading } = useWishlist();
+  const { wishlist, loading: wishlistLoading, fetchWishlist } = useWishlist();
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get("page")) || 1
   );
@@ -50,6 +50,12 @@ const Wishlist = () => {
     maxPrice: searchParams.get("maxPrice") || "",
     sort: searchParams.get("sort") || "newest",
   });
+
+  // fetch wishlist when component mounts
+  useEffect(() => {
+    fetchWishlist();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // compute filtered wishlisht whenever wishlist or filters change
   const applyFiltersAndSort = (items, sortMethod) => {
