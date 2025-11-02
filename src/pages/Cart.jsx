@@ -175,7 +175,7 @@ const Cart = () => {
     } catch (err) {
       // revert on error
       setCart(previousCart);
-      showError('Failed to delete selected items');
+      showError('Failed to delete selected items', err);
     }
   };
 
@@ -243,7 +243,7 @@ const Cart = () => {
             <button
               onClick={() => setBulkDeleteConfirm({ show: true })}
               disabled={selectedItems.size === 0}
-              className="text-md text-black-600 hover:underline disabled cursor-pointer"
+              className="text-md text-black-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Remove
             </button>
@@ -277,7 +277,7 @@ const Cart = () => {
                     className="absolute top-7 right-6 text-gray-600 hover:text-gray-800 p-1 rounded-full"
                     aria-label="Remove item"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 hover:text-red-600 hover:cursor-pointer" />
                   </button>
 
                   {/* Per-item subtotal on the right side of the card (single line) */}
@@ -294,8 +294,9 @@ const Cart = () => {
                     <div className="shrink-0 relative">
                       <img
                         src={item.product?.images?.[0] || '/assets/emptycart.png'}
+                        onClick={() => navigate(`/products/${item.product._id}`)}
                         alt={item.product?.name}
-                        className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white"
+                        className="mt-7 w-44 h-48 md:w-56 md:h-64 object-cover rounded-md bg-white cursor-pointer"
                       />
                     </div>
 
@@ -304,7 +305,7 @@ const Cart = () => {
                       <button
                         type="button"
                         onClick={() => navigate(`/products/${item.product._id}`)}
-                        className="mt-6 text-base md:text-lg text-black font-semibold truncate text-left focus:outline-none cursor-pointer"
+                        className="mt-6 text-base md:text-lg text-black font-semibold truncate text-left focus:outline-none hover:cursor-pointer"
                         aria-label={`View ${item.product?.name}`}
                       >
                         {item.product?.name}
@@ -327,7 +328,7 @@ const Cart = () => {
                             type="button"
                             onClick={() => handleUpdateQuantity(item.product._id, Math.max(1, item.quantity - 1))}
                             disabled={item.quantity <= 1}
-                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="w-4 h-4" />
@@ -339,7 +340,7 @@ const Cart = () => {
                             type="button"
                             onClick={() => handleUpdateQuantity(item.product._id, Math.min(item.product?.stock || 99, item.quantity + 1))}
                             disabled={item.product?.stock ? item.quantity >= item.product.stock : false}
-                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
                             aria-label="Increase quantity"
                           >
                             <Plus className="w-4 h-4" />
