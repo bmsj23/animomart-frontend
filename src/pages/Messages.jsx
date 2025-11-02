@@ -42,7 +42,6 @@ const Messages = () => {
   const {
     messageText,
     setMessageText,
-    sending,
     imagePreviews,
     messagesEndRef,
     handleImageSelect,
@@ -186,10 +185,11 @@ const Messages = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 top-16 md:top-20 flex flex-col bg-gray-50">
       {/* main container */}
-      <div className="flex-1 flex md:p-4 overflow-hidden bg-gray-50">
-        <div className="w-full max-w-7xl mx-auto flex md:rounded-lg md:shadow-lg overflow-hidden bg-white">
+      <div className="flex-1 flex overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 flex overflow-hidden">
+          <div className="w-full flex md:rounded-lg md:shadow-lg overflow-hidden bg-white">
 
           {/* left: conversations list */}
           <div className={`${
@@ -288,7 +288,6 @@ const Messages = () => {
                     onImageSelect={handleImageSelect}
                     onRemoveImage={removeImage}
                     onSubmit={handleSendMessage}
-                    sending={sending}
                     onTyping={handleTyping}
                   />
                 </div>
@@ -298,6 +297,7 @@ const Messages = () => {
             )}
           </div>
 
+          </div>
         </div>
       </div>
     </div>
