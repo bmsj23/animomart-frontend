@@ -196,11 +196,11 @@ const CategoryCard = ({ title, subtitle, icon: Icon, bgColor = 'bg-gray-50', tex
 
 // Loading Skeleton
 const SkeletonCard = () => (
-  <div className="bg-gray-100 rounded-sm overflow-hidden shadow-md h-full animate-pulse" />
+  <div className="bg-gray-100 rounded-3xl overflow-hidden shadow-md h-full animate-pulse" />
 );
 
 const SkeletonCategory = () => (
-  <div className="bg-gray-50 rounded-sm p-5 sm:p-6 h-full animate-pulse min-h-[100px] sm:min-h-[120px]">
+  <div className="bg-gray-50 rounded-3xl p-5 sm:p-6 h-full animate-pulse min-h-[100px] sm:min-h-[120px]">
     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full mb-3 sm:mb-4" />
     <div className="h-4 sm:h-5 bg-gray-200 rounded w-3/4 mb-2" />
     <div className="h-3 bg-gray-200 rounded w-1/2" />

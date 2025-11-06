@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AdminProvider } from './context/AdminContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ToastProvider } from './context/ToastContext';
@@ -37,6 +38,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <AdminProvider>
         <CartProvider>
           <WishlistProvider>
             <SocketProvider>
@@ -229,6 +231,7 @@ function App() {
         </SocketProvider>
         </WishlistProvider>
         </CartProvider>
+        </AdminProvider>
       </AuthProvider>
     </Router>
   );
