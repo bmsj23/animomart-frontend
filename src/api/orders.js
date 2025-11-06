@@ -8,7 +8,7 @@ export const createOrder = async (orderData) => {
 
 // get user's orders (buyer & seller)
 export const getOrders = async () => {
-  const response = await api.get('/orders');
+  const response = await api.get('/orders/my');
   return response.data;
 };
 
@@ -20,13 +20,13 @@ export const getOrder = async (id) => {
 
 // update order status (seller)
 export const updateOrderStatus = async (id, status, note = '') => {
-  const response = await api.put(`/orders/${id}/status`, { status, note });
+  const response = await api.patch(`/orders/${id}/status`, { status, note });
   return response.data;
 };
 
 // cancel order
 export const cancelOrder = async (id, reason) => {
-  const response = await api.put(`/orders/${id}/cancel`, { reason });
+  const response = await api.post(`/orders/${id}/cancel`, { reason });
   return response.data;
 };
 
