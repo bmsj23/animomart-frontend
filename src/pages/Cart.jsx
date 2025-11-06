@@ -387,7 +387,11 @@ const Cart = () => {
               </div>
 
               <button
-                onClick={() => navigate('/checkout')}
+                onClick={() => {
+                  // save selected items to localStorage for checkout
+                  localStorage.setItem('checkout-selected-items', JSON.stringify(Array.from(selectedItems)));
+                  navigate('/checkout');
+                }}
                 disabled={selectedItems.size === 0}
                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
               >

@@ -23,6 +23,7 @@ import Search from './pages/Search';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
 import Sell from './pages/Sell';
@@ -134,6 +135,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <Checkout />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout/success/:orderId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <CheckoutSuccess />
                     </MainLayout>
                   </ProtectedRoute>
                 }

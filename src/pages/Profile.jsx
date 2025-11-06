@@ -8,12 +8,21 @@ import { getMyPurchases, getMySales } from "../api/orders";
 import { getMyReviews } from "../api/reviews";
 import { formatCurrency } from "../utils/formatCurrency";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import Modal from "../components/common/Modal";
 import { User } from "lucide-react";
 
 const Profile = () => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && ['profile', 'listings', 'purchases', 'sales', 'reviews'].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   const tabs = [
     { id: "profile", label: "My Profile" },
@@ -660,7 +669,7 @@ const Profile = () => {
                   <div className="space-y-4">
                     {sales.map((entry, idx) => (
                       <div key={entry.orderId + '-' + idx} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-4">
-                        <div className="w-32 flex-shrink-0">
+                        <div className="w-32 shrink-0">
                           <img src={entry.product?.image || entry.product?.images?.[0] || '/api/placeholder/400/320'} alt={entry.product?.name || 'Product'} className="w-full h-24 object-cover rounded" />
                         </div>
                         <div className="flex-1">
@@ -707,7 +716,7 @@ const Profile = () => {
                     {authoredReviews.map((r) => (
                       <div key={r._id || r.id || `${r.product?._id || r.product?.id}-${r.createdAt}` } className="bg-white border border-gray-100 rounded-lg p-4">
                         <div className="flex items-start gap-4">
-                          <div className="w-20 flex-shrink-0">
+                          <div className="w-20 shrink-0">
                             <Link to={r.product?._id ? `/products/${r.product._id}` : '#'}>
                               <img src={r.product?.image || r.product?.images?.[0] || '/api/placeholder/160/160'} alt={r.product?.name || 'Product'} className="w-full h-16 object-cover rounded" />
                             </Link>
