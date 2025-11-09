@@ -24,6 +24,8 @@ const ProductDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -68,12 +70,20 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
+    // optimistic UI: set state immediately so button changes to 'Added to Cart' + darker green
+    if (isAdding || addedToCart) return;
+    setIsAdding(true);
+    setAddedToCart(true);
     try {
       await addToCart({ productId: id, quantity });
       await fetchCart();
     } catch (err) {
       console.error('Failed to add to cart:', err);
+      // rollback optimistic state
+      setAddedToCart(false);
       showError(err.response?.data?.message || 'Failed to add to cart');
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -137,6 +147,20 @@ const ProductDetail = () => {
 
   const isOwnProduct = user?._id === product.seller?._id;
   const isOutOfStock = product.stock === 0;
+
+  // compute Add to Cart button classes so disabled state can differ
+  const getAddToCartClass = () => {
+    if (isOutOfStock) {
+      // out of stock should remain visually disabled (gray)
+      return 'flex-1 bg-gray-300 text-white py-3 rounded-lg cursor-not-allowed font-medium';
+    }
+    if (addedToCart) {
+      // when already added, keep it disabled but use a darker green background
+      return 'flex-1 bg-green-800 text-white py-3 rounded-lg cursor-not-allowed font-medium';
+    }
+    // default active state (clickable -> show pointer on hover)
+    return 'flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 hover:cursor-pointer transition-colors font-medium';
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -271,10 +295,10 @@ const ProductDetail = () => {
               <>
                 <button
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  disabled={isOutOfStock || addedToCart}
+                  className={getAddToCartClass()}
                 >
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock ? 'Out of Stock' : (addedToCart ? 'Added to Cart' : 'Add to Cart')}
                 </button>
                 <button
                   onClick={handleToggleFavorite}
