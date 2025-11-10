@@ -11,6 +11,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import Modal from "../components/common/Modal";
 import { User } from "lucide-react";
+import { logger } from '../utils/logger';
 
 const Profile = () => {
   const location = useLocation();
@@ -227,7 +228,7 @@ const Profile = () => {
           });
         } else {
           // defensive logging to help identify unexpected shapes from the backend
-          console.error('loadPurchases: expected orders array but got:', orders, 'raw response:', data);
+          logger.error('loadPurchases: expected orders array but got:', orders, 'raw response:', data);
         }
 
         // de-duplicate by _id if present
@@ -285,7 +286,7 @@ const Profile = () => {
             }
           });
         } else {
-          console.error('loadSales: expected orders array but got:', orders, 'raw response:', data);
+          logger.error('loadSales: expected orders array but got:', orders, 'raw response:', data);
         }
 
         setSales(saleEntries);
