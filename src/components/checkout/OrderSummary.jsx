@@ -21,14 +21,20 @@ const OrderSummary = ({ sellerGroups, subtotal, shippingFee, total, isProcessing
                       src={group.seller.profilePicture}
                       alt={group.sellerName}
                       className="w-8 h-8 rounded-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
                     />
-                  ) : (
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-green-700">
-                        {group.sellerName.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
+                  ) : null}
+                  <div
+                    className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"
+                    style={{ display: group.seller?.profilePicture ? 'none' : 'flex' }}
+                  >
+                    <span className="text-xs font-medium text-green-700">
+                      {group.sellerName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
                   <span className="text-sm font-medium text-gray-700">
                     {group.sellerName}
                   </span>
@@ -60,15 +66,15 @@ const OrderSummary = ({ sellerGroups, subtotal, shippingFee, total, isProcessing
 
         <div className="border-t border-gray-200 pt-4 space-y-2 mb-4">
           <div className="flex justify-between text-gray-600">
-            <span>subtotal</span>
+            <span>Subtotal</span>
             <span className="font-semibold">{formatCurrency(subtotal)}</span>
           </div>
           <div className="flex justify-between text-gray-600">
-            <span>shipping fee</span>
+            <span>Shipping Fee</span>
             <span className="font-semibold">{shippingFee > 0 ? formatCurrency(shippingFee) : 'Free'}</span>
           </div>
           <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
-            <span>total</span>
+            <span>Total</span>
             <span className="text-green-600">{formatCurrency(total)}</span>
           </div>
         </div>

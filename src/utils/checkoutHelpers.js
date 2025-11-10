@@ -6,18 +6,28 @@ export const groupItemsBySeller = (cartItems) => {
 
   cartItems.forEach(item => {
     // get seller info
-    const sellerData = item.product?.seller;
-    const sellerId = sellerData?._id || sellerData || item.seller?._id || item.seller || 'unknown';
+    const sellerData = item.product?.seller || item.seller;
 
+    // handle case where seller is just an ID string (not populated)
+    let sellerId;
     let sellerName = 'Unknown Seller';
     let sellerInfo = null;
 
-    if (typeof sellerData === 'object' && sellerData !== null) {
-      sellerInfo = sellerData;
+    if (typeof sellerData === 'string') {
+      sellerId = sellerData;
+      sellerInfo = null;
+      sellerName = 'Unknown Seller';
+    } else if (typeof sellerData === 'object' && sellerData !== null) {
+      sellerId = sellerData._id;
+      sellerInfo = {
+        _id: sellerData._id,
+        name: sellerData.name || sellerData.username,
+        profilePicture: sellerData.profilePicture,
+        businessName: sellerData.businessName
+      };
       sellerName = sellerData.name || sellerData.username || 'Unknown Seller';
-    } else if (typeof item.seller === 'object' && item.seller !== null) {
-      sellerInfo = item.seller;
-      sellerName = item.seller.name || item.seller.username || 'Unknown Seller';
+    } else {
+      sellerId = 'unknown';
     }
 
     if (!sellerGroups[sellerId]) {

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { useCart } from './useCart';
 import { useToast } from './useToast';
 import { createOrder } from '../api/orders';
+import { getCartGrouped } from '../api/cart';
 import {
   groupItemsBySeller,
   calculateSubtotal,
@@ -17,6 +18,12 @@ const useCheckout = () => {
   const { cart, loading: cartLoading, removeItem } = useCart();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // check for direct checkout from product detail
+  const directCheckout = location.state?.directCheckout;
+  const directProduct = location.state?.product;
+  const directQuantity = location.state?.quantity || 1;
 
   const [form, setForm] = useState({
     name: '',
@@ -33,6 +40,24 @@ const useCheckout = () => {
 
   const [selectedItemIds, setSelectedItemIds] = useState(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [groupedCartData, setGroupedCartData] = useState(null);
+
+  // fetch grouped cart data from backend when not in direct checkout mode
+  useEffect(() => {
+    const fetchGroupedCart = async () => {
+      if (directCheckout || !selectedItemIds.size) return;
+
+      try {
+        const data = await getCartGrouped();
+        logger.log('grouped cart data from backend:', data);
+        setGroupedCartData(data);
+      } catch (err) {
+        logger.error('failed to fetch grouped cart:', err);
+      }
+    };
+
+    fetchGroupedCart();
+  }, [directCheckout, selectedItemIds.size]);
 
   // load user info
   useEffect(() => {
@@ -63,22 +88,58 @@ const useCheckout = () => {
   // redirect if no selected items
   useEffect(() => {
     if (isProcessing) return;
+
+    // skip redirect if direct checkout
+    if (directCheckout && directProduct) return;
+
     if (!cartLoading && cart?.items && selectedItemIds.size > 0) {
       const hasSelectedItems = cart.items.some(item => selectedItemIds.has(item.product._id));
       if (!hasSelectedItems) {
         navigate('/cart');
       }
     }
-  }, [cart, cartLoading, selectedItemIds, navigate, isProcessing]);
+  }, [cart, cartLoading, selectedItemIds, navigate, isProcessing, directCheckout, directProduct]);
 
-  // filter to selected items
-  const selectedCartItems = cart?.items?.filter(item =>
-    selectedItemIds.has(item.product._id)
-  ) || [];
+  // filter to selected items OR use direct checkout item
+  const selectedCartItems = directCheckout && directProduct
+    ? [{
+        product: directProduct,
+        quantity: directQuantity,
+        _id: directProduct._id
+      }]
+    : (cart?.items?.filter(item => selectedItemIds.has(item.product._id)) || []);
 
-  // calculations
-  const sellerGroups = groupItemsBySeller(selectedCartItems);
-  const subtotal = calculateSubtotal(selectedCartItems);
+  // use backend grouped data when available, otherwise use frontend grouping for direct checkout
+  let sellerGroups;
+  let subtotal;
+
+  if (directCheckout) {
+    // direct checkout from product detail (the modal when user adds item to cart) use frontend grouping
+    sellerGroups = groupItemsBySeller(selectedCartItems);
+    subtotal = calculateSubtotal(selectedCartItems);
+  } else if (groupedCartData?.sellers) {
+    // cart checkout (filter backend grouped data to only selected items)
+    sellerGroups = groupedCartData.sellers
+      .map(group => ({
+        ...group,
+        items: group.items.filter(item =>
+          selectedItemIds.has(item.product?._id || item._id)
+        )
+      }))
+      .filter(group => group.items.length > 0);
+
+    // recalculate subtotal from filtered items
+    subtotal = sellerGroups.reduce((total, group) =>
+      total + (group.subtotal || group.items.reduce((sum, item) =>
+        sum + (item.price * item.quantity), 0
+      )), 0
+    );
+  } else {
+    // fallback
+    sellerGroups = [];
+    subtotal = 0;
+  }
+
   const shippingFee = form.deliveryMethod === 'shipping' ? 50 : 0;
   const total = subtotal + shippingFee;
 
@@ -104,9 +165,12 @@ const useCheckout = () => {
       localStorage.removeItem('cart-selected-items');
       setSelectedItemIds(new Set()); // clear selected items state
 
-      // remove only the selected items from cart!!!!
-      for (const item of selectedCartItems) {
-        await removeItem(item.product._id);
+      // remove items from cart, skip if direct checkout (item already in cart with different quantity brochaco)
+      if (!directCheckout) {
+        // remove only the selected items from cart!!!!
+        for (const item of selectedCartItems) {
+          await removeItem(item.product._id);
+        }
       }
 
       success('Order placed successfully!');
