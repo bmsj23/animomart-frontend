@@ -6,6 +6,7 @@ import { uploadImage } from '../../api/upload';
 import { useToast } from '../../hooks/useToast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { CATEGORY_DATA } from '../../constants/categories';
+import { logger } from '../../utils/logger';
 
 const CONDITION_OPTIONS = ['New', 'Like New', 'Good', 'Fair'];
 
@@ -69,7 +70,7 @@ const ProductForm = () => {
         description: product.description.length
       });
     } catch (err) {
-      console.error('failed to fetch product:', err);
+      logger.error('failed to fetch product:', err);
       error('Failed To Load Product');
       navigate('/seller/products');
     } finally {
@@ -129,7 +130,7 @@ const ProductForm = () => {
 
       success(`${files.length} Image(s) Uploaded`);
     } catch (err) {
-      console.error('failed to upload images:', err);
+      logger.error('failed to upload images:', err);
       error('Failed To Upload Images');
     } finally {
       setUploadingImages(false);
@@ -223,7 +224,7 @@ const ProductForm = () => {
 
       navigate('/seller/products');
     } catch (err) {
-      console.error('failed to save product:', err);
+      logger.error('failed to save product:', err);
       error(err.response?.data?.message || 'Failed to Save Product');
     } finally {
       setSubmitting(false);
