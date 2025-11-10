@@ -4,6 +4,7 @@ import { useToast } from '../../hooks/useToast';
 import { Search, ShoppingCart, MoreVertical, Eye, DollarSign, User, Calendar, Package } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { logger } from '../../utils/logger';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -29,7 +30,7 @@ const Orders = () => {
       setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
       showError('failed to fetch orders');
-      console.error('error fetching orders:', error);
+      logger.error('error fetching orders:', error);
     } finally {
       setLoading(false);
     }
