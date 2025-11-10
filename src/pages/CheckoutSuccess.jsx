@@ -25,7 +25,7 @@ const CheckoutSuccess = () => {
         console.log('Setting order:', orderData);
         setOrder(orderData);
       } catch (err) {
-        console.error('Failed to fetch order:', err);
+        logger.error('Failed to fetch order:', err);
         setError(err.response?.data?.message || 'Failed to load order details');
       } finally {
         setLoading(false);
