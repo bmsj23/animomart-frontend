@@ -13,7 +13,7 @@ function Sell() {
 
   useEffect(() => {
     if (isSeller) {
-      navigate('/seller/products/new');
+      navigate('/seller/products/');
     }
   }, [isSeller, navigate]);
 
