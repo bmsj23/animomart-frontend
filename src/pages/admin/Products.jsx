@@ -26,10 +26,10 @@ const Products = () => {
       setLoading(true);
       // fetch all products by passing a large limit
       const response = await getAllProducts({ limit: 1000 });
-      console.log('products response:', response);
+      logger.log('products response:', response);
 
       const productsData = response.products || response.data?.products || response?.data || [];
-      console.log('extracted products:', productsData);
+      logger.log('extracted products:', productsData);
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (error) {
       showError('Failed to fetch products');
