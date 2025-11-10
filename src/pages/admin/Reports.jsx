@@ -24,10 +24,10 @@ const Reports = () => {
     try {
       setLoading(true);
       const response = await getAllReports();
-      console.log('reports response:', response);
+      logger.log('reports response:', response);
 
       const reportsData = response.reports || response.data?.reports || response?.data || [];
-      console.log('extracted reports:', reportsData);
+      logger.log('extracted reports:', reportsData);
       setReports(Array.isArray(reportsData) ? reportsData : []);
     } catch (error) {
       showError('failed to fetch reports');

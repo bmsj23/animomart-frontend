@@ -38,9 +38,9 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      console.log('Fetching product with ID:', id);
+      logger.log('Fetching product with ID:', id);
       const response = await getProduct(id);
-      console.log('Product response:', response);
+      logger.log('Product response:', response);
       setProduct(response.data);
     } catch (err) {
       logger.error('Failed to fetch product:', err);
@@ -63,7 +63,7 @@ const ProductDetail = () => {
         setSimilarProducts(response.data);
       }
     } catch (err) {
-      console.warn('failed to fetch similar products:', err);
+      logger.warn('failed to fetch similar products:', err);
       // we will not show error to user. just skip the section
     } finally {
       setLoadingSimilar(false);

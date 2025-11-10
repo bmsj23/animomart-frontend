@@ -95,7 +95,7 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
         messageData.conversationId = selectedConversation.conversationId;
       }
 
-      console.log('Sending message with data:', messageData);
+      logger.log('Sending message with data:', messageData);
       const response = await messageApi.sendMessage(messageData);
       const messageFromResponse = response.data?.message || response.data;
 
