@@ -8,7 +8,7 @@ import SearchBar from './SearchBar';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isSeller } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const profileRef = useRef(null);
@@ -147,9 +147,14 @@ const Navbar = () => {
               </button>
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                  <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setIsProfileOpen(false)}>
+                  <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
                     My Profile
                   </Link>
+                  {isSeller && (
+                    <Link to="/seller/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
+                      Seller Dashboard
+                    </Link>
+                  )}
                   {isAdmin && (
                     <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
                       Admin Dashboard
@@ -244,14 +249,16 @@ const Navbar = () => {
                     <span className="font-medium">My Profile</span>
                   </Link>
 
-                  <Link
-                    to="/seller/dashboard"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Package className="w-5 h-5" />
-                    <span className="font-medium">Seller Dashboard</span>
-                  </Link>
+                  {isSeller && (
+                    <Link
+                      to="/seller/dashboard"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Package className="w-5 h-5" />
+                      <span className="font-medium">Seller Dashboard</span>
+                    </Link>
+                  )}
 
                   <Link
                     to="/sell"
