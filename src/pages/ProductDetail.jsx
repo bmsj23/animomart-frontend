@@ -369,7 +369,7 @@ const ProductDetail = () => {
                   max={product.stock}
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
-                  className="w-20 px-4 py-2 border border-gray-300 rounded-lg text-center"
+                  className="w-20 px-4 py-2 border border-gray-300 rounded-lg text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
@@ -414,7 +414,21 @@ const ProductDetail = () => {
           <div className="border-t border-gray-200 pt-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Seller Information</h2>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+              {product.seller?.profilePicture ? (
+                <img
+                  src={product.seller.profilePicture}
+                  alt={product.seller.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold"
+                style={{ display: product.seller?.profilePicture ? 'none' : 'flex' }}
+              >
                 {product.seller?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
