@@ -29,7 +29,12 @@ export const SocketProvider = ({ children }) => {
       auth: {
         token: localStorage.getItem('token')
       },
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+      autoConnect: true
     });
 
     newSocket.on('connect', () => {
@@ -42,6 +47,10 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect_error', () => {
       setIsConnected(false);
+      // dev mode logs only
+      if (import.meta.env.DEV) {
+        console.warn('Socket connection error - messaging features may be unavailable');
+      }
     });
 
     newSocket.on('onlineUsers', (users) => {
