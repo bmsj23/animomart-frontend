@@ -164,6 +164,10 @@ const CheckoutSuccess = () => {
                       </p>
                     )}
                   </>
+                ) : order.deliveryMethod === 'meetup' && order.meetupLocation ? (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Meetup Location: {order.meetupLocation}
+                  </p>
                 ) : (
                   <p className="text-sm text-gray-600 mt-1">
                     Meetup location will be coordinated with seller
