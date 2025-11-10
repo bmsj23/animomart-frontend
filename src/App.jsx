@@ -9,6 +9,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import SellerLayout from './components/layout/SellerLayout';
 import Navbar from './components/layout/Navbar';
 import Toast from './components/common/Toast';
 
@@ -34,6 +35,13 @@ import Users from './pages/admin/Users';
 import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import Reports from './pages/admin/Reports';
+
+// seller pages
+import SellerDashboard from './pages/seller/Dashboard';
+import SellerProducts from './pages/seller/Products';
+import ProductForm from './pages/seller/ProductForm';
+import SellerOrders from './pages/seller/Orders';
+import OrderDetail from './pages/seller/OrderDetail';
 
 function App() {
   return (
@@ -232,6 +240,68 @@ function App() {
                       <Reports />
                     </AdminLayout>
                   </AdminRoute>
+                }
+              />
+
+              {/* Seller Routes with Seller Layout */}
+              <Route
+                path="/seller/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <SellerDashboard />
+                    </SellerLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/seller/products"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <SellerProducts />
+                    </SellerLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/seller/products/new"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <ProductForm />
+                    </SellerLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/seller/products/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <ProductForm />
+                    </SellerLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/seller/orders"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <SellerOrders />
+                    </SellerLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/seller/orders/:id"
+                element={
+                  <ProtectedRoute>
+                    <SellerLayout>
+                      <OrderDetail />
+                    </SellerLayout>
+                  </ProtectedRoute>
                 }
               />
 
