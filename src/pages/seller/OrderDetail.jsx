@@ -233,6 +233,27 @@ const OrderDetail = () => {
               <User className="w-5 h-5" />
               Buyer Information
             </h2>
+            <div className="flex items-center gap-3 mb-4">
+              {(order.buyer?.profilePicture || order.buyer?.picture) ? (
+                <img
+                  src={(order.buyer?.profilePicture || order.buyer?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                  alt={order.buyer?.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"
+                style={{ display: (order.buyer?.profilePicture || order.buyer?.picture) ? 'none' : 'flex' }}
+              >
+                <span className="text-lg font-semibold text-green-700">
+                  {order.buyer?.name?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+            </div>
             <div className="space-y-2 text-sm">
               <div>
                 <p className="text-gray-600">Name</p>
@@ -273,6 +294,12 @@ const OrderDetail = () => {
                     </div>
                   )}
                 </>
+              )}
+              {order.deliveryMethod === 'meetup' && order.meetupLocation && (
+                <div>
+                  <p className="text-gray-600">Meetup Location</p>
+                  <p className="font-medium text-gray-900">{order.meetupLocation}</p>
+                </div>
               )}
             </div>
           </div>
