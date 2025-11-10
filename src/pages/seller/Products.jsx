@@ -179,7 +179,7 @@ const Products = () => {
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Found</h3>
           <p className="text-gray-600 mb-6">
-            {searchQuery ? 'Try Adjusting Your Search' : 'Start by listing your first product'}
+            {searchQuery ? 'Try adjusting your Search' : 'Start by listing your first product'}
           </p>
           {!searchQuery && (
             <Link
@@ -187,7 +187,7 @@ const Products = () => {
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Create Product</span>
+              <span>List Product</span>
             </Link>
           )}
         </div>
