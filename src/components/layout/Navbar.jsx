@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User, Package } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import SearchBar from './SearchBar';
@@ -151,7 +151,7 @@ const Navbar = () => {
                     My Profile
                   </Link>
                   {isAdmin && (
-                    <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setIsProfileOpen(false)}>
+                    <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
                       Admin Dashboard
                     </Link>
                   )}
@@ -237,7 +237,7 @@ const Navbar = () => {
                 <nav className="space-y-1">
                   <Link
                     to="/profile"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="w-5 h-5" />
@@ -245,8 +245,17 @@ const Navbar = () => {
                   </Link>
 
                   <Link
+                    to="/seller/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Package className="w-5 h-5" />
+                    <span className="font-medium">Seller Dashboard</span>
+                  </Link>
+
+                  <Link
                     to="/sell"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Plus className="w-5 h-5" />
@@ -255,7 +264,7 @@ const Navbar = () => {
 
                   <Link
                     to="/wishlist"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="w-5 h-5" />
@@ -264,7 +273,7 @@ const Navbar = () => {
 
                   <Link
                     to="/messages"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <MessageSquare className="w-5 h-5" />
@@ -274,7 +283,7 @@ const Navbar = () => {
                   {isAdmin && (
                     <Link
                       to="/admin"
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <ChevronDown className="w-5 h-5" />
@@ -286,7 +295,7 @@ const Navbar = () => {
 
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 transition text-red-600 font-medium"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 transition text-red-600 font-medium hover:cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                     <span>Logout</span>
