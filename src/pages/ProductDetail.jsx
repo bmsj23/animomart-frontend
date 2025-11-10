@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, CheckCircle, ShoppingCart } from 'lucide-react';
 import { getProduct, getSimilarProducts } from '../api/products';
 import { addToCart } from '../api/cart';
 import { addToWishlist, removeFromWishlist } from '../api/wishlist';
@@ -15,7 +15,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { fetchCart } = useCart();
+  const { fetchCart, cart } = useCart();
   const { error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
@@ -27,6 +27,7 @@ const ProductDetail = () => {
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const addedTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -89,28 +90,38 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    // non-optimistic: only update UI after API confirms success
     if (isAdding || addedToCart) return;
+
+    // check current quantity in cart
+    const cartItem = cart?.items?.find(item => item.product?._id === id);
+    const currentCartQuantity = cartItem?.quantity || 0;
+    const totalQuantity = currentCartQuantity + quantity;
+
+    // validate against available stock
+    if (totalQuantity > product.stock) {
+      const remaining = product.stock - currentCartQuantity;
+      if (remaining <= 0) {
+        showError(`This Product is already in your Cart with Maximum Available Stock (${product.stock})`);
+      } else {
+        showError(`Only ${remaining} more can be added. You already have ${currentCartQuantity} in your cart`);
+      }
+      return;
+    }
+
     setIsAdding(true);
-    // clear any previous timeout
     if (addedTimeoutRef.current) {
       clearTimeout(addedTimeoutRef.current);
       addedTimeoutRef.current = null;
     }
+
     try {
       await addToCart({ productId: id, quantity });
       await fetchCart();
 
-      // set added state only after successful API response
       setAddedToCart(true);
-      // keep 'Added to Cart' for 3 seconds, then revert to 'Add to Cart'
-      addedTimeoutRef.current = setTimeout(() => {
-        setAddedToCart(false);
-        addedTimeoutRef.current = null;
-      }, 1500);
+      setShowSuccessPopup(true);
     } catch (err) {
       logger.error('Failed to add to cart:', err);
-      // rollback optimistic state
       setAddedToCart(false);
       showError(err.response?.data?.message || 'Failed to add to cart');
     } finally {
@@ -195,6 +206,56 @@ const ProductDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* success popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform animate-scaleIn">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 animate-bounceIn">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Added To Cart!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {quantity} {quantity > 1 ? 'items' : 'item'} successfully added to your cart
+              </p>
+              <div className="flex flex-col gap-3 w-full">
+                <div className="flex gap-3 w-full">
+                  <button
+                    onClick={() => navigate('/cart')}
+                    className="flex-1 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 hover:cursor-pointer font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    View Cart
+                  </button>
+                  <button
+                    onClick={() => navigate('/checkout', {
+                      state: {
+                        directCheckout: true,
+                        product: product,
+                        quantity: quantity
+                      }
+                    })}
+                    className="flex-1 px-6 py-3 bg-[rgb(var(--color-primary-dark))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))] hover:cursor-pointer font-medium transition-colors"
+                  >
+                    Checkout
+                  </button>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowSuccessPopup(false);
+                    setAddedToCart(false);
+                  }}
+                  className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-300 hover:cursor-pointer font-medium transition-colors"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* breadcrumb */}
       <div className="mb-6">
         <nav className="flex text-sm text-gray-500">
