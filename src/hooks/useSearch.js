@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getProducts, hybridSearch } from '../api/products';
 import { getParentCategory } from '../constants/categories';
+import { logger } from '../utils/logger';
 
 export const useSearch = (query, options = {}) => {
   const {
@@ -103,7 +104,7 @@ export const useSearch = (query, options = {}) => {
         setResults(limitedResults);
         setSuggestions([]); // clear suggestions when using fallback
       } catch (error) {
-        console.error('search error:', error);
+        logger.error('search error:', error);
         setResults([]);
         setSuggestions([]);
       } finally {
