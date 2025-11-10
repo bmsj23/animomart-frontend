@@ -134,11 +134,20 @@ const Navbar = () => {
             <div ref={profileRef} className="relative">
               <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn hover:cursor-pointer bg-gray-200">
                 {(user?.profilePicture || user?.picture) ? (
-                  <img
-                    src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <img
+                      src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-full h-full hidden items-center justify-center bg-gray-300">
+                      <User className="w-7 h-7 text-gray-500" />
+                    </div>
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-300">
                     <User className="w-7 h-7 text-gray-500" />
@@ -221,11 +230,20 @@ const Navbar = () => {
                 <div className="mb-8 pt-2">
                   <div className="flex items-center gap-4">
                     {(user?.profilePicture || user?.picture) ? (
-                      <img
-                        src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
-                        alt="Profile"
-                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                      />
+                      <>
+                        <img
+                          src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                          alt="Profile"
+                          className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="w-16 h-16 rounded-full hidden items-center justify-center bg-gray-300 border-2 border-gray-200">
+                          <User className="w-8 h-8 text-gray-500" />
+                        </div>
+                      </>
                     ) : (
                       <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-300 border-2 border-gray-200">
                         <User className="w-8 h-8 text-gray-500" />
