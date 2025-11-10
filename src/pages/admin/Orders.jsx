@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAllOrders } from '../../api/admin';
 import { useToast } from '../../hooks/useToast';
-import { Search, ShoppingCart, MoreVertical, Eye, DollarSign, User, Calendar, Package } from 'lucide-react';
+import { Search, ShoppingCart, MoreVertical, Eye, User, Calendar, Package } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { logger } from '../../utils/logger';
@@ -22,11 +22,8 @@ const Orders = () => {
     try {
       setLoading(true);
       const response = await getAllOrders();
-      logger.log('orders response:', response);
-
       // handle different response structures
       const ordersData = response.orders || response.data?.orders || response?.data || [];
-      logger.log('extracted orders:', ordersData);
       setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
       showError('failed to fetch orders');
@@ -40,11 +37,36 @@ const Orders = () => {
     setSelectedOrder(order);
   };
 
-  const filteredOrders = orders.filter(order =>
-    order._id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.buyer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.seller?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // helper to get first item from order
+  const getFirstItem = (order) => order.items?.[0] || {};
+
+  // helper to get total items count
+  const getTotalItems = (order) => {
+    return order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  };
+
+  // helper to get seller name from item
+  const getSellerName = (item) => {
+    if (!item) return 'unknown';
+
+    // seller is at item level, not product level
+    const seller = item.seller;
+
+    // check if seller is populated object or just ID string
+    if (typeof seller === 'string') {
+      return 'unknown';
+    } else if (seller && typeof seller === 'object') {
+      return seller.name || seller.username || 'unknown';
+    }
+
+    return 'unknown';
+  };  const filteredOrders = orders.filter(order => {
+    const firstItem = getFirstItem(order);
+    const sellerName = getSellerName(firstItem);
+    return order._id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.buyer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sellerName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-PH', {
@@ -116,7 +138,11 @@ const Orders = () => {
               No orders found
             </div>
           ) : (
-            filteredOrders.map((order) => (
+            filteredOrders.map((order) => {
+              const firstItem = getFirstItem(order);
+              const totalItems = getTotalItems(order);
+
+              return (
               <div key={order._id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -133,9 +159,17 @@ const Orders = () => {
                         <span className="text-gray-900 font-medium">{order.buyer?.name || 'Unknown'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
+                        <User className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-gray-600">Seller:</span>
+                        <span className="text-gray-900 font-medium">{getSellerName(firstItem)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
                         <Package className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="text-gray-600">Product:</span>
-                        <span className="text-gray-900">{order.product?.name || 'Unknown'}</span>
+                        <span className="text-gray-600">Items:</span>
+                        <span className="text-gray-900">
+                          {firstItem.product?.name || 'Unknown'}
+                          {totalItems > 1 && ` +${totalItems - 1} more`}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -149,8 +183,7 @@ const Orders = () => {
 
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-600" />
-                    <span className="font-semibold text-gray-900">{formatPrice(order.total)}</span>
+                    <span className="font-semibold text-gray-900">{formatPrice(order.totalAmount || 0)}</span>
                   </div>
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStatusColor(order.status)}`}>
                     {order.status}
@@ -177,7 +210,7 @@ const Orders = () => {
                   </div>
                 )}
               </div>
-            ))
+            )})
           )}
         </div>
 
@@ -196,7 +229,7 @@ const Orders = () => {
                   Seller
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Product
+                  Items
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Total
@@ -220,7 +253,11 @@ const Orders = () => {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((order, index) => (
+                filteredOrders.map((order, index) => {
+                  const firstItem = getFirstItem(order);
+                  const totalItems = getTotalItems(order);
+
+                  return (
                   <tr
                     key={order._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -242,19 +279,21 @@ const Orders = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900">{order.seller?.name || 'unknown'}</span>
+                        <span className="text-gray-900">{getSellerName(firstItem)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Package className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900">{order.product?.name || 'unknown'}</span>
+                        <span className="text-gray-900">
+                          {firstItem.product?.name || 'unknown'}
+                          {totalItems > 1 && <span className="text-gray-500 text-xs ml-1">+{totalItems - 1}</span>}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-green-600" />
-                        <span className="font-semibold text-gray-900">{formatPrice(order.total)}</span>
+                        <span className="font-semibold text-gray-900">{formatPrice(order.totalAmount || 0)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -295,7 +334,7 @@ const Orders = () => {
                       </div>
                     </td>
                   </tr>
-                ))
+                )})
               )}
             </tbody>
           </table>
@@ -317,46 +356,139 @@ const Orders = () => {
               <p className="font-mono text-sm text-gray-700">{selectedOrder._id}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Buyer</p>
-                <p className="font-semibold text-gray-900">{selectedOrder.buyer?.name || 'Unknown'}</p>
-                <p className="text-sm text-gray-600">{selectedOrder.buyer?.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Seller</p>
-                <p className="font-semibold text-gray-900">{selectedOrder.seller?.name || 'Unknown'}</p>
-                <p className="text-sm text-gray-600">{selectedOrder.seller?.email}</p>
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Buyer</p>
+              <div className="flex items-center gap-3">
+                {(selectedOrder.buyer?.profilePicture || selectedOrder.buyer?.picture) ? (
+                  <img
+                    src={(selectedOrder.buyer?.profilePicture || selectedOrder.buyer?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                    alt={selectedOrder.buyer.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"
+                  style={{ display: (selectedOrder.buyer?.profilePicture || selectedOrder.buyer?.picture) ? 'none' : 'flex' }}
+                >
+                  <span className="text-lg font-semibold text-green-700">
+                    {selectedOrder.buyer?.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{selectedOrder.buyer?.name || 'Unknown'}</p>
+                  <p className="text-sm text-gray-600">{selectedOrder.buyer?.email}</p>
+                </div>
               </div>
             </div>
 
             <div className="border-t border-gray-200 pt-4">
-              <p className="text-sm text-gray-600 mb-2">Product Details</p>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                  {selectedOrder.product?.images?.[0] ? (
-                    <img
-                      src={selectedOrder.product.images[0]}
-                      alt={selectedOrder.product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-6 h-6 text-gray-400" />
+              <p className="text-sm text-gray-600 mb-2">Order Items</p>
+              <div className="space-y-2">
+                {selectedOrder.items?.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                      {item.product?.images?.[0] ? (
+                        <img
+                          src={item.product.images[0]}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-6 h-6 text-gray-400" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{selectedOrder.product?.name || 'Unknown'}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.product?.category}</p>
-                </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">{item.product?.name || 'Unknown'}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {(item.seller?.profilePicture || item.seller?.picture) ? (
+                          <img
+                            src={(item.seller?.profilePicture || item.seller?.picture)?.replace(/=s\d+-c/, '=s200-c')}
+                            alt={item.seller.name}
+                            className="w-5 h-5 rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextElementSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center"
+                          style={{ display: (item.seller?.profilePicture || item.seller?.picture) ? 'none' : 'flex' }}
+                        >
+                          <span className="text-xs font-semibold text-amber-700">
+                            {getSellerName(item).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">Seller: {getSellerName(item)}</p>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {formatPrice(item.price)} × {item.quantity} = {formatPrice(item.price * item.quantity)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
+            {/* delivery address or meetup location */}
+            {selectedOrder.deliveryMethod === 'shipping' && selectedOrder.deliveryAddress && (
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-sm text-gray-600 mb-2">Delivery Address</p>
+                <div className="p-3 bg-gray-50 rounded-xl">
+                  <p className="text-gray-900">{selectedOrder.deliveryAddress.fullAddress}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Contact: {selectedOrder.deliveryAddress.contactNumber}
+                  </p>
+                  {selectedOrder.deliveryAddress.specialInstructions && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Note: {selectedOrder.deliveryAddress.specialInstructions}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {selectedOrder.deliveryMethod === 'meetup' && selectedOrder.meetupLocation && (
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-sm text-gray-600 mb-2">Meetup Location</p>
+                <div className="p-3 bg-gray-50 rounded-xl">
+                  <p className="text-gray-900">{selectedOrder.meetupLocation}</p>
+                  {selectedOrder.deliveryAddress?.specialInstructions && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Note: {selectedOrder.deliveryAddress.specialInstructions}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* payment method */}
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-sm text-gray-600 mb-2">Payment Method</p>
+              <div className="p-3 bg-gray-50 rounded-xl">
+                <p className="font-semibold text-gray-900 capitalize">
+                  {selectedOrder.paymentMethod?.replace(/_/g, ' ') || 'N/A'}
+                </p>
+              </div>
+            </div>
+
+            {/* pricing */}
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center mb-2">
                 <p className="text-sm text-gray-600">Subtotal</p>
-                <p className="text-gray-900">{formatPrice(selectedOrder.subtotal || selectedOrder.total)}</p>
+                <p className="text-gray-900">
+                  {formatPrice(
+                    selectedOrder.subtotal ||
+                    selectedOrder.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) ||
+                    0
+                  )}
+                </p>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <p className="text-sm text-gray-600">Shipping Fee</p>
@@ -364,10 +496,11 @@ const Orders = () => {
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                 <p className="font-semibold text-gray-900">Total</p>
-                <p className="font-bold text-lg text-gray-900">{formatPrice(selectedOrder.total)}</p>
+                <p className="font-bold text-lg text-gray-900">{formatPrice(selectedOrder.totalAmount || 0)}</p>
               </div>
             </div>
 
+            {/* status and date */}
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center">
                 <div>
@@ -382,19 +515,6 @@ const Orders = () => {
                 </div>
               </div>
             </div>
-
-            {selectedOrder.shippingAddress && (
-              <div className="border-t border-gray-200 pt-4">
-                <p className="text-sm text-gray-600 mb-2">Shipping Address</p>
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-900">{selectedOrder.shippingAddress.street}</p>
-                  <p className="text-gray-900">
-                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.province}
-                  </p>
-                  <p className="text-gray-900">{selectedOrder.shippingAddress.postalCode}</p>
-                </div>
-              </div>
-            )}
           </div>
         </Modal>
       )}
