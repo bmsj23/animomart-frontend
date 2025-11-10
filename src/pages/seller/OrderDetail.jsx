@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
+import { logger } from '../../utils/logger';
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ const OrderDetail = () => {
       const orderData = response.data?.order || response.order || response.data || response;
       setOrder(orderData);
     } catch (err) {
-      console.error('failed to fetch order:', err);
+      logger.error('failed to fetch order:', err);
       error('Failed to load Order Details');
       navigate('/seller/orders');
     } finally {
@@ -45,7 +46,7 @@ const OrderDetail = () => {
       success(`Order ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
       fetchOrder();
     } catch (err) {
-      console.error('failed to update order status:', err);
+      logger.error('failed to update order status:', err);
       error(err.response?.data?.message || 'Failed to Update Order Status');
     } finally {
       setUpdating(false);
@@ -65,7 +66,7 @@ const OrderDetail = () => {
       setCancelModal({ isOpen: false, reason: '' });
       fetchOrder();
     } catch (err) {
-      console.error('failed to cancel order:', err);
+      logger.error('failed to cancel order:', err);
       error(err.response?.data?.message || 'Failed To Cancel Order');
     } finally {
       setUpdating(false);
