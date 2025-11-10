@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
+import { logger } from '../../utils/logger';
 
 // ProductCard component
 const ProductCard = ({ product }) => {
@@ -247,7 +248,7 @@ const BentoBox = () => {
       }
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching products:', err);
+      logger.error('Error fetching products:', err);
       setError(err.message);
       setLoading(false);
     }
