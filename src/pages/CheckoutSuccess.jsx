@@ -5,6 +5,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { CheckCircle, Package, MapPin, CreditCard, Calendar, User, ShoppingBag } from 'lucide-react';
+import { logger } from '../utils/logger';
 
 const CheckoutSuccess = () => {
   const { orderId } = useParams();
@@ -17,12 +18,12 @@ const CheckoutSuccess = () => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        console.log('Fetching order with ID:', orderId);
+        logger.log('Fetching order with ID:', orderId);
         const data = await getOrder(orderId);
-        console.log('Order fetched successfully:', data);
+        logger.log('Order fetched successfully:', data);
         // handle different response structures
         const orderData = data.order || data.data || data;
-        console.log('Setting order:', orderData);
+        logger.log('Setting order:', orderData);
         setOrder(orderData);
       } catch (err) {
         logger.error('Failed to fetch order:', err);
