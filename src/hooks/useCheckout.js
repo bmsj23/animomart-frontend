@@ -4,6 +4,7 @@ import { useAuth } from './useAuth';
 import { useCart } from './useCart';
 import { useToast } from './useToast';
 import { createOrder } from '../api/orders';
+import { getCartGrouped } from '../api/cart';
 import {
   groupItemsBySeller,
   calculateSubtotal,
@@ -39,6 +40,24 @@ const useCheckout = () => {
 
   const [selectedItemIds, setSelectedItemIds] = useState(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [groupedCartData, setGroupedCartData] = useState(null);
+
+  // fetch grouped cart data from backend when not in direct checkout mode
+  useEffect(() => {
+    const fetchGroupedCart = async () => {
+      if (directCheckout || !selectedItemIds.size) return;
+
+      try {
+        const data = await getCartGrouped();
+        logger.log('grouped cart data from backend:', data);
+        setGroupedCartData(data);
+      } catch (err) {
+        logger.error('failed to fetch grouped cart:', err);
+      }
+    };
+
+    fetchGroupedCart();
+  }, [directCheckout, selectedItemIds.size]);
 
   // load user info
   useEffect(() => {
@@ -90,9 +109,37 @@ const useCheckout = () => {
       }]
     : (cart?.items?.filter(item => selectedItemIds.has(item.product._id)) || []);
 
-  // calculations
-  const sellerGroups = groupItemsBySeller(selectedCartItems);
-  const subtotal = calculateSubtotal(selectedCartItems);
+  // use backend grouped data when available, otherwise use frontend grouping for direct checkout
+  let sellerGroups;
+  let subtotal;
+
+  if (directCheckout) {
+    // direct checkout from product detail (the modal when user adds item to cart) use frontend grouping
+    sellerGroups = groupItemsBySeller(selectedCartItems);
+    subtotal = calculateSubtotal(selectedCartItems);
+  } else if (groupedCartData?.sellers) {
+    // cart checkout (filter backend grouped data to only selected items)
+    sellerGroups = groupedCartData.sellers
+      .map(group => ({
+        ...group,
+        items: group.items.filter(item =>
+          selectedItemIds.has(item.product?._id || item._id)
+        )
+      }))
+      .filter(group => group.items.length > 0);
+
+    // recalculate subtotal from filtered items
+    subtotal = sellerGroups.reduce((total, group) =>
+      total + (group.subtotal || group.items.reduce((sum, item) =>
+        sum + (item.price * item.quantity), 0
+      )), 0
+    );
+  } else {
+    // fallback
+    sellerGroups = [];
+    subtotal = 0;
+  }
+
   const shippingFee = form.deliveryMethod === 'shipping' ? 50 : 0;
   const total = subtotal + shippingFee;
 
