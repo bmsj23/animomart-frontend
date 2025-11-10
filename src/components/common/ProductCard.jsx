@@ -3,6 +3,7 @@ import { Heart } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { logger } from '../../utils/logger';
 
 const ProductCard = ({ product, onGreenBg = false }) => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const ProductCard = ({ product, onGreenBg = false }) => {
         await addToWishlist(product._id);
       }
     } catch (error) {
-      console.error('failed to update wishlist:', error);
+      logger.error('failed to update wishlist:', error);
     }
   };
 
