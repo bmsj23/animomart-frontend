@@ -77,8 +77,8 @@ const Messages = () => {
     const productId = searchParams.get('product');
 
     if (userId && !loading) {
-      console.log('Processing query params:', { userId, productId });
-      console.log('Current conversations:', conversations);
+      logger.log('Processing query params:', { userId, productId });
+      logger.log('Current conversations:', conversations);
 
       // find existing conversation with this user
       const existingConversation = conversations.find(
@@ -86,11 +86,11 @@ const Messages = () => {
       );
 
       if (existingConversation) {
-        console.log('Found existing conversation:', existingConversation);
+        logger.log('Found existing conversation:', existingConversation);
         // select the existing conversation
         handleSelectConversation(existingConversation);
       } else {
-        console.log('Creating new conversation with user:', userId);
+        logger.log('Creating new conversation with user:', userId);
         // create a new conversation object for this user
         createNewConversation(userId, productId);
       }
@@ -126,16 +126,16 @@ const Messages = () => {
 
   const fetchMessages = async (otherUserId, conversationId) => {
     try {
-      console.log('Fetching messages for user:', otherUserId);
+      logger.log('Fetching messages for user:', otherUserId);
       const response = await messageApi.getConversation(otherUserId);
-      console.log('Fetched messages response:', response.data);
+      logger.log('Fetched messages response:', response.data);
       const fetchedMessages = response.data.messages || response.data || [];
 
       const sortedMessages = [...fetchedMessages].sort((a, b) =>
         new Date(a.createdAt) - new Date(b.createdAt)
       );
 
-      console.log('Setting messages:', sortedMessages);
+      logger.log('Setting messages:', sortedMessages);
       setMessages(sortedMessages);
 
       if (conversationId) {
@@ -155,14 +155,14 @@ const Messages = () => {
   };
 
   const handleSelectConversation = (conversation) => {
-    console.log('Selected conversation:', conversation);
+    logger.log('Selected conversation:', conversation);
 
     const conversationId = conversation._id;
     const [user1Id, user2Id] = conversationId.split('_');
     const otherUserId = user1Id === user._id ? user2Id : user1Id;
 
-    console.log('Current user ID:', user._id);
-    console.log('Other user ID:', otherUserId);
+    logger.log('Current user ID:', user._id);
+    logger.log('Other user ID:', otherUserId);
 
     const updatedConversation = {
       ...conversation,
