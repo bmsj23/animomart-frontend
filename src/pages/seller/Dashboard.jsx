@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, ShoppingCart, DollarSign, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Package, ShoppingCart, HandCoins, AlertTriangle, TrendingUp } from 'lucide-react';
 import { getMyListings } from '../../api/products';
 import { getMySales, getOrderStats } from '../../api/orders';
 import { useToast } from '../../hooks/useToast';
@@ -106,7 +106,7 @@ const Dashboard = () => {
         <StatCard
           title="Total Revenue"
           value={formatCurrency(stats?.totalRevenue || 0)}
-          icon={<DollarSign className="w-6 h-6" />}
+          icon={<HandCoins className="w-6 h-6" />}
           color="green"
           subtitle={`${stats?.completedOrders || 0} Completed Orders`}
         />
@@ -226,7 +226,7 @@ const StatCard = ({ title, value, icon, color, subtitle, link }) => {
   };
 
   const content = (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 h-full">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600">{title}</p>
