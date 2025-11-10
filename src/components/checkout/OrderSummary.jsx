@@ -50,7 +50,7 @@ const OrderSummary = ({ sellerGroups, subtotal, shippingFee, total, isProcessing
                         />
                         <div className="text-sm flex-1">
                           <div className="font-medium line-clamp-1">{item.product?.name}</div>
-                          <div className="text-xs text-gray-500">qty: {item.quantity}</div>
+                          <div className="text-xs text-gray-500">Quantity: {item.quantity}</div>
                         </div>
                       </div>
                       <div className="text-sm font-semibold ml-2">
