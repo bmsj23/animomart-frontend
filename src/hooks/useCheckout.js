@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { useCart } from './useCart';
 import { useToast } from './useToast';
@@ -17,6 +17,12 @@ const useCheckout = () => {
   const { cart, loading: cartLoading, removeItem } = useCart();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // check for direct checkout from product detail
+  const directCheckout = location.state?.directCheckout;
+  const directProduct = location.state?.product;
+  const directQuantity = location.state?.quantity || 1;
 
   const [form, setForm] = useState({
     name: '',
@@ -63,18 +69,26 @@ const useCheckout = () => {
   // redirect if no selected items
   useEffect(() => {
     if (isProcessing) return;
+
+    // skip redirect if direct checkout
+    if (directCheckout && directProduct) return;
+
     if (!cartLoading && cart?.items && selectedItemIds.size > 0) {
       const hasSelectedItems = cart.items.some(item => selectedItemIds.has(item.product._id));
       if (!hasSelectedItems) {
         navigate('/cart');
       }
     }
-  }, [cart, cartLoading, selectedItemIds, navigate, isProcessing]);
+  }, [cart, cartLoading, selectedItemIds, navigate, isProcessing, directCheckout, directProduct]);
 
-  // filter to selected items
-  const selectedCartItems = cart?.items?.filter(item =>
-    selectedItemIds.has(item.product._id)
-  ) || [];
+  // filter to selected items OR use direct checkout item
+  const selectedCartItems = directCheckout && directProduct
+    ? [{
+        product: directProduct,
+        quantity: directQuantity,
+        _id: directProduct._id
+      }]
+    : (cart?.items?.filter(item => selectedItemIds.has(item.product._id)) || []);
 
   // calculations
   const sellerGroups = groupItemsBySeller(selectedCartItems);
@@ -104,9 +118,12 @@ const useCheckout = () => {
       localStorage.removeItem('cart-selected-items');
       setSelectedItemIds(new Set()); // clear selected items state
 
-      // remove only the selected items from cart!!!!
-      for (const item of selectedCartItems) {
-        await removeItem(item.product._id);
+      // remove items from cart, skip if direct checkout (item already in cart with different quantity brochaco)
+      if (!directCheckout) {
+        // remove only the selected items from cart!!!!
+        for (const item of selectedCartItems) {
+          await removeItem(item.product._id);
+        }
       }
 
       success('Order placed successfully!');
