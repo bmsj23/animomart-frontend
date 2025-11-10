@@ -20,6 +20,7 @@ import {
   getConversationName,
   getUserRole
 } from '../utils/conversationHelpers';
+import { logger } from '../utils/logger';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -148,7 +149,7 @@ const Messages = () => {
         );
       }
     } catch (err) {
-      console.error('Failed to fetch messages:', err);
+      logger.error('Failed to fetch messages:', err);
       showError('Failed to load messages');
     }
   };
