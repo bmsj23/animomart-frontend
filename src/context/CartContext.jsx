@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import * as cartApi from '../api/cart';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const CartContext = createContext();
@@ -50,7 +51,7 @@ export const CartProvider = ({ children }) => {
         setCart(data);
       }
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      logger.error('Error fetching cart:', error);
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ export const CartProvider = ({ children }) => {
 
       return data;
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      logger.error('Error adding to cart:', error);
       throw error;
     }
   };
@@ -101,7 +102,7 @@ export const CartProvider = ({ children }) => {
       }
       return data;
     } catch (error) {
-      console.error('Error updating cart item:', error);
+      logger.error('Error updating cart item:', error);
       throw error;
     }
   };
@@ -126,7 +127,7 @@ export const CartProvider = ({ children }) => {
 
       return data;
     } catch (error) {
-      console.error('Error removing from cart:', error);
+      logger.error('Error removing from cart:', error);
       throw error;
     }
   };
@@ -137,7 +138,7 @@ export const CartProvider = ({ children }) => {
       setCart(null);
       setItemCount(0);
     } catch (error) {
-      console.error('Error clearing cart:', error);
+      logger.error('Error clearing cart:', error);
       throw error;
     }
   };
