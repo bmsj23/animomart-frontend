@@ -7,6 +7,7 @@ import { ShoppingCart, Trash2, Plus, Minus, X } from 'lucide-react';
 import { addToWishlist } from '../api/wishlist';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
+import { logger } from '../utils/logger';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ const Cart = () => {
         } catch (err) {
           // revert to the state before this specific update started
           setCart(storedData.previousCart);
-          console.error('Failed to update quantity:', err);
+          logger.error('Failed to update quantity:', err);
           showError(err.response?.data?.message || 'Failed to update cart');
           delete pendingUpdates.current[productId];
         }
@@ -139,7 +140,7 @@ const Cart = () => {
     } catch (err) {
       // revert on error
       setCart(previousCart);
-      console.error('Failed to remove item:', err);
+      logger.error('Failed to remove item:', err);
       showError('Failed to remove item from cart');
     }
   };
@@ -155,7 +156,7 @@ const Cart = () => {
       // remove from cart after adding to wishlist
       await handleRemoveItem(productId);
     } catch (err) {
-      console.error('failed to move to wishlist:', err);
+      logger.error('failed to move to wishlist:', err);
       showError(err.response?.data?.message || 'failed to move item to wishlist');
     }
   };
@@ -199,7 +200,7 @@ const Cart = () => {
     } catch (err) {
       // revert on error
       setCart(previousCart);
-      console.error('failed to move selected items to wishlist:', err);
+      logger.error('failed to move selected items to wishlist:', err);
       showError(err.response?.data?.message || 'failed to move selected items to wishlist');
     }
   };
