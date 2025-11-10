@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getProducts, hybridSearch } from '../api/products';
 import { getParentCategory } from '../constants/categories';
+import { logger } from '../utils/logger';
 
 export const useSearch = (query, options = {}) => {
   const {
@@ -42,13 +43,13 @@ export const useSearch = (query, options = {}) => {
               limit: maxResults || limit,
               minSimilarity: 0.6 // require 60% similarity for semantic results
             });
-            console.log('hybrid search response:', response);
+            logger.log('hybrid search response:', response);
             if (response.success) {
 
               const exactMatches = response.exactMatches || response.data || [];
               const semanticSuggestions = response.suggestions || [];
 
-              console.log(`hybrid search returned ${exactMatches.length} exact matches and ${semanticSuggestions.length} suggestions for "${query}"`);
+              logger.log(`hybrid search returned ${exactMatches.length} exact matches and ${semanticSuggestions.length} suggestions for "${query}"`);
 
               setResults(exactMatches);
               setSuggestions(semanticSuggestions);
@@ -56,7 +57,7 @@ export const useSearch = (query, options = {}) => {
               return;
             }
           } catch (hybridError) {
-            console.warn('hybrid search failed, falling back to keyword search:', hybridError);
+            logger.warn('hybrid search failed, falling back to keyword search:', hybridError);
           }
         }
 
@@ -103,7 +104,7 @@ export const useSearch = (query, options = {}) => {
         setResults(limitedResults);
         setSuggestions([]); // clear suggestions when using fallback
       } catch (error) {
-        console.error('search error:', error);
+        logger.error('search error:', error);
         setResults([]);
         setSuggestions([]);
       } finally {

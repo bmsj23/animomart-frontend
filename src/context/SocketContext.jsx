@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const SocketContext = createContext();
@@ -29,7 +30,12 @@ export const SocketProvider = ({ children }) => {
       auth: {
         token: localStorage.getItem('token')
       },
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+      autoConnect: true
     });
 
     newSocket.on('connect', () => {
@@ -42,6 +48,7 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect_error', () => {
       setIsConnected(false);
+      logger.warn('Socket connection error - messaging features may be unavailable');
     });
 
     newSocket.on('onlineUsers', (users) => {

@@ -45,14 +45,14 @@ export const deleteProduct = async (id) => {
 };
 
 // get my product listings (seller)
-export const getMyListings = async () => {
-  const response = await api.get('/products/my/listings');
+export const getMyListings = async (params = {}) => {
+  const response = await api.get('/products/my/listings', { params });
   return response.data;
 };
 
-// update product status (active/paused)
+// update product status (active/paused/sold)
 export const updateProductStatus = async (id, status) => {
-  const response = await api.put(`/products/${id}/status`, { status });
+  const response = await api.patch(`/products/${id}/status`, { status });
   return response.data;
 };
 

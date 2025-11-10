@@ -10,6 +10,7 @@ import {
   validateCheckoutForm,
   prepareOrderData
 } from '../utils/checkoutHelpers';
+import { logger } from '../utils/logger';
 
 const useCheckout = () => {
   const { user } = useAuth();
@@ -54,7 +55,7 @@ const useCheckout = () => {
         const ids = JSON.parse(saved);
         setSelectedItemIds(new Set(ids));
       } catch (e) {
-        console.error('Failed to parse selected items:', e);
+        logger.error('Failed to parse selected items:', e);
       }
     }
   }, []);
@@ -116,13 +117,13 @@ const useCheckout = () => {
       if (orderId) {
         navigate(`/checkout/success/${orderId}`);
       } else {
-        console.error('No orderId found in result:', result);
+        logger.error('No orderId found in result:', result);
         showError('Order created but unable to retrieve order details');
         navigate('/profile?tab=purchases');
       }
 
     } catch (err) {
-      console.error('Order error:', err);
+      logger.error('Order error:', err);
       showError(err.response?.data?.message || err.message || 'Failed to place order');
     } finally {
       setIsProcessing(false);

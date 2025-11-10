@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import * as messageApi from '../api/messages';
 import { uploadMultipleImages } from '../api/upload';
+import { logger } from '../utils/logger';
 
 export const useMessageHandlers = (socket, user, selectedConversation, setMessages) => {
   const [messageText, setMessageText] = useState('');
@@ -94,7 +95,7 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
         messageData.conversationId = selectedConversation.conversationId;
       }
 
-      console.log('Sending message with data:', messageData);
+      logger.log('Sending message with data:', messageData);
       const response = await messageApi.sendMessage(messageData);
       const messageFromResponse = response.data?.message || response.data;
 
@@ -120,7 +121,7 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
       scrollToBottom();
 
     } catch (err) {
-      console.error('Failed to send message:', err);
+      logger.error('Failed to send message:', err);
 
       // remove optimistic message on error
       setMessages((prev) => prev.filter((msg) => msg.status !== 'sending'));
@@ -165,7 +166,7 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
       setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
       return true;
     } catch (err) {
-      console.error('Failed to delete message:', err);
+      logger.error('Failed to delete message:', err);
       throw err;
     }
   }, [socket, setMessages]);

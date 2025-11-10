@@ -4,6 +4,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { Shield, Users, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { logger } from '../utils/logger';
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
@@ -21,7 +22,7 @@ const Login = () => {
       await login(credentialResponse.credential);
       navigate('/');
     } catch (err) {
-      console.error('Login failed:', err);
+      logger.error('Login failed:', err);
       if (err.message.includes('@dlsl.edu.ph')) {
         showError('Only @dlsl.edu.ph email addresses are allowed');
       } else {

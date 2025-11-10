@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import * as wishlistApi from '../api/wishlist';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const WishlistContext = createContext();
@@ -34,7 +35,7 @@ export const WishlistProvider = ({ children }) => {
 
       setWishlist(validItems);
     } catch (error) {
-      console.error('error fetching wishlist:', error);
+      logger.error('error fetching wishlist:', error);
       setWishlist([]);
     } finally {
       setLoading(false);
@@ -43,13 +44,13 @@ export const WishlistProvider = ({ children }) => {
 
   const addToWishlist = async (productId) => {
     try {
-      const data = await wishlistApi.addToWishlist(productId);
+      const response = await wishlistApi.addToWishlist(productId);
 
       // after adding, fetch the updated list
       await fetchWishlist();
-      return data;
+      return response.data;
     } catch (error) {
-      console.error('error adding to wishlist:', error);
+      logger.error('error removing from wishlist:', error);
       throw error;
     }
   };
@@ -61,7 +62,7 @@ export const WishlistProvider = ({ children }) => {
       await fetchWishlist();
       return data;
     } catch (error) {
-      console.error('error removing from wishlist:', error);
+      logger.error('error removing from wishlist:', error);
       throw error;
     }
   };

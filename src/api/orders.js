@@ -37,7 +37,13 @@ export const getMyPurchases = async () => {
 };
 
 // get orders as seller
-export const getMySales = async () => {
-  const response = await api.get('/orders/sales');
+export const getMySales = async (params = {}) => {
+  const response = await api.get('/orders/sales', { params });
+  return response.data;
+};
+
+// get order statistics (seller)
+export const getOrderStats = async () => {
+  const response = await api.get('/orders/stats');
   return response.data;
 };

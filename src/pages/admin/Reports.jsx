@@ -4,6 +4,7 @@ import { useToast } from '../../hooks/useToast';
 import { Search, AlertTriangle, MoreVertical, Eye, CheckCircle, User, Calendar, FileText } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { logger } from '../../utils/logger';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -23,14 +24,14 @@ const Reports = () => {
     try {
       setLoading(true);
       const response = await getAllReports();
-      console.log('reports response:', response);
+      logger.log('reports response:', response);
 
       const reportsData = response.reports || response.data?.reports || response?.data || [];
-      console.log('extracted reports:', reportsData);
+      logger.log('extracted reports:', reportsData);
       setReports(Array.isArray(reportsData) ? reportsData : []);
     } catch (error) {
       showError('failed to fetch reports');
-      console.error('error fetching reports:', error);
+      logger.error('error fetching reports:', error);
     } finally {
       setLoading(false);
     }
@@ -44,7 +45,7 @@ const Reports = () => {
       setActionModal({ show: false, type: '', report: null });
     } catch (error) {
       showError('failed to update report status');
-      console.error('error updating report:', error);
+      logger.error('error updating report:', error);
     }
   };
 
@@ -56,7 +57,7 @@ const Reports = () => {
       setActionModal({ show: false, type: '', report: null });
     } catch (error) {
       showError('failed to resolve report');
-      console.error('error resolving report:', error);
+      logger.error('error resolving report:', error);
     }
   };
 

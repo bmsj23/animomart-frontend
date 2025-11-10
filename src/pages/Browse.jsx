@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { getProducts } from '../api/products';
 import ProductCard from '../components/common/ProductCard';
+import { logger } from '../utils/logger';
 
 const CATEGORIES = [
   { value: '', label: 'All Categories' },
@@ -77,7 +78,7 @@ const Browse = () => {
       setProducts(fetchedProducts);
       setPagination(response.data.pagination || {});
     } catch (err) {
-      console.error('Failed to fetch products:', err);
+      logger.error('Failed to fetch products:', err);
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,7 @@ import { useToast } from '../../hooks/useToast';
 import { Search, ShoppingCart, MoreVertical, Eye, DollarSign, User, Calendar, Package } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { logger } from '../../utils/logger';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -21,15 +22,15 @@ const Orders = () => {
     try {
       setLoading(true);
       const response = await getAllOrders();
-      console.log('orders response:', response);
+      logger.log('orders response:', response);
 
       // handle different response structures
       const ordersData = response.orders || response.data?.orders || response?.data || [];
-      console.log('extracted orders:', ordersData);
+      logger.log('extracted orders:', ordersData);
       setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
       showError('failed to fetch orders');
-      console.error('error fetching orders:', error);
+      logger.error('error fetching orders:', error);
     } finally {
       setLoading(false);
     }

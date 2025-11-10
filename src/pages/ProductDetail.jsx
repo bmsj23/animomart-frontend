@@ -9,6 +9,7 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProductCard from '../components/common/ProductCard';
+import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -55,13 +56,13 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      console.log('Fetching product with ID:', id);
+      logger.log('Fetching product with ID:', id);
       const response = await getProduct(id);
-      console.log('Product response:', response);
+      logger.log('Product response:', response);
       setProduct(response.data);
     } catch (err) {
-      console.error('Failed to fetch product:', err);
-      console.error('Error response:', err.response?.data);
+      logger.error('Failed to fetch product:', err);
+      logger.error('Error response:', err.response?.data);
       showError(err.response?.data?.message || 'Failed to load product');
       // don't redirect immediately, let user see the error
       setTimeout(() => {
@@ -80,7 +81,7 @@ const ProductDetail = () => {
         setSimilarProducts(response.data);
       }
     } catch (err) {
-      console.warn('failed to fetch similar products:', err);
+      logger.warn('failed to fetch similar products:', err);
       // we will not show error to user. just skip the section
     } finally {
       setLoadingSimilar(false);
@@ -108,7 +109,9 @@ const ProductDetail = () => {
         addedTimeoutRef.current = null;
       }, 1500);
     } catch (err) {
-      console.error('Failed to add to cart:', err);
+      logger.error('Failed to add to cart:', err);
+      // rollback optimistic state
+      setAddedToCart(false);
       showError(err.response?.data?.message || 'Failed to add to cart');
     } finally {
       setIsAdding(false);
@@ -125,7 +128,7 @@ const ProductDetail = () => {
         setIsFavorite(true);
       }
     } catch (err) {
-      console.error('failed to toggle wishlist:', err);
+      logger.error('failed to toggle wishlist:', err);
       showError('failed to update wishlist');
     }
   };
