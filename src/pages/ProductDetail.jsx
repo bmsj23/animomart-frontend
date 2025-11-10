@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { getProduct, getSimilarProducts } from '../api/products';
@@ -26,13 +26,31 @@ const ProductDetail = () => {
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const addedTimeoutRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     fetchProduct();
     fetchSimilarProducts();
+    // reset optimistic add state when navigating to a new product
+    setAddedToCart(false);
+    setIsAdding(false);
+    if (addedTimeoutRef.current) {
+      clearTimeout(addedTimeoutRef.current);
+      addedTimeoutRef.current = null;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (addedTimeoutRef.current) {
+        clearTimeout(addedTimeoutRef.current);
+        addedTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const fetchProduct = async () => {
     try {
@@ -70,17 +88,27 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    // optimistic UI: set state immediately so button changes to 'Added to Cart' + darker green
+    // non-optimistic: only update UI after API confirms success
     if (isAdding || addedToCart) return;
     setIsAdding(true);
-    setAddedToCart(true);
+    // clear any previous timeout
+    if (addedTimeoutRef.current) {
+      clearTimeout(addedTimeoutRef.current);
+      addedTimeoutRef.current = null;
+    }
     try {
       await addToCart({ productId: id, quantity });
       await fetchCart();
+
+      // set added state only after successful API response
+      setAddedToCart(true);
+      // keep 'Added to Cart' for 3 seconds, then revert to 'Add to Cart'
+      addedTimeoutRef.current = setTimeout(() => {
+        setAddedToCart(false);
+        addedTimeoutRef.current = null;
+      }, 1500);
     } catch (err) {
       console.error('Failed to add to cart:', err);
-      // rollback optimistic state
-      setAddedToCart(false);
       showError(err.response?.data?.message || 'Failed to add to cart');
     } finally {
       setIsAdding(false);
@@ -295,7 +323,7 @@ const ProductDetail = () => {
               <>
                 <button
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock || addedToCart}
+                  disabled={isOutOfStock || isAdding || addedToCart}
                   className={getAddToCartClass()}
                 >
                   {isOutOfStock ? 'Out of Stock' : (addedToCart ? 'Added to Cart' : 'Add to Cart')}
