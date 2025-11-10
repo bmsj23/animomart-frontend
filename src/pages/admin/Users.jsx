@@ -3,6 +3,7 @@ import { Search, MoreVertical, Ban, CheckCircle, Trash2, Mail, Calendar } from '
 import * as adminApi from '../../api/admin';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../../components/common/Modal';
+import { logger } from '../../utils/logger';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -23,7 +24,7 @@ const Users = () => {
       const response = await adminApi.getAllUsers();
       setUsers(response.data?.users || []);
     } catch (error) {
-      console.error('error fetching users:', error);
+      logger.error('error fetching users:', error);
       showError('failed to fetch users');
     } finally {
       setLoading(false);
@@ -37,7 +38,7 @@ const Users = () => {
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
     } catch (error) {
-      console.error('error suspending user:', error);
+      logger.error('error suspending user:', error);
       showError('failed to suspend user');
     }
   };
@@ -49,7 +50,7 @@ const Users = () => {
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
     } catch (error) {
-      console.error('error activating user:', error);
+      logger.error('error activating user:', error);
       showError('failed to activate user');
     }
   };
@@ -61,7 +62,7 @@ const Users = () => {
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
     } catch (error) {
-      console.error('error deleting user:', error);
+      logger.error('error deleting user:', error);
       showError('failed to delete user');
     }
   };
