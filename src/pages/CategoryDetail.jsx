@@ -4,6 +4,7 @@ import { getProducts } from '../api/products';
 import { ChevronLeft, ChevronRight, ArrowLeft, ShoppingBag, SlidersHorizontal, Star } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
 import { getCategoryData } from '../constants/categories';
+import { logger } from '../utils/logger';
 
 const CategoryDetail = () => {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const CategoryDetail = () => {
         setProducts(fetchedProducts);
         setTotalPages(response.data.totalPages || 1);
       } catch (error) {
-        console.error('failed to fetch products:', error);
+        logger.error('failed to fetch products:', error);
         setProducts([]);
       } finally {
         setLoading(false);
