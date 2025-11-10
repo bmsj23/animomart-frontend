@@ -7,6 +7,7 @@ import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { logger } from '../../utils/logger';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const Dashboard = () => {
         averageOrderValue: statsData.averageOrderValue || 0
       });
     } catch (err) {
-      console.error('failed to fetch dashboard data:', err);
+      logger.error('failed to fetch dashboard data:', err);
       error('Failed To Load Dashboard Data');
     } finally {
       setLoading(false);
