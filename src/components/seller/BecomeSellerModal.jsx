@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Store, MapPin, FileText, CheckCircle } from 'lucide-react';
 import Modal from '../common/Modal';
 import { updateSellerInfo } from '../../api/users';
+import { logger } from '../../utils/logger';
 
 const BecomeSellerModal = ({ isOpen, onClose, onSuccess }) => {
   const [step, setStep] = useState(1);
@@ -99,7 +100,7 @@ const BecomeSellerModal = ({ isOpen, onClose, onSuccess }) => {
         agreeToTerms: false
       });
     } catch (error) {
-      console.error('failed to become seller:', error);
+      logger.error('failed to become seller:', error);
       setErrors({ submit: error.response?.data?.message || 'Failed to register as Seller' });
     } finally {
       setLoading(false);
