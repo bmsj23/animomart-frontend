@@ -3,6 +3,7 @@ import * as messageApi from '../api/messages';
 import { getUserProfile } from '../api/users';
 import { getProduct } from '../api/products';
 import { extractOtherUserId } from '../utils/conversationHelpers';
+import { logger } from '../utils/logger';
 
 export const useConversations = (userId) => {
   const [conversations, setConversations] = useState([]);
@@ -25,7 +26,7 @@ export const useConversations = (userId) => {
               const userResponse = await getUserProfile(otherUserId);
               otherUser = userResponse.data;
             } catch (err) {
-              console.error('Failed to fetch user:', otherUserId, err);
+              logger.error('Failed to fetch user:', otherUserId, err);
               otherUser = { _id: otherUserId, name: 'Unknown User' };
             }
 
@@ -42,7 +43,7 @@ export const useConversations = (userId) => {
 
       setConversations(enrichedConversations);
     } catch (err) {
-      console.error('Failed to fetch conversations:', err);
+      logger.error('Failed to fetch conversations:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -55,11 +56,11 @@ export const useConversations = (userId) => {
       // fetch user and product info in parallel
       const [userResponse, productResponse] = await Promise.all([
         otherUserId ? getUserProfile(otherUserId).catch(err => {
-          console.error('Failed to fetch user:', err);
+          logger.error('Failed to fetch user:', err);
           return null;
         }) : Promise.resolve(null),
         productId ? getProduct(productId).catch(err => {
-          console.error('Failed to fetch product:', err);
+          logger.error('Failed to fetch product:', err);
           return null;
         }) : Promise.resolve(null)
       ]);
@@ -81,7 +82,7 @@ export const useConversations = (userId) => {
 
       return updatedConversation;
     } catch (err) {
-      console.error('Failed to create conversation:', err);
+      logger.error('Failed to create conversation:', err);
       throw err;
     }
   }, []);
