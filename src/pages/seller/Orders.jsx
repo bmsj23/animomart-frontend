@@ -6,6 +6,7 @@ import { useToast } from '../../hooks/useToast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
+import { logger } from '../../utils/logger';
 
 const Orders = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,7 +42,7 @@ const Orders = () => {
       setOrders(data.orders || []);
       setPagination(data.pagination || null);
     } catch (err) {
-      console.error('failed to fetch orders:', err);
+      logger.error('failed to fetch orders:', err);
       error('Failed To Load Orders');
     } finally {
       setLoading(false);

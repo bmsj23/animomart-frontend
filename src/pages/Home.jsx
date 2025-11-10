@@ -6,6 +6,7 @@ import { getProducts } from '../api/products';
 import BentoBox from '../components/common/Bento';
 import ProductCard from '../components/common/ProductCard';
 import { CATEGORY_DATA } from '../constants/categories';
+import { logger } from '../utils/logger';
 
 // category bar component
 const CategoryBar = () => {
@@ -380,7 +381,7 @@ const Home = () => {
       });
       setFeaturedProducts(response.data.products || []);
     } catch (err) {
-      console.error('Failed to fetch featured products:', err);
+      logger.error('Failed to fetch featured products:', err);
     } finally {
       setLoading(prev => ({ ...prev, featured: false }));
     }
@@ -396,7 +397,7 @@ const Home = () => {
       });
       setter(response.data.products || []);
     } catch (err) {
-      console.error(`Failed to fetch ${category} new arrivals:`, err);
+      logger.error(`Failed to fetch ${category} new arrivals:`, err);
     } finally {
       setLoading(prev => ({ ...prev, [loadingKey]: false }));
     }

@@ -4,6 +4,7 @@ import { useToast } from '../../hooks/useToast';
 import { Search, Package, MoreVertical, Trash2, Eye, User, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { logger } from '../../utils/logger';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -32,7 +33,7 @@ const Products = () => {
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (error) {
       showError('Failed to fetch products');
-      console.error('Error fetching products:', error);
+      logger.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ const Products = () => {
       setActionModal({ show: false, type: '', product: null });
     } catch (error) {
       showError('failed to delete product');
-      console.error('error deleting product:', error);
+      logger.error('error deleting product:', error);
     }
   };
 

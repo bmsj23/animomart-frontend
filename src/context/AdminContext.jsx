@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import * as adminApi from '../api/admin';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AdminContext = createContext();
@@ -60,7 +61,7 @@ export const AdminProvider = ({ children }) => {
             });
 
         } catch (error) {
-            console.error('error fetching dashboard stats: ', error);
+            logger.error('error fetching dashboard stats: ', error);
         } finally {
             setLoading(false);
         }
@@ -77,7 +78,7 @@ export const AdminProvider = ({ children }) => {
                 }
             });
         } catch (error) {
-            console.error('Error suspending user:', error);
+            logger.error('Error suspending user:', error);
             throw error;
         }
     }

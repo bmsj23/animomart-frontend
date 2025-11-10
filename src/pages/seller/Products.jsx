@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { getParentCategory } from '../../constants/categories';
+import { logger } from '../../utils/logger';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,7 +44,7 @@ const Products = () => {
       setProducts(data.products || []);
       setPagination(data.pagination || null);
     } catch (err) {
-      console.error('failed to fetch products:', err);
+      logger.error('failed to fetch products:', err);
       error('Failed To Load Products');
     } finally {
       setLoading(false);
@@ -56,7 +57,7 @@ const Products = () => {
       success(`Product ${newStatus === 'active' ? 'Activated' : 'Paused'}`);
       fetchProducts();
     } catch (err) {
-      console.error('failed to update status:', err);
+      logger.error('failed to update status:', err);
       error('Failed To Update Product Status');
     }
   };
@@ -70,7 +71,7 @@ const Products = () => {
       setDeleteModal({ isOpen: false, product: null });
       fetchProducts();
     } catch (err) {
-      console.error('failed to delete product:', err);
+      logger.error('failed to delete product:', err);
       error('Failed To Delete Product');
     }
   };

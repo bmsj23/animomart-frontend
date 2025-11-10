@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const SocketContext = createContext();
@@ -47,10 +48,7 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect_error', () => {
       setIsConnected(false);
-      // dev mode logs only
-      if (import.meta.env.DEV) {
-        console.warn('Socket connection error - messaging features may be unavailable');
-      }
+      logger.warn('Socket connection error - messaging features may be unavailable');
     });
 
     newSocket.on('onlineUsers', (users) => {

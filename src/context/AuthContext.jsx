@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import * as authApi from '../api/auth';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
@@ -40,14 +41,14 @@ export const AuthProvider = ({ children }) => {
               localStorage.setItem('user', JSON.stringify(freshUserData));
             }
           } catch (error) {
-            console.error('Failed to fetch fresh user data:', error);
+            logger.error('Failed to fetch fresh user data:', error);
             // continue with cached data if fetch fails
           }
         } else {
           logout();
         }
       } catch (error) {
-        console.error('Invalid token:', error);
+        logger.error('Invalid token:', error);
         logout();
       }
     }
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error:', error);
       throw error;
     }
   };
@@ -87,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authApi.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      logger.error('Logout error:', error);
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

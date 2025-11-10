@@ -9,6 +9,7 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProductCard from '../components/common/ProductCard';
+import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -42,8 +43,8 @@ const ProductDetail = () => {
       console.log('Product response:', response);
       setProduct(response.data);
     } catch (err) {
-      console.error('Failed to fetch product:', err);
-      console.error('Error response:', err.response?.data);
+      logger.error('Failed to fetch product:', err);
+      logger.error('Error response:', err.response?.data);
       showError(err.response?.data?.message || 'Failed to load product');
       // don't redirect immediately, let user see the error
       setTimeout(() => {
@@ -78,7 +79,7 @@ const ProductDetail = () => {
       await addToCart({ productId: id, quantity });
       await fetchCart();
     } catch (err) {
-      console.error('Failed to add to cart:', err);
+      logger.error('Failed to add to cart:', err);
       // rollback optimistic state
       setAddedToCart(false);
       showError(err.response?.data?.message || 'Failed to add to cart');
@@ -97,7 +98,7 @@ const ProductDetail = () => {
         setIsFavorite(true);
       }
     } catch (err) {
-      console.error('failed to toggle wishlist:', err);
+      logger.error('failed to toggle wishlist:', err);
       showError('failed to update wishlist');
     }
   };
