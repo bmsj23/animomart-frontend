@@ -103,5 +103,10 @@ export const prepareOrderData = (form, selectedCartItems) => {
     };
   }
 
+  // add meetup location if delivery method is meetup
+  if (form.deliveryMethod === 'meetup') {
+    orderData.meetupLocation = form.meetupLocation;
+  }
+
   return orderData;
 };
