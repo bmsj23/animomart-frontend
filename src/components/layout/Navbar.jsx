@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, User, Package } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, Package } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import SearchBar from './SearchBar';
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,28 +133,10 @@ const Navbar = () => {
 
             {/* Profile avatar matching search height */}
             <div ref={profileRef} className="relative">
-              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden profile-btn hover:cursor-pointer bg-gray-200">
-                {(user?.profilePicture || user?.picture) ? (
-                  <>
-                    <img
-                      src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="w-full h-full hidden items-center justify-center bg-gray-300">
-                      <User className="w-7 h-7 text-gray-500" />
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                    <User className="w-7 h-7 text-gray-500" />
-                  </div>
-                )}
+              <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 hover:cursor-pointer">
+                <ProfileAvatar user={user} size="lg" />
               </button>
+              <ChevronDown className="w-4 h-4 text-gray-400 absolute top-0 right-0" />
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
                   <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
@@ -229,26 +212,7 @@ const Navbar = () => {
                 {/* profile section */}
                 <div className="mb-8 pt-2">
                   <div className="flex items-center gap-4">
-                    {(user?.profilePicture || user?.picture) ? (
-                      <>
-                        <img
-                          src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s200-c')}
-                          alt="Profile"
-                          className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextElementSibling.style.display = 'flex';
-                          }}
-                        />
-                        <div className="w-16 h-16 rounded-full hidden items-center justify-center bg-gray-300 border-2 border-gray-200">
-                          <User className="w-8 h-8 text-gray-500" />
-                        </div>
-                      </>
-                    ) : (
-                      <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-300 border-2 border-gray-200">
-                        <User className="w-8 h-8 text-gray-500" />
-                      </div>
-                    )}
+                    <ProfileAvatar user={user} size="xl" className="border-2 border-gray-200" />
                     <div>
                       <p className="font-semibold text-gray-900">{user?.name || 'User'}</p>
                       <p className="text-sm text-gray-500">{user?.email}</p>
