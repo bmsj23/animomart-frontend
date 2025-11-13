@@ -47,12 +47,12 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AdminProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <SocketProvider>
-              <ToastProvider>
-                <Routes>
+        <ToastProvider>
+          <AdminProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <SocketProvider>
+                  <Routes>
               {/* Public Route */}
               <Route path="/login" element={<Login />} />
 
@@ -307,12 +307,12 @@ function App() {
 
               {/* catch all (redirect to home) */}
               <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </ToastProvider>
-        </SocketProvider>
-        </WishlistProvider>
-        </CartProvider>
-        </AdminProvider>
+                  </Routes>
+                </SocketProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AdminProvider>
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

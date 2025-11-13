@@ -16,7 +16,7 @@ const ReviewCard = ({ review, onMarkHelpful, onAddResponse, canRespond = false }
       setResponseText('');
       setShowResponseForm(false);
     } catch (error) {
-      console.error('failed to submit response:', error);
+      logger.error('failed to submit response:', error);
     } finally {
       setIsSubmitting(false);
     }

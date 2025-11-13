@@ -136,8 +136,16 @@ const Cart = () => {
     try {
       const cartItem = cart?.items?.find((it) => it.product._id === productId);
       const productObj = cartItem?.product || null;
-      await addToWishlist(productId, productObj);
-      await handleRemoveItem(productId);
+      const result = await addToWishlist(productId, productObj);
+
+      // only remove from cart if successfully added (not already in wishlist)
+      if (!result?.alreadyInWishlist) {
+        await handleRemoveItem(productId);
+      } else {
+        // item already in wishlist, sooo just remove d prod from cart
+        setDeleteConfirm({ show: false, productId: null, productName: '' });
+        await handleRemoveItem(productId);
+      }
     } catch (err) {
       logger.error('failed to move to wishlist:', err);
       showError(err.response?.data?.message || 'failed to move item to wishlist');
@@ -163,15 +171,24 @@ const Cart = () => {
   const moveSelectedToWishlist = async () => {
     if (!selectedItems || selectedItems.size === 0) return;
     const ids = Array.from(selectedItems);
-    const previousCart = cart;
     setBulkDeleteConfirm({ show: false });
 
     try {
-      await Promise.all(ids.map(id => {
+      const results = await Promise.allSettled(ids.map(id => {
         const cartItem = cart.items.find(it => it.product._id === id);
         const productObj = cartItem?.product || null;
         return addToWishlist(id, productObj);
       }));
+
+      // error check (excluding "already in wishlist")
+      const errors = results.filter(r =>
+        r.status === 'rejected' &&
+        !r.reason?.response?.data?.message?.toLowerCase().includes('already in wishlist')
+      );
+
+      if (errors.length > 0) {
+        throw errors[0].reason;
+      }
 
       for (const id of ids) {
         await removeItem(id);
@@ -179,7 +196,6 @@ const Cart = () => {
 
       setSelectedItems(new Set());
     } catch (err) {
-      setCart(previousCart);
       logger.error('failed to move selected items to wishlist:', err);
       showError(err.response?.data?.message || 'failed to move selected items to wishlist');
     }

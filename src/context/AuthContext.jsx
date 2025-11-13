@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import * as authApi from '../api/auth';
 import { logger } from '../utils/logger';
+import { cacheImageUrl, cleanImageCache } from '../utils/imageCache';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
@@ -13,6 +14,7 @@ export const AuthProvider = ({ children }) => {
 
   // check if user is authenticated on mount
   useEffect(() => {
+    cleanImageCache();
     checkAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -37,8 +39,19 @@ export const AuthProvider = ({ children }) => {
             const response = await authApi.getCurrentUser();
             const freshUserData = response.data?.user || response.user || response.data || response;
             if (freshUserData) {
-              setUser(freshUserData);
-              localStorage.setItem('user', JSON.stringify(freshUserData));
+              const normalizedFreshUser = {
+                ...freshUserData,
+                profilePicture: freshUserData.profilePicture || freshUserData.picture
+              };
+              setUser(normalizedFreshUser);
+              localStorage.setItem('user', JSON.stringify(normalizedFreshUser));
+
+              if (normalizedFreshUser.profilePicture && (normalizedFreshUser._id || normalizedFreshUser.id)) {
+                cacheImageUrl(
+                  normalizedFreshUser._id || normalizedFreshUser.id,
+                  normalizedFreshUser.profilePicture
+                );
+              }
             }
           } catch (error) {
             logger.error('Failed to fetch fresh user data:', error);
@@ -77,6 +90,14 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(normalizedUser));
       setUser(normalizedUser);
       setIsAuthenticated(true);
+
+      if (normalizedUser.profilePicture && (normalizedUser._id || normalizedUser.id)) {
+        cacheImageUrl(
+          normalizedUser._id || normalizedUser.id,
+          normalizedUser.profilePicture
+        );
+      }
+
       return response.data;
     } catch (error) {
       logger.error('Login error:', error);
@@ -105,6 +126,13 @@ export const AuthProvider = ({ children }) => {
     };
     setUser(normalizedUser);
     localStorage.setItem('user', JSON.stringify(normalizedUser));
+
+    if (normalizedUser.profilePicture && (normalizedUser._id || normalizedUser.id)) {
+      cacheImageUrl(
+        normalizedUser._id || normalizedUser.id,
+        normalizedUser.profilePicture
+      );
+    }
   };
 
   const value = {

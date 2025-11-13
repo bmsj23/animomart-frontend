@@ -57,7 +57,7 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel }) => {
         images,
       });
     } catch (err) {
-      console.error('failed to submit review:', err);
+      logger.error('failed to submit review:', err);
     } finally {
       setIsSubmitting(false);
     }
