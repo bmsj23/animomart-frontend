@@ -62,11 +62,13 @@ const Login = () => {
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
-                useOneTap
+                useOneTap={false}
                 theme="outline"
                 size="large"
                 text="signin_with"
                 shape="rectangular"
+                context="signin"
+                ux_mode="popup"
               />
             </div>
 
