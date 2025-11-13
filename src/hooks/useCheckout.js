@@ -157,27 +157,31 @@ const useCheckout = () => {
     setIsProcessing(true);
 
     try {
-      const stockValidation = await validateCartStock(
-        selectedCartItems.map(item => ({
-          productId: item.product._id,
-          quantity: item.quantity
-        }))
-      );
+      // validate stock availability (server-side with fallback)
+      const stockValidation = await validateCartStock(selectedCartItems);
 
       if (!stockValidation.success || !stockValidation.data.valid) {
 
         const outOfStock = stockValidation.data?.invalidItems || [];
         if (outOfStock.length > 0) {
           const messages = outOfStock.map(item =>
-            `${item.productName}: only ${item.availableStock} available (you have ${item.requestedQuantity} in cart)`
+            item.reason 
+              ? `${item.productName}: ${item.reason}`
+              : `${item.productName}: only ${item.availableStock} available (you have ${item.requestedQuantity} in cart)`
           );
-          showError(`some items are out of stock:\n${messages.join('\n')}`);
+          showError(`Some items are out of stock:\n${messages.join('\n')}`);
           setIsProcessing(false);
           return;
         }
-        showError(stockValidation.data?.message || 'failed to validate stock availability');
+        showError(stockValidation.data?.message || 'Failed to validate stock availability');
         setIsProcessing(false);
         return;
+      }
+
+      // show warnings for low stock items (optional)
+      if (stockValidation.data?.warnings && stockValidation.data.warnings.length > 0) {
+        const warningMessages = stockValidation.data.warnings.map(w => w.message).join('\n');
+        logger.log('Low stock warnings:', warningMessages);
       }
 
       const orderData = prepareOrderData(form, selectedCartItems);
