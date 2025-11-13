@@ -1,5 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useAdmin } from '../../hooks/useAdmin';
+import { getAllOrders, getAllProducts, getAllUsers } from '../../api/admin';
+import { useToast } from '../../hooks/useToast';
 import { Users, Package, ShoppingBag, AlertCircle, TrendingUp, Activity } from 'lucide-react';
+import AdminAnalytics from '../../components/admin/AdminAnalytics';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { logger } from '../../utils/logger';
 
 const StatCard = ({ title, value, icon: Icon, color, loading, index }) => {
   const colorClasses = {
@@ -52,6 +58,194 @@ const StatCard = ({ title, value, icon: Icon, color, loading, index }) => {
 
 const Dashboard = () => {
   const { stats, loading } = useAdmin();
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const { error } = useToast();
+
+  useEffect(() => {
+    fetchAnalyticsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setAnalyticsLoading(true);
+      const [ordersRes, productsRes, usersRes] = await Promise.all([
+        getAllOrders({ limit: 1000 }),
+        getAllProducts({ limit: 1000 }),
+        getAllUsers({ limit: 1000 })
+      ]);
+
+      const orders = ordersRes.data?.orders || ordersRes.orders || [];
+      const products = productsRes.data?.products || productsRes.products || [];
+      const users = usersRes.data?.users || usersRes.users || [];
+
+      // prepare analytics data
+      const analytics = prepareAnalyticsData(orders, products, users);
+      setAnalyticsData(analytics);
+    } catch (err) {
+      logger.error('failed to fetch analytics data:', err);
+      error('Failed To Load Analytics Data');
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  const prepareAnalyticsData = (orders, products, users) => {
+    const now = new Date();
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - (29 - i));
+      return {
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        revenue: 0,
+        newUsers: 0,
+        totalUsers: 0,
+        fullDate: date.toISOString().split('T')[0]
+      };
+    });
+
+    // aggregate revenue by date
+    orders.forEach(order => {
+      if (order.status === 'completed') {
+        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+        const dayData = last30Days.find(d => d.fullDate === orderDate);
+        if (dayData) {
+          dayData.revenue += order.totalAmount;
+        }
+      }
+    });
+
+    // aggregate user growth
+    let cumulativeUsers = users.filter(u => {
+      const userDate = new Date(u.createdAt);
+      return userDate < new Date(last30Days[0].fullDate);
+    }).length;
+
+    last30Days.forEach(day => {
+      const dayStart = new Date(day.fullDate);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+
+      const newUsers = users.filter(u => {
+        const userDate = new Date(u.createdAt);
+        return userDate >= dayStart && userDate < dayEnd;
+      }).length;
+
+      day.newUsers = newUsers;
+      cumulativeUsers += newUsers;
+      day.totalUsers = cumulativeUsers;
+    });
+
+    // top products
+    const productSalesMap = new Map();
+    orders.forEach(order => {
+      if (order.status === 'completed') {
+        order.items?.forEach(item => {
+          const productId = item.product?._id || item.product;
+          const productName = item.product?.name || item.name || 'Unknown';
+          const current = productSalesMap.get(productId) || { name: productName, sales: 0 };
+          current.sales += item.quantity;
+          productSalesMap.set(productId, current);
+        });
+      }
+    });
+
+    const topProducts = Array.from(productSalesMap.values())
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10);
+
+    // category distribution
+    const categoryMap = new Map();
+    products.forEach(product => {
+      const category = product.category || 'uncategorized';
+      categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+    });
+
+    const categoryDistribution = Array.from(categoryMap.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    // top sellers
+    const sellerRevenueMap = new Map();
+    orders.forEach(order => {
+      if (order.status === 'completed') {
+        const sellerId = order.seller?._id || order.seller;
+        const sellerName = order.seller?.name || 'Unknown Seller';
+        const current = sellerRevenueMap.get(sellerId) || { name: sellerName, revenue: 0 };
+        current.revenue += order.totalAmount;
+        sellerRevenueMap.set(sellerId, current);
+      }
+    });
+
+    const topSellers = Array.from(sellerRevenueMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    return {
+      userGrowth: last30Days,
+      revenueOverTime: last30Days,
+      topProducts,
+      categoryDistribution,
+      topSellers
+    };
+  };
+
+  const handleExportAnalytics = () => {
+    if (!analyticsData) return;
+
+    // prepare CSV data
+    const csvRows = [];
+
+    // header
+    csvRows.push('animomart platform analytics report');
+    csvRows.push(`generated on: ${new Date().toLocaleString()}`);
+    csvRows.push('');
+
+    // platform stats
+    csvRows.push('platform statistics');
+    csvRows.push('metric,value');
+    csvRows.push(`total users,${stats.totalUsers}`);
+    csvRows.push(`total products,${stats.totalProducts}`);
+    csvRows.push(`total orders,${stats.totalOrders}`);
+    csvRows.push(`pending reports,${stats.pendingReports}`);
+    csvRows.push('');
+
+    // top products
+    csvRows.push('top selling products');
+    csvRows.push('product name,units sold');
+    analyticsData.topProducts.forEach(p => {
+      csvRows.push(`"${p.name}",${p.sales}`);
+    });
+    csvRows.push('');
+
+    // top sellers
+    csvRows.push('top performing sellers');
+    csvRows.push('seller name,revenue (PHP)');
+    analyticsData.topSellers.forEach(s => {
+      csvRows.push(`"${s.name}",${s.revenue}`);
+    });
+    csvRows.push('');
+
+    // category distribution
+    csvRows.push('product category distribution');
+    csvRows.push('category,count');
+    analyticsData.categoryDistribution.forEach(c => {
+      csvRows.push(`${c.name},${c.value}`);
+    });
+
+    // create and download
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `animomart-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
 
   const statCards = [
     {
@@ -158,6 +352,18 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* analytics charts */}
+      {analyticsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : analyticsData ? (
+        <AdminAnalytics
+          marketplaceData={analyticsData}
+          onExport={handleExportAnalytics}
+        />
+      ) : null}
 
       <style>{`
         @keyframes fadeInUp {
