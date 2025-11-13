@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { getProducts } from '../api/products';
-import ProductCard from '../components/common/ProductCard';
+import BrowseHeader from '../components/browse/BrowseHeader';
+import FilterButton from '../components/browse/FilterButton';
+import FilterDropdown from '../components/browse/FilterDropdown';
+import ActiveFilters from '../components/browse/ActiveFilters';
+import ProductGrid from '../components/browse/ProductGrid';
+import Pagination from '../components/browse/Pagination';
 import { logger } from '../utils/logger';
 
 const CATEGORIES = [
@@ -175,119 +180,30 @@ const Browse = () => {
     <div className="min-h-screen bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
-        {/* Header */}
-        <div className="mb-10 md:mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-main mb-3 tracking-tight">Browse All Products</h1>
-          <p className="text-gray text-base md:text-lg font-light">
-            Showing {products.length} of {pagination.totalProducts || 0} products
-          </p>
-        </div>
+        <BrowseHeader
+          productsCount={products.length}
+          totalProducts={pagination.totalProducts}
+        />
 
         <div className="mb-10 pb-6 border-b border-gray-200">
           <div className="flex items-center justify-between gap-4">
             <div className="relative" ref={filterRef}>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 text-main hover:text-primary transition-colors text-sm tracking-wide hover:cursor-pointer"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                <span className="font-medium">
-                  Filter and Sort
-                  {hasActiveFilters && ` (${getActiveFilterCount()})`}
-                </span>
-              </button>
+              <FilterButton
+                onToggle={() => setShowFilters(!showFilters)}
+                activeFilterCount={getActiveFilterCount()}
+              />
 
               {showFilters && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[320px] overflow-hidden animate-fade-in">
-                  <div className="p-4 space-y-4 max-h-[80vh] overflow-y-auto">
-
-                    {/* sort section */}
-                    <div>
-                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Sort by</p>
-                      <div className="space-y-1">
-                        {SORT_OPTIONS.map((opt) => (
-                          <button
-                            key={opt.value}
-                            onClick={() => {
-                              updateFilter('sort', opt.value);
-                              setShowFilters(false);
-                            }}
-                            className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
-                              filters.sort === opt.value ? 'bg-primary text-white' : 'text-main hover:bg-surface'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="h-px bg-gray-200" />
-
-                    {/* category filter */}
-                    <div>
-                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Category</p>
-                      <select
-                        value={filters.category}
-                        onChange={(e) => updateFilter('category', e.target.value)}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm hover:cursor-pointer"
-                      >
-                        {CATEGORIES.map(cat => (
-                          <option key={cat.value} value={cat.value}>{cat.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* condition filter */}
-                    <div>
-                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Condition</p>
-                      <select
-                        value={filters.condition}
-                        onChange={(e) => updateFilter('condition', e.target.value)}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm hover:cursor-pointer"
-                      >
-                        {CONDITIONS.map(cond => (
-                          <option key={cond.value} value={cond.value}>{cond.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* price range */}
-                    <div>
-                      <p className="text-xs font-medium text-gray uppercase tracking-wider mb-2 px-1">Price Range</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="number"
-                          value={filters.minPrice}
-                          onChange={(e) => updateFilter('minPrice', e.target.value)}
-                          placeholder="Min ₱"
-                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm"
-                        />
-                        <input
-                          type="number"
-                          value={filters.maxPrice}
-                          onChange={(e) => updateFilter('maxPrice', e.target.value)}
-                          placeholder="Max ₱"
-                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    {/* clear filters button */}
-                    {hasActiveFilters && (
-                      <>
-                        <div className="h-px bg-gray-200" />
-                        <button
-                          onClick={clearFilters}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-primary hover:bg-surface rounded-lg transition-colors font-medium text-sm hover:cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                          Clear all filters
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <FilterDropdown
+                  filters={filters}
+                  onUpdateFilter={updateFilter}
+                  onClearFilters={clearFilters}
+                  onClose={() => setShowFilters(false)}
+                  hasActiveFilters={hasActiveFilters}
+                  sortOptions={SORT_OPTIONS}
+                  categories={CATEGORIES}
+                  conditions={CONDITIONS}
+                />
               )}
             </div>
 
@@ -302,135 +218,28 @@ const Browse = () => {
             )}
           </div>
 
-          {/* active filter indicators */}
           {hasActiveFilters && (
-            <div className="flex items-center gap-2 flex-wrap mt-4">
-              {filters.category && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                  {CATEGORIES.find(c => c.value === filters.category)?.label || filters.category}
-                  <button
-                    onClick={() => updateFilter('category', '')}
-                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {filters.condition && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                  {CONDITIONS.find(c => c.value === filters.condition)?.label}
-                  <button
-                    onClick={() => updateFilter('condition', '')}
-                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {filters.minPrice && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                  Min: ₱{filters.minPrice}
-                  <button
-                    onClick={() => updateFilter('minPrice', '')}
-                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {filters.maxPrice && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                  Max: ₱{filters.maxPrice}
-                  <button
-                    onClick={() => updateFilter('maxPrice', '')}
-                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors hover:cursor-pointer"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-            </div>
+            <ActiveFilters
+              filters={filters}
+              onRemoveFilter={(key) => updateFilter(key, '')}
+              categories={CATEGORIES}
+              conditions={CONDITIONS}
+            />
           )}
         </div>
 
-        {/* Products Grid */}
-        {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-sm h-80 animate-pulse" />
-            ))}
-          </div>
-        ) : products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {products.map(product => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </div>
+        <ProductGrid
+          products={products}
+          loading={loading}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-12">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
-                >
-                  Previous
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {[...Array(pagination.totalPages)].map((_, i) => {
-                    const page = i + 1;
-                    if (
-                      page === 1 ||
-                      page === pagination.totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
-                            currentPage === page
-                              ? 'bg-primary text-white shadow-md'
-                              : 'border border-gray-200 hover:bg-surface text-main'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    } else if (page === currentPage - 2 || page === currentPage + 2) {
-                      return <span key={page} className="px-2 text-gray">...</span>;
-                    }
-                    return null;
-                  })}
-                </div>
-
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === pagination.totalPages}
-                  className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-20">
-            <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">No products found</h3>
-            <p className="text-gray text-base md:text-lg mb-6 font-light">Try adjusting your filters or check back later</p>
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
