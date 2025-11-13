@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProduct, getSimilarProducts } from '../api/products';
+import { checkWishlist } from '../api/wishlist';
 import { addToCart } from '../api/cart';
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
@@ -22,7 +23,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchCart, cart } = useCart();
-  const { addToWishlist, removeFromWishlist } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isInWishlist, wishlist } = useWishlist();
   const { error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
@@ -44,12 +45,46 @@ const ProductDetail = () => {
     // reset optimistic add state when navigating to a new product
     setAddedToCart(false);
     setIsAdding(false);
+    // update favorite state based on wishlist
+    setIsFavorite(Boolean(isInWishlist(id)));
     if (addedTimeoutRef.current) {
       clearTimeout(addedTimeoutRef.current);
       addedTimeoutRef.current = null;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // ensure heart reflects server state on refresh (in case wishlist wasn't loaded yet)
+  useEffect(() => {
+    let mounted = true;
+    const verifyWishlist = async () => {
+      if (!user || !id) return;
+      try {
+        // if context already knows, prefer that
+        if (isInWishlist(id)) {
+          if (mounted) setIsFavorite(true);
+          return;
+        }
+
+        const res = await checkWishlist(id);
+        // backend might return { data: { inWishlist: true } } or boolean
+        const inList = res?.data?.inWishlist ?? res?.inWishlist ?? (res?.data || res);
+        if (mounted) setIsFavorite(Boolean(inList));
+      } catch (err) {
+        // ignore failures — leave isFavorite as-is
+      }
+    };
+
+    verifyWishlist();
+    return () => { mounted = false; };
+  }, [id, user, isInWishlist]);
+
+  // keep isFavorite in sync when wishlist changes
+  useEffect(() => {
+    if (!product) return;
+    setIsFavorite(Boolean(isInWishlist(id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wishlist, id]);
 
   // clear timeout on unmount
   useEffect(() => {
