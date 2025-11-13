@@ -11,7 +11,7 @@ export const validateCartStock = async (items) => {
     }));
 
     const response = await api.post('/cart/validate', { items: requestItems });
-    
+
     // backend returns: { success: true, data: { valid, message, invalidItems, warnings } }
     return {
       success: true,
@@ -19,10 +19,10 @@ export const validateCartStock = async (items) => {
     };
   } catch (error) {
     console.error('stock validation failed:', error);
-    
+
     // if backend is down or endpoint fails, perform client-side fallback validation
     const invalidItems = [];
-    
+
     for (const item of items) {
       if (item.product && item.product.stock !== undefined) {
         if (item.quantity > item.product.stock) {
@@ -36,14 +36,14 @@ export const validateCartStock = async (items) => {
         }
       }
     }
-    
+
     return {
       success: true,
       data: {
         valid: invalidItems.length === 0,
         invalidItems,
-        message: invalidItems.length > 0 
-          ? 'Some items have insufficient stock' 
+        message: invalidItems.length > 0
+          ? 'Some items have insufficient stock'
           : 'All items are in stock'
       }
     };

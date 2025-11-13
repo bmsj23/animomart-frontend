@@ -129,16 +129,14 @@ const useCheckout = () => {
       }))
       .filter(group => group.items.length > 0);
 
-    // recalculate subtotal from filtered items
     subtotal = sellerGroups.reduce((total, group) =>
-      total + (group.subtotal || group.items.reduce((sum, item) =>
+      total + group.items.reduce((sum, item) =>
         sum + (item.price * item.quantity), 0
-      )), 0
+      ), 0
     );
   } else {
-    // fallback
-    sellerGroups = [];
-    subtotal = 0;
+    sellerGroups = groupItemsBySeller(selectedCartItems);
+    subtotal = calculateSubtotal(selectedCartItems);
   }
 
   const shippingFee = form.deliveryMethod === 'shipping' ? 50 : 0;
@@ -157,7 +155,6 @@ const useCheckout = () => {
     setIsProcessing(true);
 
     try {
-      // validate stock availability (server-side with fallback)
       const stockValidation = await validateCartStock(selectedCartItems);
 
       if (!stockValidation.success || !stockValidation.data.valid) {
@@ -165,7 +162,7 @@ const useCheckout = () => {
         const outOfStock = stockValidation.data?.invalidItems || [];
         if (outOfStock.length > 0) {
           const messages = outOfStock.map(item =>
-            item.reason 
+            item.reason
               ? `${item.productName}: ${item.reason}`
               : `${item.productName}: only ${item.availableStock} available (you have ${item.requestedQuantity} in cart)`
           );
@@ -178,7 +175,6 @@ const useCheckout = () => {
         return;
       }
 
-      // show warnings for low stock items (optional)
       if (stockValidation.data?.warnings && stockValidation.data.warnings.length > 0) {
         const warningMessages = stockValidation.data.warnings.map(w => w.message).join('\n');
         logger.log('Low stock warnings:', warningMessages);
