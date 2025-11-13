@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const ProfileHeader = ({ isEditing, onEditClick }) => {
   return (
@@ -19,17 +19,7 @@ const ProfileHeader = ({ isEditing, onEditClick }) => {
 const ProfileDisplay = ({ user }) => {
   return (
     <div className="flex items-center space-x-6">
-      {(user?.profilePicture || user?.picture) ? (
-        <img
-          src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
-          alt="Profile"
-          className="w-40 h-40 rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-300">
-          <User className="w-20 h-20 text-gray-500" />
-        </div>
-      )}
+      <ProfileAvatar user={user} size="3xl" className="w-40 h-40" />
 
       <div>
         <h3 className="text-lg font-semibold">
