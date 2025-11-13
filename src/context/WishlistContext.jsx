@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import * as wishlistApi from '../api/wishlist';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { logger } from '../utils/logger';
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -10,6 +11,7 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { success: showSuccess } = useToast();
 
   // fetch wishlist when user is authenticated
   useEffect(() => {
@@ -45,18 +47,23 @@ export const WishlistProvider = ({ children }) => {
   // Optimistic add: if productObj is provided we insert it locally immediately
   // and attempt the API call in the background. If the API fails we revert.
   const addToWishlist = async (productId, productObj = null) => {
+    // check if already in wishlist
+    const alreadyExists = wishlist.some(
+      (item) => (item._id || item.product?._id || item.product) === productId
+    );
+
+    if (alreadyExists) {
+      showSuccess('This item is already in your wishlist');
+      return { alreadyInWishlist: true };
+    }
+
     // If a product object is provided, optimistically add it to UI
     if (productObj) {
-      setWishlist((prev) => {
-        const exists = prev.some(
-          (item) => (item._id || item.product?._id || item.product) === productId
-        );
-        if (exists) return prev;
-        return [productObj, ...prev];
-      });
+      setWishlist((prev) => [productObj, ...prev]);
 
       try {
         const response = await wishlistApi.addToWishlist(productId);
+        showSuccess('Added to wishlist');
         // try to reconcile returned product (if any)
         const added = response?.product || response?.data || response;
         if (added && (added._id || added.product)) {
@@ -73,7 +80,15 @@ export const WishlistProvider = ({ children }) => {
         }
         return response;
       } catch (error) {
-        // revert optimistic add
+        // check if error is "already in wishlist"
+        const errorMessage = error.response?.data?.message || error.message || '';
+        if (errorMessage.toLowerCase().includes('already in wishlist')) {
+          showSuccess('This item is already in your wishlist');
+          // don't revert - item is actually in wishlist
+          return { alreadyInWishlist: true };
+        }
+
+        // revert optimistic add for other errors
         setWishlist((prev) => prev.filter((i) => (i._id || i.product?._id || i.product) !== productId));
         logger.error('error adding to wishlist:', error);
         throw error;
@@ -83,6 +98,7 @@ export const WishlistProvider = ({ children }) => {
     // No productObj provided: call API and append returned product if available
     try {
       const response = await wishlistApi.addToWishlist(productId);
+      showSuccess('Added to wishlist');
       const added = response?.product || response?.data || response;
       if (added && (added._id || added.product)) {
         setWishlist((prev) => {
@@ -95,6 +111,13 @@ export const WishlistProvider = ({ children }) => {
       }
       return response;
     } catch (error) {
+      // check if error is "already in wishlist"
+      const errorMessage = error.response?.data?.message || error.message || '';
+      if (errorMessage.toLowerCase().includes('already in wishlist')) {
+        showSuccess('This item is already in your wishlist');
+        return { alreadyInWishlist: true };
+      }
+
       logger.error('error adding to wishlist:', error);
       throw error;
     }
