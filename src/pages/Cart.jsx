@@ -4,7 +4,7 @@ import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/formatCurrency';
 import { ShoppingCart, Trash2, Plus, Minus, X } from 'lucide-react';
-import { addToWishlist } from '../api/wishlist';
+import { useWishlist } from '../hooks/useWishlist';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
 import { logger } from '../utils/logger';
@@ -149,10 +149,15 @@ const Cart = () => {
     setDeleteConfirm({ show: true, productId, productName });
   };
 
+  const { addToWishlist } = useWishlist();
+
   const moveToWishlist = async (productId) => {
     if (!productId) return;
     try {
-      await addToWishlist(productId);
+      // find product object from cart to pass for optimistic update
+      const cartItem = cart?.items?.find((it) => it.product._id === productId);
+      const productObj = cartItem?.product || null;
+      await addToWishlist(productId, productObj);
       // remove from cart after adding to wishlist
       await handleRemoveItem(productId);
     } catch (err) {
@@ -188,8 +193,12 @@ const Cart = () => {
     setBulkDeleteConfirm({ show: false });
 
     try {
-      // add to wishlist first (can run in parallel)
-      await Promise.all(ids.map(id => addToWishlist(id)));
+      // add to wishlist first (can run in parallel) and provide product objects for optimistic updates
+      await Promise.all(ids.map(id => {
+        const cartItem = cart.items.find(it => it.product._id === id);
+        const productObj = cartItem?.product || null;
+        return addToWishlist(id, productObj);
+      }));
 
       // then remove from cart one by one to avoid version conflicts
       for (const id of ids) {

@@ -30,7 +30,7 @@ const ProductCard = ({ product, onGreenBg = false }) => {
       if (inWishlist) {
         await removeFromWishlist(product._id);
       } else {
-        await addToWishlist(product._id);
+        await addToWishlist(product._id, product);
       }
     } catch (error) {
       logger.error('failed to update wishlist:', error);
