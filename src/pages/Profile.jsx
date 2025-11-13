@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { updateMyProfile } from "../api/users";
 import { uploadProfilePicture } from "../api/upload";
 import { getMyListings } from "../api/products";
 import { getMyPurchases, getMySales } from "../api/orders";
-import { getMyReviews } from "../api/reviews";
-import { formatCurrency } from "../utils/formatCurrency";
-import LoadingSpinner from "../components/common/LoadingSpinner";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { getMyReviews, createReview, updateReview, deleteReview } from "../api/reviews";
 import Modal from "../components/common/Modal";
-import { User } from "lucide-react";
+import ReviewForm from "../components/common/ReviewForm";
 import { logger } from '../utils/logger';
+import { ProfileHeader, ProfileDisplay } from "../components/profile/ProfileHeader";
+import ProfileEditForm from "../components/profile/ProfileEditForm";
+import ProfileTabs from "../components/profile/ProfileTabs";
+import ListingsTab from "../components/profile/ListingsTab";
+import PurchasesTab from "../components/profile/PurchasesTab";
+import SalesTab from "../components/profile/SalesTab";
+import ReviewsTab from "../components/profile/ReviewsTab";
 
 const Profile = () => {
   const location = useLocation();
@@ -46,7 +51,6 @@ const Profile = () => {
   const [listingsLoading, setListingsLoading] = useState(false);
   const [listingsError, setListingsError] = useState(null);
 
-  const [purchases, setPurchases] = useState([]);
   const [purchasesLoading, setPurchasesLoading] = useState(false);
   const [purchasesError, setPurchasesError] = useState(null);
 
@@ -57,6 +61,9 @@ const Profile = () => {
   const [authoredReviews, setAuthoredReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(null);
+
+  const [reviewModal, setReviewModal] = useState({ show: false, order: null, product: null, existingReview: null });
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
 
   const [form, setForm] = useState({
     username: user?.username || "",
@@ -213,36 +220,8 @@ const Profile = () => {
           orders = data;
         }
 
-        // extract purchased products from orders defensively
-        const items = [];
-        if (Array.isArray(orders)) {
-          orders.forEach((order) => {
-            const orderItems = order.items || order.products || order.orderItems || [];
-            if (Array.isArray(orderItems) && orderItems.length) {
-              orderItems.forEach((it) => {
-                // item might wrap a product object or be a direct product
-                const product = it.product || it.productId || it.productInfo || it;
-                if (product) items.push(product);
-              });
-            }
-          });
-        } else {
-          // defensive logging to help identify unexpected shapes from the backend
-          logger.error('loadPurchases: expected orders array but got:', orders, 'raw response:', data);
-        }
-
-        // de-duplicate by _id if present
-        const unique = [];
-        const seen = new Set();
-        items.forEach((p) => {
-          const id = p?._id || p?.id || JSON.stringify(p);
-          if (!seen.has(id)) {
-            seen.add(id);
-            unique.push(p);
-          }
-        });
-
-        setPurchases(unique);
+        // store full orders for review functionality
+        setPurchaseOrders(orders);
       } catch (err) {
         setPurchasesError(err?.response?.data?.message || err.message || 'Failed to load purchases');
       } finally {
@@ -322,6 +301,63 @@ const Profile = () => {
     }
   }, [activeTab]);
 
+  // review handlers
+  const handleWriteReview = (order, product) => {
+    setReviewModal({ show: true, order, product, existingReview: null });
+  };
+
+  const handleEditReview = (review) => {
+    setReviewModal({
+      show: true,
+      order: { _id: review.order },
+      product: review.product,
+      existingReview: review
+    });
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('are you sure you want to delete this review?')) return;
+
+    try {
+      await deleteReview(reviewId);
+      // refresh reviews list
+      const data = await getMyReviews();
+      const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+      setAuthoredReviews(reviews);
+    } catch (err) {
+      showError(err?.response?.data?.message || 'Failed to delete review');
+    }
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    if (reviewModal.existingReview) {
+      await updateReview(reviewModal.existingReview._id, reviewData);
+    } else {
+      await createReview({
+        ...reviewData,
+        productId: reviewModal.product._id,
+        orderId: reviewModal.order._id
+      });
+    }
+
+    // refresh reviews list
+    const data = await getMyReviews();
+    const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+    setAuthoredReviews(reviews);
+
+    setReviewModal({ show: false, order: null, product: null, existingReview: null });
+  };
+
+  // check if product in order can be reviewed
+  const canReview = (order, productId) => {
+    if (order.status !== 'completed') return false;
+    // check if review already exists for this product in this order
+    const hasReview = authoredReviews.some(
+      r => r.product?._id === productId && r.order === order._id
+    );
+    return !hasReview;
+  };
+
   //Keyboard navigation for Profile Menu
   const handleKeyDown = (e, index) => {
     const key = e.key;
@@ -365,32 +401,12 @@ const Profile = () => {
           <div className="md:flex md:space-x-6">
             {/* Profile Menu List */}
             <div className="md:w-64 mb-4 md:mb-0">
-              <nav
-                className="flex flex-col space-y-2"
-                role="tablist"
-                aria-orientation="vertical"
-                aria-label="Profile sections"
-              >
-                {tabs.map((tab, idx) => (
-                  <button
-                    key={tab.id}
-                    id={`tab-${tab.id}`}
-                    role="tab"
-                    aria-selected={activeTab === tab.id}
-                    aria-controls={`panel-${tab.id}`}
-                    tabIndex={activeTab === tab.id ? 0 : -1}
-                    onClick={() => setActiveTab(tab.id)}
-                    onKeyDown={(e) => handleKeyDown(e, idx)}
-                    className={`w-full text-left px-4 py-3 text-md font-medium rounded-md transition-colors focus:outline-none hover:cursor-pointer ${
-                      activeTab === tab.id
-                        ? "bg-green-50 border border-green-200 text-green-700"
-                        : "text-gray-700 hover:bg-gray-50 hover:border hover:border-gray-200"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </nav>
+              <ProfileTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onKeyDown={handleKeyDown}
+              />
             </div>
 
             {/* Display Panel */}
@@ -403,161 +419,28 @@ const Profile = () => {
                 hidden={activeTab !== "profile"}
                 tabIndex={0}
               >
-                {/* View Profile Details */}
                 {!isEditing ? (
                   <>
-                    <div className="flex items-start justify-between">
-                      <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="ml-4 px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:cursor-pointer"
-                      >
-                        Edit Profile
-                      </button>
-                    </div>
-
-                    <div className="flex items-center space-x-6">
-                      {(user?.profilePicture || user?.picture) ? (
-                        <img
-                          src={(user?.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
-                          alt="Profile"
-                          className="w-40 h-40 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-300">
-                          <User className="w-20 h-20 text-gray-500" />
-                        </div>
-                      )}
-
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'No name provided'}
-                        </h3>
-                        <p className="text-sm text-gray-600">{user?.email || 'No email provided'}</p>
-                        <p className="text-sm text-gray-600 mt-1">Phone: {user?.phone || 'No phone number provided'}</p>
-                        {user?.role && (
-                          <p className="text-xs text-gray-500 mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
-                        )}
-                        {user?.createdAt && (
-                          <p className="text-xs text-gray-500 mt-1">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
-                        )}
-                      </div>
-                    </div>
+                    <ProfileHeader
+                      isEditing={isEditing}
+                      onEditClick={() => setIsEditing(true)}
+                    />
+                    <ProfileDisplay user={user} />
                   </>
                 ) : (
-                  <>
-                  {/* Edit Profile */}
-                  <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                    <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
-                    <div className="flex items-center space-x-6">
-                      <div className="shrink-0">
-                        <label className="block text-md font-medium text-gray-700">Profile Image</label>
-                        {previewUrl || (form.profilePicture || user?.picture) ? (
-                          <img
-                            src={previewUrl || (form.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
-                            alt="Profile"
-                            className="w-40 h-40 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-300">
-                            <User className="w-20 h-20 text-gray-500" />
-                          </div>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => document.getElementById('profile-file-input')?.click()}
-                            className="text-sm text-green-600 hover:cursor-pointer"
-                          >
-                            Change photo
-                        </button>
-                      </div>
-
-                      <div className="flex-1">
-                        <input
-                          id="profile-file-input"
-                          type="file"
-                          accept="image/*"
-                          onChange={onFileChange}
-                          className="hidden"
-                        />
-
-                        <label className="block text-md font-medium text-gray-700 mb-2">Username</label>
-                        <input
-                          name="username"
-                          value={form.username}
-                          onChange={onChange}
-                          placeholder={user?.username || 'e.g., john_doe'}
-                          className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
-                        />
-
-                        <div className="flex items-center justify-between mt-4">
-                          <label className="block text-md font-medium text-gray-700 mb-2">Full Name</label>
-                        </div>
-                        <p className="mt-1 text-sm text-gray-700">{user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'No name provided'}</p>
-
-                        <label className="block text-md font-medium text-gray-700 mt-3 mb-2">Email</label>
-                        <p className="mt-1 text-sm text-gray-700">{user?.email || 'No email provided'}</p>
-
-                        <label className="block text-md font-medium text-gray-700 mt-3 mb-2">Phone Number</label>
-                        <input
-                          name="phone"
-                          value={form.phone}
-                          onChange={onChange}
-                          placeholder="e.g., +63 912 345 6789"
-                          pattern="^\+[0-9\s\-()]{7,20}$"
-                          title="Enter phone in international format: +[country code] [number], e.g. +63 912 345 6789"
-                          aria-describedby="phone-format-desc"
-                          className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
-                        />
-                        <p id="phone-format-desc" className="text-xs text-gray-500 mt-1">Format: +[country code] [number], e.g. +63 912 345 6789</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirm(true)}
-                        disabled={isSaving}
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer"
-                      >
-                        {isSaving ? 'Saving...' : 'Save Changes'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        disabled={isSaving}
-                        className="px-4 py-2 border rounded-md hover:cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-
-                <Modal
-                  isOpen={showConfirm}
-                  onClose={() => setShowConfirm(false)}
-                  title="Confirm changes"
-                >
-                  <p>Are you sure you want to save these changes to your profile?</p>
-                  <div className="mt-4 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(false)}
-                      className="px-4 py-2 border rounded-md hover:cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={confirmSave}
-                      disabled={isSaving}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer"
-                    >
-                      {isSaving ? 'Saving...' : 'Confirm'}
-                    </button>
-                  </div>
-                </Modal>
-                  </>
+                  <ProfileEditForm
+                    user={user}
+                    form={form}
+                    previewUrl={previewUrl}
+                    isSaving={isSaving}
+                    showConfirm={showConfirm}
+                    onChange={onChange}
+                    onFileChange={onFileChange}
+                    onSaveClick={() => setShowConfirm(true)}
+                    onCancel={handleCancel}
+                    onConfirmSave={confirmSave}
+                    onCloseConfirm={() => setShowConfirm(false)}
+                  />
                 )}
               </div>
 
@@ -570,38 +453,11 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Listings</h2>
-                {listingsLoading ? (
-                  <LoadingSpinner size="lg" />
-                ) : listingsError ? (
-                  <p className="text-red-600">{listingsError}</p>
-                ) : myListings.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-700 mb-4">You haven't listed any products yet.</p>
-                    <Link to="/sell" className="px-4 py-2 bg-green-600 text-white rounded-md">List a product</Link>
-                  </div>
-                ) : (
-                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {myListings.map((product) => (
-                      <div key={product._id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
-                        <Link to={`/products/${product._id}`} className="block">
-                          <img
-                            src={product.image || product.images?.[0] || '/api/placeholder/400/320'}
-                            alt={product.name}
-                            className="w-full h-48 object-cover"
-                          />
-                        </Link>
-
-                        <div className="p-4">
-                          <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.name}</h3>
-                          <div className="flex items-center justify-between">
-                            <span className="text-green-700 font-bold">{formatCurrency(product.price)}</span>
-                            <span className="text-xs text-gray-500">{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <ListingsTab
+                  myListings={myListings}
+                  loading={listingsLoading}
+                  error={listingsError}
+                />
               </div>
 
               {/* Purchases Tab */}
@@ -615,37 +471,13 @@ const Profile = () => {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold mb-4">My Purchases</h2>
                 </div>
-                {purchasesLoading ? (
-                  <LoadingSpinner size="lg" />
-                ) : purchasesError ? (
-                  <p className="text-red-600">{purchasesError}</p>
-                ) : purchases.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-700 mb-4">You haven't purchased any products yet.</p>
-                    <Link to="/browse" className="px-4 py-2 bg-green-600 text-white rounded-md">Browse products</Link>
-                  </div>
-                ) : (
-                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {purchases.map((product) => (
-                      <div key={product._id || product.id || product.name} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
-                        <Link to={product._id ? `/products/${product._id}` : '#'} className="block">
-                          <img
-                            src={product.image || product.images?.[0] || '/api/placeholder/400/320'}
-                            alt={product.name || 'Purchased product'}
-                            className="w-full h-48 object-cover"
-                          />
-                        </Link>
-
-                        <div className="p-4">
-                          <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.name || 'Product'}</h3>
-                          <div className="flex items-center justify-between">
-                            <span className="text-green-700 font-bold">{formatCurrency(product.price || product.amount || 0)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <PurchasesTab
+                  purchaseOrders={purchaseOrders}
+                  loading={purchasesLoading}
+                  error={purchasesError}
+                  canReview={canReview}
+                  onWriteReview={handleWriteReview}
+                />
               </div>
 
               {/* Sales Tab */}
@@ -657,44 +489,14 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Sales</h2>
-                {salesLoading ? (
-                  <LoadingSpinner size="lg" />
-                ) : salesError ? (
-                  <p className="text-red-600">{salesError}</p>
-                ) : sales.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-700 mb-4">You haven't made any sales yet.</p>
-                    <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-600 text-white rounded-md">View my listings</Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {sales.map((entry, idx) => (
-                      <div key={entry.orderId + '-' + idx} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-4">
-                        <div className="w-32 shrink-0">
-                          <img src={entry.product?.image || entry.product?.images?.[0] || '/api/placeholder/400/320'} alt={entry.product?.name || 'Product'} className="w-full h-24 object-cover rounded" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{entry.product?.name || 'Product'}</h3>
-                          <p className="text-sm text-gray-600">Buyer: {entry.buyer?.name || entry.buyer?.email || entry.buyer?.username || 'Unknown'}</p>
-                          <div className="mt-2 flex items-center gap-4 text-sm text-gray-700">
-                            <span className="font-medium text-green-700">{formatCurrency(entry.price)}</span>
-                            <span>Qty: {entry.quantity}</span>
-                            {entry.createdAt && <span>• {new Date(entry.createdAt).toLocaleDateString()}</span>}
-                            {entry.status && <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded">{entry.status}</span>}
-                          </div>
-                        </div>
-                        <div>
-                          {entry.orderId ? (
-                            <Link to={`/orders/${entry.orderId}`} className="px-3 py-1 border rounded text-sm">View order</Link>
-                          ) : null}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <SalesTab
+                  sales={sales}
+                  loading={salesLoading}
+                  error={salesError}
+                />
               </div>
 
-              {/* Reviews Tab (to test pa) */}
+              {/* Reviews Tab */}
               <div
                 id="panel-reviews"
                 role="tabpanel"
@@ -703,43 +505,41 @@ const Profile = () => {
                 tabIndex={0}
               >
                 <h2 className="text-xl font-semibold mb-4">My Reviews</h2>
-                {reviewsLoading ? (
-                  <LoadingSpinner size="lg" />
-                ) : reviewsError ? (
-                  <p className="text-red-600">{reviewsError}</p>
-                ) : authoredReviews.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-700 mb-4">You haven't written any reviews yet.</p>
-                    <Link to="/browse" className="px-4 py-2 bg-green-600 text-white rounded-md">Browse products</Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {authoredReviews.map((r) => (
-                      <div key={r._id || r.id || `${r.product?._id || r.product?.id}-${r.createdAt}` } className="bg-white border border-gray-100 rounded-lg p-4">
-                        <div className="flex items-start gap-4">
-                          <div className="w-20 shrink-0">
-                            <Link to={r.product?._id ? `/products/${r.product._id}` : '#'}>
-                              <img src={r.product?.image || r.product?.images?.[0] || '/api/placeholder/160/160'} alt={r.product?.name || 'Product'} className="w-full h-16 object-cover rounded" />
-                            </Link>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-sm">{r.product?.name || r.title || 'Product'}</h3>
-                              <span className="text-xs text-gray-500">{r.rating ? `${r.rating}/5` : ''}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mt-2">{r.body || r.comment || r.text}</p>
-                            {r.createdAt && <p className="text-xs text-gray-400 mt-2">Reviewed on {new Date(r.createdAt).toLocaleDateString()}</p>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <ReviewsTab
+                  authoredReviews={authoredReviews}
+                  loading={reviewsLoading}
+                  error={reviewsError}
+                  onEditReview={handleEditReview}
+                  onDeleteReview={handleDeleteReview}
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      <Modal
+        isOpen={reviewModal.show}
+        onClose={() => setReviewModal({ show: false, order: null, product: null, existingReview: null })}
+        title={reviewModal.existingReview ? 'edit review' : 'write a review'}
+      >
+        <div className="mb-4">
+          <h3 className="font-semibold">{reviewModal.product?.name}</h3>
+          {reviewModal.product?.images?.[0] && (
+            <img
+              src={reviewModal.product.images[0]}
+              alt={reviewModal.product.name}
+              className="w-24 h-24 object-cover rounded mt-2"
+            />
+          )}
+        </div>
+        <ReviewForm
+          existingReview={reviewModal.existingReview}
+          onSubmit={handleReviewSubmit}
+          onCancel={() => setReviewModal({ show: false, order: null, product: null, existingReview: null })}
+        />
+      </Modal>
     </div>
   );
 };

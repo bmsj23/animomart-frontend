@@ -6,6 +6,7 @@ import { getMySales, getOrderStats } from '../../api/orders';
 import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import SellerAnalytics from '../../components/seller/SellerAnalytics';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { logger } from '../../utils/logger';
 
@@ -15,6 +16,11 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState({
+    salesData: [],
+    productSales: [],
+    orderStats: []
+  });
   const [loading, setLoading] = useState(true);
   const { error } = useToast();
 
@@ -64,12 +70,90 @@ const Dashboard = () => {
         completedOrders: statsData.completedOrders || 0,
         averageOrderValue: statsData.averageOrderValue || 0
       });
+
+      // prepare analytics data
+      prepareAnalyticsData(orders);
     } catch (err) {
       logger.error('failed to fetch dashboard data:', err);
       error('Failed To Load Dashboard Data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const prepareAnalyticsData = (orders) => {
+    // revenue over time (last 30 days)
+    const now = new Date();
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - (29 - i));
+      return {
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        revenue: 0,
+        orders: 0,
+        fullDate: date.toISOString().split('T')[0]
+      };
+    });
+
+    // aggregate orders by date
+    orders.forEach(order => {
+      if (order.status === 'completed') {
+        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+        const dayData = last30Days.find(d => d.fullDate === orderDate);
+        if (dayData) {
+          dayData.revenue += order.totalAmount;
+          dayData.orders += 1;
+        }
+      }
+    });
+
+    // product sales data
+    const productSalesMap = new Map();
+    orders.forEach(order => {
+      if (order.status === 'completed') {
+        order.items?.forEach(item => {
+          const productId = item.product?._id || item.product;
+          const productName = item.product?.name || item.name || 'Unknown';
+          const current = productSalesMap.get(productId) || { name: productName, sales: 0 };
+          current.sales += item.quantity;
+          productSalesMap.set(productId, current);
+        });
+      }
+    });
+
+    const productSalesArray = Array.from(productSalesMap.values())
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
+
+    // order status distribution
+    const statusCounts = {
+      pending: 0,
+      processing: 0,
+      completed: 0,
+      cancelled: 0
+    };
+
+    orders.forEach(order => {
+      const status = order.status;
+      if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
+        statusCounts.processing += 1;
+      } else if (Object.prototype.hasOwnProperty.call(statusCounts, status)) {
+        statusCounts[status] += 1;
+      }
+    });
+
+    const orderStatsArray = [
+      { name: 'Pending', value: statusCounts.pending },
+      { name: 'Processing', value: statusCounts.processing },
+      { name: 'Completed', value: statusCounts.completed },
+      { name: 'Cancelled', value: statusCounts.cancelled }
+    ];
+
+    setAnalyticsData({
+      salesData: last30Days,
+      productSales: productSalesArray,
+      orderStats: orderStatsArray
+    });
   };
 
   if (loading) {
@@ -122,6 +206,15 @@ const Dashboard = () => {
           icon={<AlertTriangle className="w-6 h-6" />}
           color="red"
           link="/seller/products?filter=low-stock"
+        />
+      </div>
+
+      {/* analytics charts */}
+      <div className="mb-8">
+        <SellerAnalytics
+          salesData={analyticsData.salesData}
+          productSales={analyticsData.productSales}
+          orderStats={analyticsData.orderStats}
         />
       </div>
 

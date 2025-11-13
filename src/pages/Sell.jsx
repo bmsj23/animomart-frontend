@@ -26,12 +26,12 @@ function Sell() {
     {
       icon: TrendingUp,
       title: 'Reach More Buyers',
-      description: 'Connect With The Entire DLSU Community Looking For Quality Items'
+      description: 'Connect With The Entire DLSL Community Looking For Quality Items'
     },
     {
       icon: Users,
       title: 'Trusted Community',
-      description: 'Sell To Verified DLSU Students And Faculty Members'
+      description: 'Sell To Verified DLSL Students And Faculty Members'
     },
     {
       icon: Shield,

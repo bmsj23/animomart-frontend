@@ -5,6 +5,7 @@ import { useCart } from './useCart';
 import { useToast } from './useToast';
 import { createOrder } from '../api/orders';
 import { getCartGrouped } from '../api/cart';
+import { validateCartStock } from '../api/stock';
 import {
   groupItemsBySeller,
   calculateSubtotal,
@@ -156,6 +157,29 @@ const useCheckout = () => {
     setIsProcessing(true);
 
     try {
+      const stockValidation = await validateCartStock(
+        selectedCartItems.map(item => ({
+          productId: item.product._id,
+          quantity: item.quantity
+        }))
+      );
+
+      if (!stockValidation.success || !stockValidation.data.valid) {
+
+        const outOfStock = stockValidation.data?.invalidItems || [];
+        if (outOfStock.length > 0) {
+          const messages = outOfStock.map(item =>
+            `${item.productName}: only ${item.availableStock} available (you have ${item.requestedQuantity} in cart)`
+          );
+          showError(`some items are out of stock:\n${messages.join('\n')}`);
+          setIsProcessing(false);
+          return;
+        }
+        showError(stockValidation.data?.message || 'failed to validate stock availability');
+        setIsProcessing(false);
+        return;
+      }
+
       const orderData = prepareOrderData(form, selectedCartItems);
       const result = await createOrder(orderData);
 

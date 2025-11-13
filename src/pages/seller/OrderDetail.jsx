@@ -73,32 +73,50 @@ const OrderDetail = () => {
     }
   };
 
-  const getNextStatus = (currentStatus) => {
-    const flow = {
-      pending: 'confirmed',
-      confirmed: 'processing',
-      processing: 'ready',
-      ready: 'completed'
-    };
-    return flow[currentStatus];
+  const getNextStatus = (currentStatus, deliveryMethod) => {
+    // different flows for meetup vs shipping
+    if (deliveryMethod === 'meetup') {
+      const flow = {
+        pending: 'processing',
+        processing: 'ready_for_pickup',
+        ready_for_pickup: 'completed'
+      };
+      return flow[currentStatus];
+    } else {
+      const flow = {
+        pending: 'processing',
+        processing: 'out_for_delivery',
+        out_for_delivery: 'completed'
+      };
+      return flow[currentStatus];
+    }
   };
 
-  const getStatusAction = (status) => {
-    const actions = {
-      pending: 'Confirm Order',
-      confirmed: 'Start Processing',
-      processing: 'Mark as Ready',
-      ready: 'Mark as Completed'
-    };
-    return actions[status];
+  const getStatusAction = (status, deliveryMethod) => {
+    if (deliveryMethod === 'meetup') {
+      const actions = {
+        pending: 'confirm order',
+        processing: 'mark as ready for pickup',
+        ready_for_pickup: 'mark as completed'
+      };
+      return actions[status];
+    } else {
+      const actions = {
+        pending: 'confirm order',
+        processing: 'mark as out for delivery',
+        out_for_delivery: 'mark as completed'
+      };
+      return actions[status];
+    }
   };
 
   const canUpdateStatus = (status) => {
-    return ['pending', 'confirmed', 'processing', 'ready'].includes(status);
+    return ['pending', 'processing', 'ready_for_pickup', 'out_for_delivery'].includes(status);
   };
 
   const canCancelOrder = (status) => {
-    return ['pending', 'confirmed', 'processing'].includes(status);
+    // sellers can cancel before shipping/pickup
+    return ['pending', 'processing'].includes(status);
   };
 
   if (loading) {
@@ -179,30 +197,46 @@ const OrderDetail = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Timeline</h2>
             <div className="space-y-4">
-              {['pending', 'confirmed', 'processing', 'ready', 'completed'].map((status, idx) => {
-                const statusIndex = ['pending', 'confirmed', 'processing', 'ready', 'completed'].indexOf(order.status);
-                const currentIndex = idx;
-                const isCompleted = currentIndex <= statusIndex;
-                const isCancelled = order.status === 'cancelled';
+              {(() => {
+                const timeline = order.deliveryMethod === 'meetup'
+                  ? ['pending', 'processing', 'ready_for_pickup', 'completed']
+                  : ['pending', 'processing', 'out_for_delivery', 'completed'];
 
-                return (
-                  <div key={status} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isCompleted && !isCancelled ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-400'
-                      }`}>
-                        {isCompleted && !isCancelled ? <CheckCircle className="w-5 h-5" /> : idx + 1}
+                const statusLabels = {
+                  pending: 'pending',
+                  processing: 'processing',
+                  ready_for_pickup: 'ready for pickup',
+                  out_for_delivery: 'out for delivery',
+                  completed: 'completed'
+                };
+
+                const statusIndex = timeline.indexOf(order.status);
+
+                return timeline.map((status, idx) => {
+                  const isCompleted = idx <= statusIndex;
+                  const isCancelled = order.status === 'cancelled';
+
+                  return (
+                    <div key={status} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          isCompleted && !isCancelled ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-400'
+                        }`}>
+                          {isCompleted && !isCancelled ? <CheckCircle className="w-5 h-5" /> : idx + 1}
+                        </div>
+                        {idx < timeline.length - 1 && (
+                          <div className={`w-0.5 h-12 ${isCompleted && !isCancelled ? 'bg-green-600' : 'bg-gray-200'}`} />
+                        )}
                       </div>
-                      {idx < 4 && <div className={`w-0.5 h-12 ${isCompleted && !isCancelled ? 'bg-green-600' : 'bg-gray-200'}`} />}
+                      <div className="flex-1 pb-8">
+                        <p className={`font-medium capitalize ${isCompleted && !isCancelled ? 'text-gray-900' : 'text-gray-500'}`}>
+                          {statusLabels[status]}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 pb-8">
-                      <p className={`font-medium ${isCompleted && !isCancelled ? 'text-gray-900 capitalize' : 'text-gray-500 capitalize'}`}>
-                        {status}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
 
               {order.status === 'cancelled' && (
                 <div className="flex gap-4">
@@ -323,11 +357,11 @@ const OrderDetail = () => {
           {/* actions */}
           {canUpdateStatus(order.status) && (
             <button
-              onClick={() => handleStatusUpdate(getNextStatus(order.status))}
+              onClick={() => handleStatusUpdate(getNextStatus(order.status, order.deliveryMethod))}
               disabled={updating}
-              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer capitalize"
             >
-              {updating ? 'Updating...' : getStatusAction(order.status)}
+              {updating ? 'updating...' : getStatusAction(order.status, order.deliveryMethod)}
             </button>
           )}
 
@@ -384,10 +418,10 @@ const OrderDetail = () => {
 const getStatusBadge = (status) => {
   const badges = {
     pending: 'bg-yellow-100 text-yellow-800',
-    confirmed: 'bg-blue-100 text-blue-800',
     processing: 'bg-purple-100 text-purple-800',
-    ready: 'bg-green-100 text-green-800',
-    completed: 'bg-gray-100 text-gray-800',
+    ready_for_pickup: 'bg-blue-100 text-blue-800',
+    out_for_delivery: 'bg-indigo-100 text-indigo-800',
+    completed: 'bg-green-100 text-green-800',
     cancelled: 'bg-red-100 text-red-800'
   };
   return badges[status] || 'bg-gray-100 text-gray-800';
