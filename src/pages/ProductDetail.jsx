@@ -13,6 +13,7 @@ import ProductInfo from '../components/product-detail/ProductInfo';
 import ProductActions from '../components/product-detail/ProductActions';
 import SellerInfo from '../components/product-detail/SellerInfo';
 import SuccessPopup from '../components/product-detail/SuccessPopup';
+import WishlistPopup from '../components/product-detail/WishlistPopup';
 import SimilarProducts from '../components/product-detail/SimilarProducts';
 import { logger } from '../utils/logger';
 
@@ -33,6 +34,7 @@ const ProductDetail = () => {
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   const addedTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -140,9 +142,10 @@ const ProductDetail = () => {
         await removeFromWishlist(id);
         setIsFavorite(false);
       } else {
-        // pass the product object for an optimistic UI update
+        // add to wishlist and show confirmation modal
         await addToWishlist(id, product);
         setIsFavorite(true);
+        setShowWishlistPopup(true);
       }
     } catch (err) {
       logger.error('failed to toggle wishlist:', err);
@@ -203,6 +206,10 @@ const ProductDetail = () => {
         quantity={quantity}
         product={product}
         onClose={() => setShowSuccessPopup(false)}
+      />
+      <WishlistPopup
+        show={showWishlistPopup}
+        onClose={() => setShowWishlistPopup(false)}
       />
 
       {/* breadcrumb */}
