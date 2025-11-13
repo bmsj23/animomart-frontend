@@ -10,6 +10,7 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProductCard from '../components/common/ProductCard';
+import ReviewList from '../components/common/ReviewList';
 import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
@@ -451,6 +452,16 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* reviews section */}
+      <div className="mt-12 border-t border-gray-200 pt-12">
+        <h2 className="text-2xl font-serif font-light text-gray-900 mb-6">Customer Reviews</h2>
+        <ReviewList
+          productId={id}
+          canRespond={user?._id === product.seller?._id}
+          sellerId={product.seller?._id}
+        />
       </div>
 
       {/* you may also like section */}
