@@ -42,27 +42,80 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  const addToWishlist = async (productId) => {
+  // Optimistic add: if productObj is provided we insert it locally immediately
+  // and attempt the API call in the background. If the API fails we revert.
+  const addToWishlist = async (productId, productObj = null) => {
+    // If a product object is provided, optimistically add it to UI
+    if (productObj) {
+      setWishlist((prev) => {
+        const exists = prev.some(
+          (item) => (item._id || item.product?._id || item.product) === productId
+        );
+        if (exists) return prev;
+        return [productObj, ...prev];
+      });
+
+      try {
+        const response = await wishlistApi.addToWishlist(productId);
+        // try to reconcile returned product (if any)
+        const added = response?.product || response?.data || response;
+        if (added && (added._id || added.product)) {
+          setWishlist((prev) => {
+            // replace placeholder if ids match, otherwise ensure uniqueness
+            const ids = new Set(prev.map((i) => i._id || i.product?._id || i.product));
+            if (!ids.has(added._id || productId)) {
+              return [added, ...prev];
+            }
+            return prev.map((i) =>
+              (i._id || i.product?._id || i.product) === (added._id || productId) ? added : i
+            );
+          });
+        }
+        return response;
+      } catch (error) {
+        // revert optimistic add
+        setWishlist((prev) => prev.filter((i) => (i._id || i.product?._id || i.product) !== productId));
+        logger.error('error adding to wishlist:', error);
+        throw error;
+      }
+    }
+
+    // No productObj provided: call API and append returned product if available
     try {
       const response = await wishlistApi.addToWishlist(productId);
-
-      // after adding, fetch the updated list
-      await fetchWishlist();
-      return response.data;
+      const added = response?.product || response?.data || response;
+      if (added && (added._id || added.product)) {
+        setWishlist((prev) => {
+          const exists = prev.some(
+            (item) => (item._id || item.product?._id || item.product) === (added._id || productId)
+          );
+          if (exists) return prev;
+          return [added, ...prev];
+        });
+      }
+      return response;
     } catch (error) {
-      logger.error('error removing from wishlist:', error);
+      logger.error('error adding to wishlist:', error);
       throw error;
     }
   };
 
+  // Optimistic remove: update UI immediately and revert if API fails
   const removeFromWishlist = async (productId) => {
+    // store previous state for rollback
+    let previous = [];
+    setWishlist((prev) => {
+      previous = prev;
+      return prev.filter((item) => (item._id || item.product?._id || item.product) !== productId);
+    });
+
     try {
       const data = await wishlistApi.removeFromWishlist(productId);
-      // after removing, fetch the updated list
-      await fetchWishlist();
       return data;
     } catch (error) {
       logger.error('error removing from wishlist:', error);
+      // rollback
+      setWishlist(previous);
       throw error;
     }
   };

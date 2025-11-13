@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Heart, CheckCircle, ShoppingCart } from 'lucide-react';
 import { getProduct, getSimilarProducts } from '../api/products';
 import { addToCart } from '../api/cart';
-import { addToWishlist, removeFromWishlist } from '../api/wishlist';
+import { /* addToWishlist, removeFromWishlist */ } from '../api/wishlist';
+import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
@@ -16,6 +17,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchCart, cart } = useCart();
+  const { addToWishlist, removeFromWishlist } = useWishlist();
   const { error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
@@ -135,7 +137,8 @@ const ProductDetail = () => {
         await removeFromWishlist(id);
         setIsFavorite(false);
       } else {
-        await addToWishlist({ productId: id });
+        // pass the product object for an optimistic UI update
+        await addToWishlist(id, product);
         setIsFavorite(true);
       }
     } catch (err) {

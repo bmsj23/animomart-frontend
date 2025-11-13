@@ -40,7 +40,8 @@ const ProductCard = ({ product }) => {
       if (isInWishlist) {
         await removeFromWishlist(product._id);
       } else {
-        await addToWishlist(product._id);
+        // provide product object for optimistic update
+        await addToWishlist(product._id, product);
 
         // show "Added!" feedback
         setJustAdded(true);
