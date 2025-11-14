@@ -160,8 +160,18 @@ const ProductDetail = () => {
       await addToCart({ productId: id, quantity });
       await fetchCart();
 
+      // only update UI after backend confirms success (non-optimistic)
       setAddedToCart(true);
       setShowSuccessPopup(true);
+
+      // show 'Added to Cart' for 1.5 seconds, then reset
+      if (addedTimeoutRef.current) {
+        clearTimeout(addedTimeoutRef.current);
+      }
+      addedTimeoutRef.current = setTimeout(() => {
+        setAddedToCart(false);
+        addedTimeoutRef.current = null;
+      }, 2000);
     } catch (err) {
       logger.error('Failed to add to cart:', err);
       setAddedToCart(false);
