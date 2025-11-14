@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
@@ -50,15 +51,27 @@ const ProductCard = ({ product, onGreenBg = false }) => {
       className="group cursor-pointer"
     >
       {/* product image*/}
-      <div className="relative bg-white rounded-2xl overflow-hidden mb-4 shadow-sm hover:shadow-xl transition-shadow duration-300 ease-in-out"
-           style={{ aspectRatio: '4/5' }}
+      <div
+        className="relative bg-white rounded-2xl overflow-hidden mb-4 shadow-sm hover:shadow-xl transition-shadow duration-300 ease-in-out"
+        style={{ aspectRatio: '4/5' }}
       >
         {/* image with hover zoom */}
-        <div className="relative w-full h-full overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden bg-gray-100">
+          {/* placeholder skeleton until image loads to prevent layout shift */}
+          {(!product.images?.[0]) ? (
+            <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+          ) : null}
           <img
             src={product.images?.[0] || 'https://via.placeholder.com/400x500'}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            onLoad={(e) => {
+              // remove placeholder by setting opacity via class
+              e.currentTarget.classList.remove('opacity-0');
+              e.currentTarget.classList.add('opacity-100');
+            }}
+            className="w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:scale-105"
           />
 
           {/* dark overlay with view product on hover */}
