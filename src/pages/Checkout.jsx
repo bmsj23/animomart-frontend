@@ -11,6 +11,7 @@ import useCheckout from '../hooks/useCheckout';
 const Checkout = () => {
   const navigate = useNavigate();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showAllErrors, setShowAllErrors] = useState(false);
 
   const {
     form,
@@ -45,12 +46,13 @@ const Checkout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
         {/* left column - forms */}
         <div className="space-y-6">
-          <CustomerInfoForm form={form} handleChange={handleChange} />
+          <CustomerInfoForm form={form} handleChange={handleChange} showAllErrors={showAllErrors} />
 
           <DeliveryMethodSection
             form={form}
             setForm={setForm}
             handleChange={handleChange}
+            showAllErrors={showAllErrors}
           />
 
           <PaymentMethodSection
@@ -61,15 +63,19 @@ const Checkout = () => {
         </div>
 
         {/* right column - order summary */}
-        <OrderSummary
-          sellerGroups={sellerGroups}
-          subtotal={subtotal}
-          shippingFee={shippingFee}
-          total={total}
-          isProcessing={isProcessing}
-          onSubmit={handleSubmitOrder}
-          onCancel={() => setShowCancelConfirm(true)}
-        />
+          <OrderSummary
+            sellerGroups={sellerGroups}
+            subtotal={subtotal}
+            shippingFee={shippingFee}
+            total={total}
+            isProcessing={isProcessing}
+            onSubmit={async () => {
+              // mark fields to show errors, then call submit (which will show toast)
+              setShowAllErrors(true);
+              await handleSubmitOrder();
+            }}
+            onCancel={() => setShowCancelConfirm(true)}
+          />
       </div>
 
       <Modal isOpen={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} title="cancel checkout">
