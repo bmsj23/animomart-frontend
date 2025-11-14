@@ -11,7 +11,9 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(false);
   const { isAuthenticated } = useAuth();
-  const { success: showSuccess } = useToast();
+  const { success: showSuccess, error: showError } = useToast();
+
+  const MAX_WISHLIST_ITEMS = 20;
 
   // fetch wishlist when user is authenticated
   useEffect(() => {
@@ -47,6 +49,12 @@ export const WishlistProvider = ({ children }) => {
   // Optimistic add: if productObj is provided we insert it locally immediately
   // and attempt the API call in the background. If the API fails we revert.
   const addToWishlist = async (productId, productObj = null) => {
+    // check if wishlist is full
+    if (wishlist.length >= MAX_WISHLIST_ITEMS) {
+      showError('Your wishlist is full. Maximum of 20 items reached.');
+      return { wishlistFull: true };
+    }
+
     // check if already in wishlist
     const alreadyExists = wishlist.some(
       (item) => (item._id || item.product?._id || item.product) === productId
