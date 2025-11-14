@@ -67,8 +67,18 @@ const ProductDetail = () => {
         }
 
         const res = await checkWishlist(id);
-        // backend might return { data: { inWishlist: true } } or boolean
-        const inList = res?.data?.inWishlist ?? res?.inWishlist ?? (res?.data || res);
+        // normalize response: backend may return a boolean or an object { inWishlist: boolean }
+        let inList = false;
+        if (typeof res === 'boolean') {
+          inList = res;
+        } else if (typeof res?.inWishlist === 'boolean') {
+          inList = res.inWishlist;
+        } else if (typeof res?.data?.inWishlist === 'boolean') {
+          inList = res.data.inWishlist;
+        } else if (Array.isArray(res?.products)) {
+          // some APIs return a products array when checking; consider product present if array contains it
+          inList = res.products.some(p => (p._id || p.id) === id);
+        }
         if (mounted) setIsFavorite(Boolean(inList));
       } catch (err) {
         // ignore failures — leave isFavorite as-is
