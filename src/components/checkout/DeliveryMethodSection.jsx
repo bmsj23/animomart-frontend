@@ -8,7 +8,10 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <button
           type="button"
-          onClick={() => setForm(f => ({ ...f, deliveryMethod: 'shipping' }))}
+          onClick={() => {
+            setForm(f => ({ ...f, deliveryMethod: 'shipping' }));
+            if (typeof onSectionEnter === 'function') onSectionEnter();
+          }}
           className={`p-4 border-2 rounded-lg transition-all hover:cursor-pointer ${
             form.deliveryMethod === 'shipping'
               ? 'border-green-500 bg-green-50'
@@ -22,7 +25,10 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
 
         <button
           type="button"
-          onClick={() => setForm(f => ({ ...f, deliveryMethod: 'meetup' }))}
+          onClick={() => {
+            setForm(f => ({ ...f, deliveryMethod: 'meetup' }));
+            if (typeof onSectionEnter === 'function') onSectionEnter();
+          }}
           className={`p-4 border-2 rounded-lg transition-all hover:cursor-pointer ${
             form.deliveryMethod === 'meetup'
               ? 'border-green-500 bg-green-50'
@@ -101,7 +107,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
             value={form.meetupLocation}
             onChange={handleChange}
             required
-            className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showAllErrors && !form.meetupLocation ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
           >
             <option value="">Select a location</option>
             <option>North Lounge</option>
@@ -110,6 +116,9 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
             <option>CBEAM Grounds</option>
             <option>College Lobby</option>
           </select>
+          {showAllErrors && !form.meetupLocation && (
+            <p className="mt-1 text-sm text-red-600">Please select a meetup location.</p>
+          )}
         </div>
       )}
     </div>

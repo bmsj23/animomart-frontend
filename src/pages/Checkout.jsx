@@ -12,6 +12,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showAllErrors, setShowAllErrors] = useState(false);
+  const [customerValidateSignal, setCustomerValidateSignal] = useState(0);
 
   const {
     form,
@@ -46,13 +47,14 @@ const Checkout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
         {/* left column - forms */}
         <div className="space-y-6">
-          <CustomerInfoForm form={form} handleChange={handleChange} showAllErrors={showAllErrors} />
+          <CustomerInfoForm form={form} handleChange={handleChange} showAllErrors={showAllErrors} validateSignal={customerValidateSignal} />
 
           <DeliveryMethodSection
             form={form}
             setForm={setForm}
             handleChange={handleChange}
             showAllErrors={showAllErrors}
+            onSectionEnter={() => setCustomerValidateSignal(s => s + 1)}
           />
 
           <PaymentMethodSection

@@ -1,4 +1,5 @@
 import { Banknote } from 'lucide-react';
+import { useEffect } from 'react';
 import GCash from '/assets/payments/gcash.png';
 import Maya from '/assets/payments/maya.jpg';
 
@@ -44,6 +45,20 @@ const PaymentMethodSection = ({ form, setForm, deliveryMethod }) => {
     if (method.availableFor === 'meetup' && deliveryMethod === 'meetup') return true;
     return false;
   });
+
+  // Ensure there's always a valid default payment method for the selected delivery method.
+  // If the current form.paymentMethod is not available for the chosen deliveryMethod,
+  // set it to the first available method.
+  useEffect(() => {
+    if (!availableMethods || availableMethods.length === 0) return;
+    const current = form.paymentMethod;
+    const found = availableMethods.some(m => m.id === current);
+    if (!found) {
+      setForm(f => ({ ...f, paymentMethod: availableMethods[0].id }));
+    }
+    // only re-run when deliveryMethod or form.paymentMethod changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryMethod]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

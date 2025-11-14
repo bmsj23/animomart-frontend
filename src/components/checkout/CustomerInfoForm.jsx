@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const CustomerInfoForm = ({ form, handleChange, showAllErrors = false }) => {
+const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateSignal = null }) => {
   // errors store validation messages; touched controls whether to show them
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -65,6 +65,16 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showAllErrors]);
+
+  // also listen for parent trigger (validateSignal) which indicates the user entered another section
+  useEffect(() => {
+    if (validateSignal == null) return;
+    // mark fields touched and validate so errors appear on blur/navigation
+    const allTouched = Object.keys(validators).reduce((acc, k) => ({ ...acc, [k]: true }), {});
+    setTouched(allTouched);
+    Object.keys(validators).forEach((key) => validateField(key, form[key]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validateSignal]);
 
   // helper to build className and whether to show error
   const showError = (field) => touched[field] && errors[field];
