@@ -63,7 +63,6 @@ export const WishlistProvider = ({ children }) => {
 
       try {
         const response = await wishlistApi.addToWishlist(productId);
-        showSuccess('Added to wishlist');
         // try to reconcile returned product (if any)
         const added = response?.product || response?.data || response;
         if (added && (added._id || added.product)) {
@@ -98,7 +97,6 @@ export const WishlistProvider = ({ children }) => {
     // No productObj provided: call API and append returned product if available
     try {
       const response = await wishlistApi.addToWishlist(productId);
-      showSuccess('Added to wishlist');
       const added = response?.product || response?.data || response;
       if (added && (added._id || added.product)) {
         setWishlist((prev) => {
