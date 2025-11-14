@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { Shield, Users, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { logger } from '../utils/logger';
@@ -39,66 +38,75 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-white px-4">
-        <div className="max-w-md w-full">
-          {/* Logo and Title */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-3xl">A</span>
+      <div className="fixed inset-0 flex flex-col lg:flex-row overflow-hidden">
+        {/* left side - login form */}
+        <div className="flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-12 overflow-y-auto">
+          <div className="w-full max-w-md">
+            {/* logo */}
+            <div className="mb-10">
+              <div className="flex justify-center mb-8">
+                <img
+                  src="/assets/animomart_1.jpg"
+                  alt="AnimoMart Logo"
+                  className="w-64 h-36 rounded-2xl object-cover"
+                />
+              </div>
+
+              {/* welcome text */}
+              <div className="text-center">
+                <p className="text-sm text-gray-500 mb-2">Welcome!</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2 font-sans">Sign in</h1>
+                <p className="text-sm text-gray-600">to continue to AnimoMart</p>
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">AnimoMart</h1>
-            <p className="text-gray-600">De La Salle Lipa Campus Marketplace</p>
+
+            {/* form card */}
+            <div className="space-y-6">
+              {/* google sign-in */}
+              <div className="space-y-4">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="outline"
+                  size="large"
+                  text="signin_with"
+                  shape="rectangular"
+                  context="signin"
+                  ux_mode="popup"
+                  width="100%"
+                />
+              </div>
+
+              <div className="bg-surface rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-gray-700 text-center">
+                  Note: Only <span className="font-semibold text-accent">@dlsl.edu.ph</span> email addresses are allowed
+                </p>
+              </div>
+            </div>
+
+            {/* footer text */}
+            <p className="mt-4 text-xs text-gray-500 text-center">
+              De La Salle Lipa Campus Marketplace
+            </p>
           </div>
+        </div>
 
-          {/* Login Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h2>
-            <p className="text-gray-600 mb-6">Sign in with your DLSL account to continue</p>
+        {/* right side - illustration */}
+        <div className="hidden lg:flex flex-1 bg-green-900 items-center justify-center p-12 relative overflow-hidden">
 
-            {/* Google Sign-In Button */}
-            <div className="flex justify-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap={false}
-                theme="outline"
-                size="large"
-                text="signin_with"
-                shape="rectangular"
-                context="signin"
-                ux_mode="popup"
-              />
+          {/* illustration content */}
+          <div className="relative z-10 text-center max-w-lg">
+            <div className="mb-12 flex justify-center">
+
             </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-500">
-                Only <span className="font-semibold text-green-600">@dlsl.edu.ph</span> email addresses are allowed
-              </p>
-            </div>
-          </div>
-
-          {/* Features */}
-          <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-green-600 mb-2">
-                <Shield className="w-8 h-8 mx-auto" />
-              </div>
-              <p className="text-xs font-medium text-gray-700">Safe & Secure</p>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-green-600 mb-2">
-                <Users className="w-8 h-8 mx-auto" />
-              </div>
-              <p className="text-xs font-medium text-gray-700">Student Only</p>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-green-600 mb-2">
-                <Zap className="w-8 h-8 mx-auto" />
-              </div>
-              <p className="text-xs font-medium text-gray-700">Fast & Easy</p>
-            </div>
+            <h2 className="text-4xl font-bold text-gray-50 mb-4 font-sans leading-tight">
+              Shop Smart, <span className="text-accent">Shop Local</span>
+            </h2>
+            <p className="text-gray-200 text-lg leading-relaxed">
+              Your trusted campus marketplace for buying and selling with fellow Lasallians
+            </p>
           </div>
         </div>
       </div>
