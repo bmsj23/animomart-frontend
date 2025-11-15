@@ -8,7 +8,7 @@ import { getMyListings } from "../api/products";
 import { getMyPurchases, getMySales } from "../api/orders";
 import {
   getMyReviews,
-  createReview,
+  getUserReviews,  createReview,
   updateReview,
   deleteReview,
 } from "../api/reviews";
@@ -89,6 +89,15 @@ const Profile = () => {
     profilePicture: user?.profilePicture || user?.picture || "",
   });
 
+  // Keep form state in sync with user from auth context
+  useEffect(() => {
+    setForm({
+      username: user?.username || "",
+      phone: user?.phone || "",
+      profilePicture: user?.profilePicture || user?.picture || "",
+    });
+  }, [user]);
+
   const onChange = (e) =>
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
@@ -137,21 +146,19 @@ const Profile = () => {
       // To avoid importing AuthContext directly, call updateUser via useAuth
       // (useAuth returns updateUser)
       if (updateUser) {
-        const updatedData = updated.user || updated;
+        const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
 
         const mergedUser = {
           ...user,
           username: updatedData.username ?? user.username,
           phone: updatedData.phone ?? user.phone,
-          profilePicture:
-            (updated.user || updated).profilePicture ||
-            (updated.user || updated).picture ||
-            user.profilePicture ||
-            user.picture,
+          picture:
+            (updatedData.profilePicture || updatedData.picture) ??
+            user.profilePicture ?? user.picture
         };
         console.log('Saving merged user:', mergedUser);
         updateUser(mergedUser);
-      }
+    }
 
       // cleanup local preview/file
       if (previewUrl) {
@@ -163,7 +170,7 @@ const Profile = () => {
       }
       setSelectedFile(null);
       setPreviewUrl("");
-
+      // Exit editing mode here to ensure the component re-renders with fresh user data
       setIsEditing(false);
     } catch (err) {
       const msg =
@@ -181,8 +188,6 @@ const Profile = () => {
     setShowConfirm(false);
     try {
       await handleSave();
-      // ensure we exit edit mode and show updated profile
-      setIsEditing(false);
     } catch {
       // handleSave already shows errors via toasts
     }
@@ -346,7 +351,10 @@ const Profile = () => {
       setReviewsLoading(true);
       setReviewsError(null);
       try {
-        const data = await getMyReviews();
+        // The route /api/reviews/my does not exist.
+        // Use getUserReviews with the logged-in user's ID instead.
+        if (!user?._id) throw new Error("User not found");
+        const data = await getUserReviews(user._id);
         // expected shapes: array OR { reviews: [...] } OR { data: [...] }
         const reviews = Array.isArray(data)
           ? data
@@ -366,7 +374,7 @@ const Profile = () => {
     if (activeTab === "reviews") {
       loadAuthoredReviews();
     }
-  }, [activeTab]);
+  }, [activeTab, user?._id]);
 
   // review handlers
   const handleWriteReview = (order, product) => {
@@ -388,10 +396,9 @@ const Profile = () => {
     try {
       await deleteReview(reviewId);
       // refresh reviews list
+      // Use getUserReviews with the logged-in user's ID to refresh
       const data = await getMyReviews();
-      const reviews = Array.isArray(data)
-        ? data
-        : data?.reviews || data?.data || [];
+      const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
       setAuthoredReviews(reviews);
     } catch (err) {
       showError(err?.response?.data?.message || "Failed to delete review");
@@ -410,10 +417,9 @@ const Profile = () => {
     }
 
     // refresh reviews list
+    // Use getUserReviews with the logged-in user's ID to refresh
     const data = await getMyReviews();
-    const reviews = Array.isArray(data)
-      ? data
-      : data?.reviews || data?.data || [];
+    const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
     setAuthoredReviews(reviews);
 
     setReviewModal({
