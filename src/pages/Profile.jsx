@@ -113,75 +113,80 @@ const Profile = () => {
   };
 
   const handleSave = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    setIsSaving(true);
-    try {
-      // call API to update profile
-      let profilePicUrl = form.profilePicture;
+  if (e && e.preventDefault) e.preventDefault();
+  setIsSaving(true);
+  try {
+    let profilePicUrl = form.profilePicture;
 
-      // if user selected a new file, upload it first
-      if (selectedFile) {
-        const uploaded = await uploadProfilePicture(selectedFile);
-        // try common response shapes
-        profilePicUrl =
-          uploaded?.url ||
-          uploaded?.secure_url ||
-          uploaded?.path ||
-          uploaded?.imageUrl ||
-          uploaded?.data?.url ||
-          uploaded?.src ||
-          uploaded?.image ||
-          profilePicUrl;
-      }
-
-      const updated = await updateMyProfile({
-        username: form.username,
-        phone: form.phone,
-        profilePicture: profilePicUrl,
-      });
-
-      // update auth context and localStorage
-      // AuthContext provides updateUser
-      // We call updateUser if available on context
-      // To avoid importing AuthContext directly, call updateUser via useAuth
-      // (useAuth returns updateUser)
-      if (updateUser) {
-        const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
-
-        const mergedUser = {
-          ...user,
-          username: updatedData.username ?? user.username,
-          phone: updatedData.phone ?? user.phone,
-          picture:
-            (updatedData.profilePicture || updatedData.picture) ??
-            user.profilePicture ?? user.picture
-        };
-        console.log('Saving merged user:', mergedUser);
-        updateUser(mergedUser);
+    if (selectedFile) {
+      const uploaded = await uploadProfilePicture(selectedFile);
+      profilePicUrl =
+        uploaded?.url ||
+        uploaded?.secure_url ||
+        uploaded?.path ||
+        uploaded?.imageUrl ||
+        uploaded?.data?.url ||
+        uploaded?.src ||
+        uploaded?.image ||
+        profilePicUrl;
     }
 
-      // cleanup local preview/file
-      if (previewUrl) {
-        try {
-          URL.revokeObjectURL(previewUrl);
-        } catch {
-          // ignore
-        }
-      }
-      setSelectedFile(null);
-      setPreviewUrl("");
-      // Exit editing mode here to ensure the component re-renders with fresh user data
-      setIsEditing(false);
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err.message ||
-        "Failed to update profile";
-      showError(msg);
-    } finally {
-      setIsSaving(false);
+    // 🔧 FIX: Map frontend fields to backend field names
+    const updatePayload = {
+      profilePicture: profilePicUrl,
+    };
+
+    // Only include fields that backend accepts
+    if (form.username) {
+      updatePayload.name = form.username;  // Backend expects 'name'
     }
-  };
+    if (form.phone) {
+      updatePayload.contactNumber = form.phone;  // Backend expects 'contactNumber'
+    }
+
+    console.log('Sending update payload:', updatePayload); // Debug log
+
+    const updated = await updateMyProfile(updatePayload);
+
+    console.log('Update response:', updated); // Debug log
+
+    if (updateUser) {
+      const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
+
+      const mergedUser = {
+        ...user,
+        username: updatedData.name || updatedData.username || user.username,
+        phone: updatedData.contactNumber || updatedData.phone || user.phone,
+        profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
+        picture: updatedData.profilePicture || user.profilePicture || user.picture,
+      };
+      
+      console.log('Merged user data:', mergedUser); // Debug log
+      updateUser(mergedUser);
+    }
+
+    if (previewUrl) {
+      try {
+        URL.revokeObjectURL(previewUrl);
+      } catch {
+        // ignore
+      }
+    }
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setIsEditing(false);
+  } catch (err) {
+    console.error('Profile update error:', err); // Debug log
+    console.error('Error response:', err.response); // Debug log
+    const msg =
+      err?.response?.data?.message ||
+      err.message ||
+      "Failed to update profile";
+    showError(msg);
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const confirmSave = async () => {
     // close modal then run save
