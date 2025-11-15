@@ -285,62 +285,75 @@ const Profile = () => {
 
     // load sales when switching to sales tab
     const loadSales = async () => {
-      setSalesLoading(true);
-      setSalesError(null);
-      try {
-        const data = await getMySales();
-        // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
-        const orders = Array.isArray(data)
-          ? data
-          : data?.orders || data?.data || [];
-
-        // flatten order items into sale entries with buyer + order metadata
-        const saleEntries = [];
-        if (Array.isArray(orders)) {
-          orders.forEach((order) => {
-            const orderItems =
-              order.items || order.products || order.orderItems || [];
-            if (Array.isArray(orderItems) && orderItems.length) {
-              orderItems.forEach((it) => {
-                const product =
-                  it.product || it.productId || it.productInfo || it;
-                const quantity = it.quantity || it.qty || it.count || 1;
-                const price =
-                  it.price || it.amount || product?.price || order.total || 0;
-                saleEntries.push({
-                  orderId: order._id || order.id,
-                  product,
-                  buyer:
-                    order.buyer ||
-                    order.customer ||
-                    order.user ||
-                    order.buyerInfo,
-                  quantity,
-                  price,
-                  status: order.status || order.orderStatus,
-                  createdAt: order.createdAt || order.date || order.purchasedAt,
-                });
-              });
-            }
+  setSalesLoading(true);
+  setSalesError(null);
+  try {
+    const response = await getMySales();
+    
+    // Handle the nested structure: response.data.orders
+    let orders = [];
+    
+    if (Array.isArray(response)) {
+      orders = response;
+    } else if (response?.data?.orders) {
+      // This handles: { success: true, data: { orders: [...], pagination: {...} } }
+      orders = response.data.orders;
+    } else if (response?.orders) {
+      // Fallback: { orders: [...] }
+      orders = response.orders;
+    } else if (response?.data && Array.isArray(response.data)) {
+      // Fallback: { data: [...] }
+      orders = response.data;
+    }
+    
+    // flatten order items into sale entries with buyer + order metadata
+    const saleEntries = [];
+    
+    if (Array.isArray(orders)) {
+      orders.forEach((order) => {
+        const orderItems =
+          order.items || order.products || order.orderItems || [];
+        if (Array.isArray(orderItems) && orderItems.length) {
+          orderItems.forEach((it) => {
+            const product =
+              it.product || it.productId || it.productInfo || it;
+            const quantity = it.quantity || it.qty || it.count || 1;
+            const price =
+              it.price || it.amount || product?.price || order.total || 0;
+            saleEntries.push({
+              orderId: order._id || order.id,
+              product,
+              buyer:
+                order.buyer ||
+                order.customer ||
+                order.user ||
+                order.buyerInfo,
+              quantity,
+              price,
+              status: order.status || order.orderStatus,
+              createdAt: order.createdAt || order.date || order.purchasedAt,
+            });
           });
-        } else {
-          logger.error(
-            "loadSales: expected orders array but got:",
-            orders,
-            "raw response:",
-            data
-          );
         }
-
-        setSales(saleEntries);
-      } catch (err) {
-        setSalesError(
-          err?.response?.data?.message || err.message || "Failed to load sales"
-        );
-      } finally {
-        setSalesLoading(false);
-      }
-    };
+      });
+    } else {
+      logger.error(
+        "loadSales: expected orders array but got:",
+        orders,
+        "raw response:",
+        response
+      );
+    }
+    
+    setSales(saleEntries);
+  } catch (err) {
+    setSalesError(
+      err?.response?.data?.message || err.message || "Failed to load sales"
+    );
+  } finally {
+    setSalesLoading(false);
+  }
+};
 
     if (activeTab === "sales") {
       loadSales();
