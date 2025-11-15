@@ -6,11 +6,19 @@ import { updateMyProfile } from "../api/users";
 import { uploadProfilePicture } from "../api/upload";
 import { getMyListings } from "../api/products";
 import { getMyPurchases, getMySales } from "../api/orders";
-import { getMyReviews, createReview, updateReview, deleteReview } from "../api/reviews";
+import {
+  getMyReviews,
+  createReview,
+  updateReview,
+  deleteReview,
+} from "../api/reviews";
 import Modal from "../components/common/Modal";
 import ReviewForm from "../components/common/ReviewForm";
-import { logger } from '../utils/logger';
-import { ProfileHeader, ProfileDisplay } from "../components/profile/ProfileHeader";
+import { logger } from "../utils/logger";
+import {
+  ProfileHeader,
+  ProfileDisplay,
+} from "../components/profile/ProfileHeader";
 import ProfileEditForm from "../components/profile/ProfileEditForm";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import ListingsTab from "../components/profile/ListingsTab";
@@ -24,8 +32,13 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
-    const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl && ['profile', 'listings', 'purchases', 'sales', 'reviews'].includes(tabFromUrl)) {
+    const tabFromUrl = searchParams.get("tab");
+    if (
+      tabFromUrl &&
+      ["profile", "listings", "purchases", "sales", "reviews"].includes(
+        tabFromUrl
+      )
+    ) {
       setActiveTab(tabFromUrl);
     }
   }, [searchParams]);
@@ -62,7 +75,12 @@ const Profile = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(null);
 
-  const [reviewModal, setReviewModal] = useState({ show: false, order: null, product: null, existingReview: null });
+  const [reviewModal, setReviewModal] = useState({
+    show: false,
+    order: null,
+    product: null,
+    existingReview: null,
+  });
   const [purchaseOrders, setPurchaseOrders] = useState([]);
 
   const [form, setForm] = useState({
@@ -71,7 +89,8 @@ const Profile = () => {
     profilePicture: user?.profilePicture || user?.picture || "",
   });
 
-  const onChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onChange = (e) =>
+    setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
   const onFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -117,7 +136,22 @@ const Profile = () => {
       // We call updateUser if available on context
       // To avoid importing AuthContext directly, call updateUser via useAuth
       // (useAuth returns updateUser)
-      if (updateUser) updateUser(updated.user || updated);
+      if (updateUser) {
+        const updatedData = updated.user || updated;
+
+        const mergedUser = {
+          ...user,
+          username: updatedData.username ?? user.username,
+          phone: updatedData.phone ?? user.phone,
+          profilePicture:
+            (updated.user || updated).profilePicture ||
+            (updated.user || updated).picture ||
+            user.profilePicture ||
+            user.picture,
+        };
+        console.log('Saving merged user:', mergedUser);
+        updateUser(mergedUser);
+      }
 
       // cleanup local preview/file
       if (previewUrl) {
@@ -132,7 +166,10 @@ const Profile = () => {
 
       setIsEditing(false);
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Failed to update profile";
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to update profile";
       showError(msg);
     } finally {
       setIsSaving(false);
@@ -191,13 +228,17 @@ const Profile = () => {
 
         setMyListings(products);
       } catch (err) {
-        setListingsError(err?.response?.data?.message || err.message || 'Failed to load listings');
+        setListingsError(
+          err?.response?.data?.message ||
+            err.message ||
+            "Failed to load listings"
+        );
       } finally {
         setListingsLoading(false);
       }
     };
 
-    if (activeTab === 'listings') {
+    if (activeTab === "listings") {
       loadListings();
     }
 
@@ -223,13 +264,17 @@ const Profile = () => {
         // store full orders for review functionality
         setPurchaseOrders(orders);
       } catch (err) {
-        setPurchasesError(err?.response?.data?.message || err.message || 'Failed to load purchases');
+        setPurchasesError(
+          err?.response?.data?.message ||
+            err.message ||
+            "Failed to load purchases"
+        );
       } finally {
         setPurchasesLoading(false);
       }
     };
 
-    if (activeTab === 'purchases') {
+    if (activeTab === "purchases") {
       loadPurchases();
     }
 
@@ -240,22 +285,31 @@ const Profile = () => {
       try {
         const data = await getMySales();
         // expected shapes: array of orders OR { orders: [...] } OR { data: [...] }
-        const orders = Array.isArray(data) ? data : data?.orders || data?.data || [];
+        const orders = Array.isArray(data)
+          ? data
+          : data?.orders || data?.data || [];
 
         // flatten order items into sale entries with buyer + order metadata
         const saleEntries = [];
         if (Array.isArray(orders)) {
           orders.forEach((order) => {
-            const orderItems = order.items || order.products || order.orderItems || [];
+            const orderItems =
+              order.items || order.products || order.orderItems || [];
             if (Array.isArray(orderItems) && orderItems.length) {
               orderItems.forEach((it) => {
-                const product = it.product || it.productId || it.productInfo || it;
+                const product =
+                  it.product || it.productId || it.productInfo || it;
                 const quantity = it.quantity || it.qty || it.count || 1;
-                const price = it.price || it.amount || product?.price || order.total || 0;
+                const price =
+                  it.price || it.amount || product?.price || order.total || 0;
                 saleEntries.push({
                   orderId: order._id || order.id,
                   product,
-                  buyer: order.buyer || order.customer || order.user || order.buyerInfo,
+                  buyer:
+                    order.buyer ||
+                    order.customer ||
+                    order.user ||
+                    order.buyerInfo,
                   quantity,
                   price,
                   status: order.status || order.orderStatus,
@@ -265,18 +319,25 @@ const Profile = () => {
             }
           });
         } else {
-          logger.error('loadSales: expected orders array but got:', orders, 'raw response:', data);
+          logger.error(
+            "loadSales: expected orders array but got:",
+            orders,
+            "raw response:",
+            data
+          );
         }
 
         setSales(saleEntries);
       } catch (err) {
-        setSalesError(err?.response?.data?.message || err.message || 'Failed to load sales');
+        setSalesError(
+          err?.response?.data?.message || err.message || "Failed to load sales"
+        );
       } finally {
         setSalesLoading(false);
       }
     };
 
-    if (activeTab === 'sales') {
+    if (activeTab === "sales") {
       loadSales();
     }
 
@@ -287,16 +348,22 @@ const Profile = () => {
       try {
         const data = await getMyReviews();
         // expected shapes: array OR { reviews: [...] } OR { data: [...] }
-        const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+        const reviews = Array.isArray(data)
+          ? data
+          : data?.reviews || data?.data || [];
         setAuthoredReviews(reviews);
       } catch (err) {
-        setReviewsError(err?.response?.data?.message || err.message || 'Failed to load reviews');
+        setReviewsError(
+          err?.response?.data?.message ||
+            err.message ||
+            "Failed to load reviews"
+        );
       } finally {
         setReviewsLoading(false);
       }
     };
 
-    if (activeTab === 'reviews') {
+    if (activeTab === "reviews") {
       loadAuthoredReviews();
     }
   }, [activeTab]);
@@ -311,21 +378,23 @@ const Profile = () => {
       show: true,
       order: { _id: review.order },
       product: review.product,
-      existingReview: review
+      existingReview: review,
     });
   };
 
   const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('are you sure you want to delete this review?')) return;
+    if (!window.confirm("are you sure you want to delete this review?")) return;
 
     try {
       await deleteReview(reviewId);
       // refresh reviews list
       const data = await getMyReviews();
-      const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+      const reviews = Array.isArray(data)
+        ? data
+        : data?.reviews || data?.data || [];
       setAuthoredReviews(reviews);
     } catch (err) {
-      showError(err?.response?.data?.message || 'Failed to delete review');
+      showError(err?.response?.data?.message || "Failed to delete review");
     }
   };
 
@@ -336,24 +405,31 @@ const Profile = () => {
       await createReview({
         ...reviewData,
         productId: reviewModal.product._id,
-        orderId: reviewModal.order._id
+        orderId: reviewModal.order._id,
       });
     }
 
     // refresh reviews list
     const data = await getMyReviews();
-    const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+    const reviews = Array.isArray(data)
+      ? data
+      : data?.reviews || data?.data || [];
     setAuthoredReviews(reviews);
 
-    setReviewModal({ show: false, order: null, product: null, existingReview: null });
+    setReviewModal({
+      show: false,
+      order: null,
+      product: null,
+      existingReview: null,
+    });
   };
 
   // check if product in order can be reviewed
   const canReview = (order, productId) => {
-    if (order.status !== 'completed') return false;
+    if (order.status !== "completed") return false;
     // check if review already exists for this product in this order
     const hasReview = authoredReviews.some(
-      r => r.product?._id === productId && r.order === order._id
+      (r) => r.product?._id === productId && r.order === order._id
     );
     return !hasReview;
   };
@@ -387,7 +463,7 @@ const Profile = () => {
   // if URL contains ?tab=... set the active tab on mount/navigation
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const tab = params.get('tab');
+    const tab = params.get("tab");
     if (tab) setActiveTab(tab);
   }, [location.search]);
 
@@ -521,8 +597,15 @@ const Profile = () => {
       {/* Review Modal */}
       <Modal
         isOpen={reviewModal.show}
-        onClose={() => setReviewModal({ show: false, order: null, product: null, existingReview: null })}
-        title={reviewModal.existingReview ? 'edit review' : 'write a review'}
+        onClose={() =>
+          setReviewModal({
+            show: false,
+            order: null,
+            product: null,
+            existingReview: null,
+          })
+        }
+        title={reviewModal.existingReview ? "edit review" : "write a review"}
       >
         <div className="mb-4">
           <h3 className="font-semibold">{reviewModal.product?.name}</h3>
@@ -537,7 +620,14 @@ const Profile = () => {
         <ReviewForm
           existingReview={reviewModal.existingReview}
           onSubmit={handleReviewSubmit}
-          onCancel={() => setReviewModal({ show: false, order: null, product: null, existingReview: null })}
+          onCancel={() =>
+            setReviewModal({
+              show: false,
+              order: null,
+              product: null,
+              existingReview: null,
+            })
+          }
         />
       </Modal>
     </div>
