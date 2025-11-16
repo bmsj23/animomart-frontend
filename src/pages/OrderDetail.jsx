@@ -84,16 +84,31 @@ const OrderDetail = () => {
   const formatPaymentMethod = (method) => {
     if (!method) return 'N/A';
 
+    const lowerMethod = method.toLowerCase();
+
     const methodMap = {
-      cash_on_delivery: 'Cash On Delivery',
-      cash_on_meetup: 'Cash On Meetup',
-      gcash: 'GCash',
-      maya: 'Maya',
-      paymaya: 'PayMaya'
+      'cash_on_delivery': 'Cash On Delivery',
+      'cash on delivery': 'Cash On Delivery',
+      'cash_on_meetup': 'Cash On Meetup',
+      'cash on meetup': 'Cash On Meetup',
+      'mock_gcash': 'GCash',
+      'gcash': 'GCash',
+      'mock_paymaya': 'Maya',
+      'maya': 'Maya',
+      'paymaya': 'Maya',
+      'mock paymaya': 'Maya'
     };
 
-    if (methodMap[method]) {
-      return methodMap[method];
+    if (methodMap[lowerMethod]) {
+      return methodMap[lowerMethod];
+    }
+
+    if (lowerMethod.includes('paymaya') || lowerMethod.includes('maya')) {
+      return 'Maya';
+    }
+
+    if (lowerMethod.includes('gcash')) {
+      return 'GCash';
     }
 
     return method
