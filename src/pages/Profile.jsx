@@ -85,7 +85,7 @@ const Profile = () => {
 
   const [form, setForm] = useState({
     username: user?.username || "",
-    phone: user?.phone || "",
+    contactNumber: user?.contactNumber || user?.phone || "",
     profilePicture: user?.profilePicture || user?.picture || "",
   });
 
@@ -93,7 +93,7 @@ const Profile = () => {
   useEffect(() => {
     setForm({
       username: user?.username || "",
-      phone: user?.phone || "",
+      contactNumber: user?.contactNumber || user?.phone || "",
       profilePicture: user?.profilePicture || user?.picture || "",
     });
   }, [user]);
@@ -139,8 +139,8 @@ const Profile = () => {
     if (form.username) {
       updatePayload.username = form.username;
     }
-    if (form.phone) {
-      updatePayload.phone = form.phone;
+    if (form.contactNumber) {
+      updatePayload.contactNumber = form.contactNumber;
     }
 
     logger.log('Sending update payload:', updatePayload); // Debug log
@@ -156,8 +156,8 @@ const Profile = () => {
         ...user,
         name: updatedData.name || user.name,
         username: updatedData.name || updatedData.username || user.username,
-        phone: updatedData.phone || updatedData.contactNumber || user.phone,
-        contactNumber: updatedData.phone || updatedData.contactNumber || user.contactNumber,
+        contactNumber: updatedData.contactNumber || user.contactNumber,
+        phone: updatedData.contactNumber || user.contactNumber || user.phone,
         profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
         picture: updatedData.profilePicture || user.profilePicture || user.picture,
       };
@@ -203,7 +203,7 @@ const Profile = () => {
     setIsEditing(false);
     setForm({
       username: user?.username || "",
-      phone: user?.phone || "",
+      contactNumber: user?.contactNumber || user?.phone || "",
       profilePicture: user?.profilePicture || user?.picture || "",
     });
     if (previewUrl) {
@@ -223,7 +223,7 @@ const Profile = () => {
       setListingsLoading(true);
       setListingsError(null);
       try {
-        const data = await getMyListings();
+        const data = await getMyListings({ limit: 1000 });
 
         // backend returns { success: true, data: { products: [...], total, page, pages } }
         let products = [];
@@ -258,7 +258,7 @@ const Profile = () => {
       setPurchasesLoading(true);
       setPurchasesError(null);
       try {
-        const data = await getMyPurchases({ limit: 100 });
+        const data = await getMyPurchases({ limit: 1000 });
 
         // backend returns { success: true, data: { orders: [...] } }
         let orders = [];
@@ -294,7 +294,7 @@ const Profile = () => {
   setSalesLoading(true);
   setSalesError(null);
   try {
-    const response = await getMySales();
+    const response = await getMySales({ limit: 1000 });
 
     // Handle the nested structure: response.data.orders
     let orders = [];
@@ -370,7 +370,7 @@ const Profile = () => {
       setReviewsLoading(true);
       setReviewsError(null);
       try {
-        const data = await getMyReviews();
+        const data = await getMyReviews({ limit: 1000 });
         logger.log('my reviews response:', data);
 
         let reviews = [];
