@@ -49,45 +49,9 @@ const Checkout = () => {
   }, []);
 
   // Observe when the user scrolls the delivery/payment sections into view
-  // and trigger validation for the previous step. This makes validation
-  // step-based: errors for CustomerInfo show when user enters Delivery,
-  // and errors for Delivery show when user enters Payment.
-  useEffect(() => {
-    if (!deliveryRef.current || !paymentRef.current) return;
-    const ignoreInitialRef = { current: true };
-    // enable observer after a short delay to avoid firing from previous page scroll
-    const enableObserverTimer = setTimeout(() => { ignoreInitialRef.current = false; }, 120);
-
-    const options = { root: null, rootMargin: '0px 0px -40% 0px', threshold: 0 };
-    const obs = new IntersectionObserver((entries) => {
-      // ignore the first batch of intersection events right after mount
-      if (ignoreInitialRef.current) return;
-
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        // require a small scroll to avoid firing on initial mount
-        const scrolled = (window.scrollY || window.pageYOffset) > 20;
-        if (!scrolled) return;
-        if (entry.target === deliveryRef.current) {
-          // user scrolled into Delivery -> validate CustomerInfo
-          setCustomerValidateSignal(s => (s ?? 0) + 1);
-        }
-        if (entry.target === paymentRef.current) {
-          // user scrolled into Payment -> validate Delivery
-          setDeliveryValidateSignal(s => (s ?? 0) + 1);
-        }
-      });
-    }, options);
-
-    obs.observe(deliveryRef.current);
-    obs.observe(paymentRef.current);
-
-    return () => {
-      clearTimeout(enableObserverTimer);
-      obs.disconnect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // We no longer use IntersectionObserver to trigger validation on passive scroll.
+  // Instead, the child sections (Delivery/Payment) call `onSectionEnter` when
+  // the user performs an explicit action (click/select/change) inside the section.
 
   if (cartLoading) {
     return (
