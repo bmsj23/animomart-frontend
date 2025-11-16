@@ -60,7 +60,7 @@ const ProductCard = ({ product, onGreenBg = false }) => {
   return (
     <div
       onClick={handleCardClick}
-      className="group cursor-pointer"
+      className="group cursor-pointer transform transition-transform duration-300 hover:scale-102"
     >
       {/* product image*/}
       <div
@@ -83,7 +83,7 @@ const ProductCard = ({ product, onGreenBg = false }) => {
               e.currentTarget.classList.remove('opacity-0');
               e.currentTarget.classList.add('opacity-100');
             }}
-            className="w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:scale-105"
+            className="w-full h-full object-cover transition-opacity duration-300 opacity-0"
           />
 
           {/* dark overlay with view product on hover */}
