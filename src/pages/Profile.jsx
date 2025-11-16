@@ -140,7 +140,7 @@ const Profile = () => {
       updatePayload.username = form.username;
     }
     if (form.phone) {
-      updatePayload.contactNumber = form.phone;
+      updatePayload.phone = form.phone;
     }
 
     logger.log('Sending update payload:', updatePayload); // Debug log
@@ -156,8 +156,8 @@ const Profile = () => {
         ...user,
         name: updatedData.name || user.name,
         username: updatedData.name || updatedData.username || user.username,
-        contactNumber: updatedData.contactNumber || user.contactNumber,
-        phone: updatedData.contactNumber || updatedData.phone || user.phone,
+        phone: updatedData.phone || updatedData.contactNumber || user.phone,
+        contactNumber: updatedData.phone || updatedData.contactNumber || user.contactNumber,
         profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
         picture: updatedData.profilePicture || user.profilePicture || user.picture,
       };

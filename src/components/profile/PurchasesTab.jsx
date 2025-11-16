@@ -32,15 +32,23 @@ const PurchasesTab = ({
       {purchaseOrders.map((order) => (
         <div key={order._id} className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-4">
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold">Order #{order.orderNumber || order._id?.slice(-8)}</h3>
               <p className="text-sm text-gray-500">
                 {new Date(order.createdAt).toLocaleDateString()} • {order.status}
               </p>
             </div>
-            <span className="text-lg font-bold text-green-700">
-              {formatCurrency(order.totalAmount)}
-            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-lg font-bold text-green-700">
+                {formatCurrency(order.totalAmount)}
+              </span>
+              <Link
+                to={`/orders/${order._id}`}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors hover:cursor-pointer"
+              >
+                View Order
+              </Link>
+            </div>
           </div>
 
           <div className="space-y-3">

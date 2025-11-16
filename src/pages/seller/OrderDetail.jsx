@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, MapPin, CreditCard, Package, Truck, CheckCircle, XCircle } from 'lucide-react';
 import { getOrder, updateOrderStatus, cancelOrder } from '../../api/orders';
 import { useToast } from '../../hooks/useToast';
+import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -13,6 +14,7 @@ const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { success, error } = useToast();
+  const { user } = useAuth();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +31,22 @@ const OrderDetail = () => {
       setLoading(true);
       const response = await getOrder(id);
       const orderData = response.data?.order || response.order || response.data || response;
+
+      logger.log('fetched order:', orderData);
+      logger.log('current user:', user);
+
+      const sellerId = typeof orderData.seller === 'object' ? orderData.seller?._id : orderData.seller;
+      const currentUserId = user?._id;
+
+      logger.log('comparing sellerId:', sellerId, 'with userId:', currentUserId);
+
+      if (sellerId && currentUserId && sellerId !== currentUserId) {
+        logger.error('unauthorized access attempt to order:', id);
+        error('You are not authorized to view this order');
+        navigate('/seller/orders');
+        return;
+      }
+
       setOrder(orderData);
     } catch (err) {
       logger.error('failed to fetch order:', err);
@@ -106,15 +124,15 @@ const OrderDetail = () => {
     if (deliveryMethod === 'meetup') {
       const flow = {
         pending: 'processing',
-        processing: 'ready_for_pickup',
-        ready_for_pickup: 'completed'
+        processing: 'ready',
+        ready: 'completed'
       };
       return flow[currentStatus];
     } else {
       const flow = {
         pending: 'processing',
-        processing: 'out_for_delivery',
-        out_for_delivery: 'completed'
+        processing: 'shipped',
+        shipped: 'completed'
       };
       return flow[currentStatus];
     }
@@ -125,21 +143,21 @@ const OrderDetail = () => {
       const actions = {
         pending: 'confirm order',
         processing: 'mark as ready for pickup',
-        ready_for_pickup: 'mark as completed'
+        ready: 'mark as completed'
       };
       return actions[status];
     } else {
       const actions = {
         pending: 'confirm order',
-        processing: 'mark as out for delivery',
-        out_for_delivery: 'mark as completed'
+        processing: 'mark as shipped',
+        shipped: 'mark as completed'
       };
       return actions[status];
     }
   };
 
   const canUpdateStatus = (status) => {
-    return ['pending', 'processing', 'ready_for_pickup', 'out_for_delivery'].includes(status);
+    return ['pending', 'processing', 'ready', 'shipped'].includes(status);
   };
 
   const canCancelOrder = (status) => {
@@ -227,14 +245,14 @@ const OrderDetail = () => {
             <div className="space-y-4">
               {(() => {
                 const timeline = order.deliveryMethod === 'meetup'
-                  ? ['pending', 'processing', 'ready_for_pickup', 'completed']
-                  : ['pending', 'processing', 'out_for_delivery', 'completed'];
+                  ? ['pending', 'processing', 'ready', 'completed']
+                  : ['pending', 'processing', 'shipped', 'completed'];
 
                 const statusLabels = {
                   pending: 'pending',
                   processing: 'processing',
-                  ready_for_pickup: 'ready for pickup',
-                  out_for_delivery: 'out for delivery',
+                  ready: 'ready for pickup',
+                  shipped: 'shipped',
                   completed: 'completed'
                 };
 
@@ -376,7 +394,15 @@ const OrderDetail = () => {
               <div>
                 <p className="text-gray-600">Method</p>
                 <p className="font-medium text-gray-900">
-                  {order.paymentMethod?.replace('_', ' ') || 'n/a'}
+                  {(() => {
+                    const method = order.paymentMethod;
+                    if (method === 'gcash') return 'GCash';
+                    if (method === 'paymaya') return 'PayMaya';
+                    if (!method) return 'n/a';
+                    return method.split('_').map(word =>
+                      word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                  })()}
                 </p>
               </div>
             </div>
@@ -447,8 +473,8 @@ const getStatusBadge = (status) => {
   const badges = {
     pending: 'bg-yellow-100 text-yellow-800',
     processing: 'bg-purple-100 text-purple-800',
-    ready_for_pickup: 'bg-blue-100 text-blue-800',
-    out_for_delivery: 'bg-indigo-100 text-indigo-800',
+    ready: 'bg-blue-100 text-blue-800',
+    shipped: 'bg-indigo-100 text-indigo-800',
     completed: 'bg-green-100 text-green-800',
     cancelled: 'bg-red-100 text-red-800'
   };
