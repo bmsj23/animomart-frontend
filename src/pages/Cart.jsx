@@ -225,6 +225,14 @@ const Cart = () => {
 
   const hasItems = cart && Array.isArray(cart.items) && cart.items.length > 0;
 
+  const sortedCartItems = hasItems
+    ? [...cart.items].sort((a, b) => {
+        const timeA = a._id ? parseInt(a._id.substring(0, 8), 16) : 0;
+        const timeB = b._id ? parseInt(b._id.substring(0, 8), 16) : 0;
+        return timeB - timeA;
+      })
+    : [];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <CartHeader
@@ -239,7 +247,7 @@ const Cart = () => {
       {hasItems ? (
         <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8 items-start min-h-screen">
           <div className="space-y-4">
-            {cart.items.map((item) => (
+            {sortedCartItems.map((item) => (
               <CartItem
                 key={item._id}
                 item={item}
@@ -258,7 +266,9 @@ const Cart = () => {
           />
         </div>
       ) : (
-        <EmptyCart />
+        <div className="min-h-screen" style={{ minHeight: '125vh' }}>
+          <EmptyCart />
+        </div>
       )}
 
       <Modal

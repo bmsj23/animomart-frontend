@@ -181,10 +181,12 @@ const CheckoutSuccess = () => {
               <div>
                 <p className="font-medium text-gray-900">Payment Method</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {order.paymentMethod === 'cash_on_delivery'}
-                  {order.paymentMethod === 'cash_on_meetup'}
-                  {order.paymentMethod === 'gcash'}
-                  {order.paymentMethod === 'paymaya'}
+                  {order.paymentMethod === 'cash_on_delivery' && 'Cash On Delivery'}
+                  {order.paymentMethod === 'cash_on_meetup' && 'Cash On Meetup'}
+                  {order.paymentMethod === 'gcash' && 'GCash'}
+                  {order.paymentMethod === 'maya' && 'Maya'}
+                  {!['cash_on_delivery', 'cash_on_meetup', 'gcash', 'paymaya'].includes(order.paymentMethod) &&
+                    (order.paymentMethod || 'N/A')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Status: <span className="text-amber-600 font-medium">{order.paymentStatus}</span>
@@ -225,7 +227,7 @@ const CheckoutSuccess = () => {
         </Link>
         <button
           onClick={() => navigate('/browse')}
-          className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium cursor-pointer"
         >
           Continue Shopping
         </button>

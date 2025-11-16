@@ -47,11 +47,11 @@ const Dashboard = () => {
       const activeProducts = products.filter(p => p.status === 'active').length;
       const totalProducts = products.length;
 
-      // find low stock products
-      const lowStock = products
+      const allLowStock = products
         .filter(p => p.stock > 0 && p.stock <= 5 && p.status === 'active')
-        .sort((a, b) => a.stock - b.stock)
-        .slice(0, 5);
+        .sort((a, b) => a.stock - b.stock);
+
+      const lowStock = allLowStock.slice(0, 5);
 
       setLowStockProducts(lowStock);
 
@@ -66,6 +66,7 @@ const Dashboard = () => {
         totalProducts,
         activeProducts,
         pendingOrders,
+        lowStockCount: allLowStock.length,
         totalRevenue: statsData.totalRevenue || 0,
         completedOrders: statsData.completedOrders || 0,
         averageOrderValue: statsData.averageOrderValue || 0
@@ -135,7 +136,7 @@ const Dashboard = () => {
 
     orders.forEach(order => {
       const status = order.status;
-      if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
+      if (status === 'ready' || status === 'shipped') {
         statusCounts.processing += 1;
       } else if (Object.prototype.hasOwnProperty.call(statusCounts, status)) {
         statusCounts[status] += 1;
@@ -202,7 +203,7 @@ const Dashboard = () => {
         />
         <StatCard
           title="Low Stock Items"
-          value={lowStockProducts.length}
+          value={stats?.lowStockCount || 0}
           icon={<AlertTriangle className="w-6 h-6" />}
           color="red"
           link="/seller/products?filter=low-stock"

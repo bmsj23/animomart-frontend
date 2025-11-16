@@ -38,15 +38,31 @@ const Checkout = () => {
     navigate('/cart');
   };
 
+  // ensure we land at the top when opening the checkout page
+  // (prevents leftover scroll from previous page making fields show validation)
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   // Observe when the user scrolls the delivery/payment sections into view
   // and trigger validation for the previous step. This makes validation
   // step-based: errors for CustomerInfo show when user enters Delivery,
   // and errors for Delivery show when user enters Payment.
   useEffect(() => {
     if (!deliveryRef.current || !paymentRef.current) return;
+    const ignoreInitialRef = { current: true };
+    // enable observer after a short delay to avoid firing from previous page scroll
+    const enableObserverTimer = setTimeout(() => { ignoreInitialRef.current = false; }, 120);
 
     const options = { root: null, rootMargin: '0px 0px -40% 0px', threshold: 0 };
     const obs = new IntersectionObserver((entries) => {
+      // ignore the first batch of intersection events right after mount
+      if (ignoreInitialRef.current) return;
+
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         // require a small scroll to avoid firing on initial mount
@@ -66,7 +82,10 @@ const Checkout = () => {
     obs.observe(deliveryRef.current);
     obs.observe(paymentRef.current);
 
-    return () => obs.disconnect();
+    return () => {
+      clearTimeout(enableObserverTimer);
+      obs.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

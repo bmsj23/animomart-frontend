@@ -41,7 +41,8 @@ import SellerDashboard from './pages/seller/Dashboard';
 import SellerProducts from './pages/seller/Products';
 import ProductForm from './pages/seller/ProductForm';
 import SellerOrders from './pages/seller/Orders';
-import OrderDetail from './pages/seller/OrderDetail';
+import SellerOrderDetail from './pages/seller/OrderDetail';
+import BuyerOrderDetail from './pages/OrderDetail';
 
 function App() {
   return (
@@ -181,6 +182,16 @@ function App() {
                 }
               />
               <Route
+                path="/orders/:id"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <BuyerOrderDetail />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/sell"
                 element={
                   <ProtectedRoute>
@@ -299,7 +310,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <SellerLayout>
-                      <OrderDetail />
+                      <SellerOrderDetail />
                     </SellerLayout>
                   </ProtectedRoute>
                 }
