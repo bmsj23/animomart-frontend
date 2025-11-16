@@ -48,7 +48,7 @@ const Login = () => {
                 <img
                   src="/assets/animomart_1.jpg"
                   alt="AnimoMart Logo"
-                  className="w-64 h-36 rounded-2xl object-cover transform transition-transform duration-500 ease-out hover:scale-105"
+                  className="w-64 h-36 rounded-2xl object-cover transform transition-transform duration-500 ease-out hover:scale-105 logo-bounce"
                 />
               </div>
 
