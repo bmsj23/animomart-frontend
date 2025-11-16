@@ -20,7 +20,7 @@ const ProfileEditForm = ({
         <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
         <div className="flex items-center space-x-6">
           <div className="shrink-0">
-            <label className="block text-md font-medium text-gray-700">Profile Image</label> 
+            <label className="block text-md font-medium text-gray-700">Profile Image</label>
             {previewUrl || (form.profilePicture || user?.picture) ? (
               <img
                 src={previewUrl || (form.profilePicture || user?.picture)?.replace(/=s\d+-c/, '=s400-c')}
@@ -35,7 +35,7 @@ const ProfileEditForm = ({
             <button
               type="button"
               onClick={() => document.getElementById('profile-file-input')?.click()}
-              className="text-sm px-3 py-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors" 
+              className="text-sm px-3 py-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors"
             >
               Change photo
             </button>
@@ -69,10 +69,10 @@ const ProfileEditForm = ({
 
             <label className="block text-md font-medium text-gray-700 mt-3 mb-2">Phone Number</label>
             <input
-              name="phone"
-              value={form.phone}
+              name="contactNumber"
+              value={form.contactNumber}
               onChange={onChange}
-              placeholder="e.g., 09999999999" 
+              placeholder="e.g., 09999999999"
               className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2"
             />
           </div>
@@ -83,7 +83,7 @@ const ProfileEditForm = ({
             type="button"
             onClick={onSaveClick}
             disabled={isSaving}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer hover:bg-green-700 transition-colors" 
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer hover:bg-green-700 transition-colors"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
@@ -91,7 +91,7 @@ const ProfileEditForm = ({
             type="button"
             onClick={onCancel}
             disabled={isSaving}
-            className="px-4 py-2 border rounded-md hover:cursor-pointer hover:bg-gray-100 transition-colors" 
+            className="px-4 py-2 border rounded-md hover:cursor-pointer hover:bg-gray-100 transition-colors"
           >
             Cancel
           </button>

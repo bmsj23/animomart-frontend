@@ -68,14 +68,14 @@ const Checkout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
         {/* left column - forms */}
         <div className="space-y-6">
-          <div ref={deliveryRef}>
-            <CustomerInfoForm
-              form={form}
-              handleChange={handleChange}
-              showAllErrors={showAllErrors}
-              validateSignal={customerValidateSignal}
-            />
+          <CustomerInfoForm
+            form={form}
+            handleChange={handleChange}
+            showAllErrors={showAllErrors}
+            validateSignal={customerValidateSignal}
+          />
 
+          <div ref={deliveryRef}>
             <DeliveryMethodSection
               form={form}
               setForm={setForm}

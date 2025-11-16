@@ -41,8 +41,8 @@ export const deleteReview = async (reviewId) => {
 };
 
 // get reviews authored by the current user
-export const getMyReviews = async () => {
-  const response = await api.get('/reviews/my');
+export const getMyReviews = async (params = {}) => {
+  const response = await api.get('/reviews/my', { params });
   return response.data;
 };
 

@@ -22,17 +22,17 @@ const ShippingSection = ({ formData, errors, onChange }) => {
           </label>
           <input
             type="number"
-            name="shippingFee"
-            value={formData.shippingFee}
+            name="shipping_fee"
+            value={formData.shipping_fee}
             onChange={onChange}
             min="0"
             step="0.01"
             className={`w-full sm:w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-              errors.shippingFee ? 'border-red-500' : 'border-gray-300'
+              errors.shipping_fee ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="0.00"
           />
-          {errors.shippingFee && <p className="text-sm text-red-500 mt-1">{errors.shippingFee}</p>}
+          {errors.shipping_fee && <p className="text-sm text-red-500 mt-1">{errors.shipping_fee}</p>}
         </div>
       )}
     </div>

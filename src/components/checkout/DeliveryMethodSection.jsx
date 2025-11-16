@@ -1,23 +1,49 @@
 import { Package, MapPin } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false, validateSignal = null, onSectionEnter, cartItems = [] }) => {
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [shippingCheck, setShippingCheck] = useState({ checked: false, enabled: true });
 
-  const allItems = cartItems.flatMap(group => group.items || []);
-  const hasShippingDisabledProduct = allItems.some(item => {
-    const product = item.product || item;
-    return product.shippingAvailable === false;
-  });
-  const shippingEnabled = !hasShippingDisabledProduct;
+  // memoize the shipping availability check to prevent recalculation on every render
+  const shippingAvailable = useMemo(() => {
+    if (!cartItems || cartItems.length === 0) return null; // return null when not ready
+
+    const allItems = cartItems.flatMap(group => group.items || []);
+    console.log('🔍 Checking shipping availability for items:', allItems.map(item => {
+      const product = item.product || item;
+      return {
+        name: product.name,
+        shippingAvailable: product.shippingAvailable
+      };
+    }));
+
+    const hasShippingDisabledProduct = allItems.some(item => {
+      const product = item.product || item;
+      return product.shippingAvailable !== true;
+    });
+
+    return !hasShippingDisabledProduct;
+  }, [cartItems]);
+
+  useEffect(() => {
+    if (!cartItems || cartItems.length === 0 || shippingAvailable === null) return;
+
+    setShippingCheck(prev => {
+      if (prev.checked && prev.enabled === shippingAvailable) {
+        return prev;
+      }
+      return { checked: true, enabled: shippingAvailable };
+    });
+  }, [cartItems, shippingAvailable]);
 
   // if shipping is disabled for any product, default to meetup
   useEffect(() => {
-    if (!shippingEnabled && form.deliveryMethod === 'shipping') {
+    if (shippingCheck.checked && !shippingCheck.enabled && form.deliveryMethod === 'shipping') {
       setForm(f => ({ ...f, deliveryMethod: 'meetup' }));
     }
-  }, [shippingEnabled, form.deliveryMethod, setForm]);
+  }, [shippingCheck, form.deliveryMethod, setForm]);
 
   const triggerEnter = () => {
     if (entered) return;
@@ -41,7 +67,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
     >
       <h2 className="text-xl font-semibold mb-4">Delivery Method</h2>
 
-      {!shippingEnabled && (
+      {shippingCheck.checked && !shippingCheck.enabled && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <strong>Note:</strong> One or more items in your cart do not support shipping. Please select meetup for delivery.
@@ -53,13 +79,13 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
         <button
           type="button"
           onClick={() => {
-            if (shippingEnabled) {
+            if (shippingCheck.enabled) {
               setForm(f => ({ ...f, deliveryMethod: 'shipping' }));
               triggerEnter();
             }
           }}
-          disabled={!shippingEnabled}
-          className={`p-4 border-2 rounded-lg transition-all ${!shippingEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'} ${
+          disabled={!shippingCheck.enabled}
+          className={`p-4 border-2 rounded-lg transition-all ${!shippingCheck.enabled ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'} ${
             form.deliveryMethod === 'shipping'
               ? 'border-green-500 bg-green-50'
               : 'border-gray-200 hover:border-gray-300'
@@ -68,7 +94,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
           <Package className="w-6 h-6 mx-auto mb-2 text-green-600" />
           <div className="font-medium">Shipping</div>
           <div className="text-xs text-gray-500">Delivered to your address</div>
-          {!shippingEnabled && (
+          {!shippingCheck.enabled && (
             <div className="text-xs text-red-600 mt-1">Not available</div>
           )}
         </button>

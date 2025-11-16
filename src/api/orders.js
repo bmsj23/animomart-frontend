@@ -31,8 +31,8 @@ export const cancelOrder = async (id, reason) => {
 };
 
 // get orders as buyer
-export const getMyPurchases = async () => {
-  const response = await api.get('/orders/purchases');
+export const getMyPurchases = async (params = {}) => {
+  const response = await api.get('/orders/purchases', { params });
   return response.data;
 };
 
