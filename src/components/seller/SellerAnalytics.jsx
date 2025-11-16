@@ -44,7 +44,10 @@ const SellerAnalytics = ({ salesData, productSales, orderStats }) => {
                 tickFormatter={(value) => `₱${value}`}
               />
               <Tooltip
-                formatter={(value) => formatCurrency(value)}
+                formatter={(value, name) => {
+                  if (name === 'Revenue') return formatCurrency(value);
+                  return value;
+                }}
                 contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
               />
               <Legend />

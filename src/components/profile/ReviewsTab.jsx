@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Edit2, Trash2 } from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import React from "react";
+import { logger } from "../../utils/logger";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -11,7 +12,7 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
   componentDidCatch(error, errorInfo) {

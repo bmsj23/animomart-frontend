@@ -47,3 +47,9 @@ export const getOrderStats = async () => {
   const response = await api.get('/orders/stats');
   return response.data;
 };
+
+// confirm order receipt (buyer)
+export const confirmOrderReceipt = async (id) => {
+  const response = await api.post(`/orders/${id}/confirm-receipt`);
+  return response.data;
+};
