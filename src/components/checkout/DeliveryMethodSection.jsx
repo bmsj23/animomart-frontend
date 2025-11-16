@@ -1,6 +1,23 @@
 import { Package, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false }) => {
+const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false, validateSignal = null, onSectionEnter }) => {
+  // When validateSignal changes (non-null), show required-field errors for this section
+  const [triggerValidation, setTriggerValidation] = useState(false);
+  // has the user already entered/interacted with this section? prevent repeated signals
+  const [entered, setEntered] = useState(false);
+
+  const triggerEnter = () => {
+    if (entered) return;
+    if (typeof onSectionEnter === 'function') onSectionEnter();
+    setEntered(true);
+  };
+
+  useEffect(() => {
+    if (validateSignal == null) return;
+    setTriggerValidation(true);
+  }, [validateSignal]);
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-semibold mb-4">Delivery Method</h2>
@@ -10,7 +27,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
           type="button"
           onClick={() => {
             setForm(f => ({ ...f, deliveryMethod: 'shipping' }));
-            if (typeof onSectionEnter === 'function') onSectionEnter();
+            triggerEnter();
           }}
           className={`p-4 border-2 rounded-lg transition-all hover:cursor-pointer ${
             form.deliveryMethod === 'shipping'
@@ -27,7 +44,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
           type="button"
           onClick={() => {
             setForm(f => ({ ...f, deliveryMethod: 'meetup' }));
-            if (typeof onSectionEnter === 'function') onSectionEnter();
+            triggerEnter();
           }}
           className={`p-4 border-2 rounded-lg transition-all hover:cursor-pointer ${
             form.deliveryMethod === 'meetup'
@@ -49,11 +66,12 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
               name="address"
               value={form.address}
               onChange={handleChange}
+              onFocus={triggerEnter}
               placeholder="street, building, unit"
               required
-              className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showAllErrors && !form.address ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
+              className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.address ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
             />
-            {showAllErrors && !form.address && (
+            {(showAllErrors || triggerValidation) && !form.address && (
               <p className="mt-1 text-sm text-red-600">Please enter your address.</p>
             )}
           </div>
@@ -65,10 +83,11 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
                 name="city"
                 value={form.city}
                 onChange={handleChange}
+                onFocus={triggerEnter}
                 required
-                className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showAllErrors && !form.city ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
+                className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.city ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
               />
-              {showAllErrors && !form.city && (
+              {(showAllErrors || triggerValidation) && !form.city && (
                 <p className="mt-1 text-sm text-red-600">Please enter your city.</p>
               )}
             </div>
@@ -78,10 +97,11 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
                 name="postal"
                 value={form.postal}
                 onChange={handleChange}
+                onFocus={triggerEnter}
                 required
-                className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showAllErrors && !form.postal ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
+                className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.postal ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
               />
-              {showAllErrors && !form.postal && (
+              {(showAllErrors || triggerValidation) && !form.postal && (
                 <p className="mt-1 text-sm text-red-600">Please enter your postal code.</p>
               )}
             </div>
@@ -93,6 +113,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
               name="specialInstructions"
               value={form.specialInstructions}
               onChange={handleChange}
+              onFocus={triggerEnter}
               rows="2"
               placeholder="e.g., leave at door, call upon arrival"
               className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -106,8 +127,9 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
             name="meetupLocation"
             value={form.meetupLocation}
             onChange={handleChange}
+            onFocus={triggerEnter}
             required
-            className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showAllErrors && !form.meetupLocation ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
+            className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.meetupLocation ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
           >
             <option value="">Select a location</option>
             <option>North Lounge</option>
@@ -116,7 +138,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
             <option>CBEAM Grounds</option>
             <option>College Lobby</option>
           </select>
-          {showAllErrors && !form.meetupLocation && (
+          {(showAllErrors || triggerValidation) && !form.meetupLocation && (
             <p className="mt-1 text-sm text-red-600">Please select a meetup location.</p>
           )}
         </div>
