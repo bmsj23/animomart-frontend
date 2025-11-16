@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, MapPin, CreditCard, User, Star } from 'lucide-react';
-import { getOrder, cancelOrder } from '../api/orders';
+import { ArrowLeft, Package, MapPin, CreditCard, User, Star, CheckCircle, Clock } from 'lucide-react';
+import { getOrder, cancelOrder, confirmOrderReceipt } from '../api/orders';
 import { createReview } from '../api/reviews';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
@@ -21,6 +21,7 @@ const OrderDetail = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [cancelModal, setCancelModal] = useState({ isOpen: false, reason: '' });
   const [reviewModal, setReviewModal] = useState({ isOpen: false, product: null });
   const [reviewedProducts, setReviewedProducts] = useState([]);
@@ -139,6 +140,38 @@ const OrderDetail = () => {
 
   const canCancelOrder = (status) => {
     return status === 'pending';
+  };
+
+  const canConfirmReceipt = () => {
+    // note: buyer can confirm receipt when order is shipped or ready, and not yet confirmed
+    return (order?.status === 'shipped' || order?.status === 'ready') && !order?.buyerConfirmed;
+  };
+
+  const getDaysUntilAutoConfirm = () => {
+    if (!order?.buyerConfirmationDeadline) return null;
+    const deadline = new Date(order.buyerConfirmationDeadline);
+    const now = new Date();
+    const diffTime = deadline - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const handleConfirmReceipt = async () => {
+    if (!window.confirm('Confirm that you have received this order? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setConfirming(true);
+      await confirmOrderReceipt(id);
+      success('Order confirmed successfully');
+      await fetchOrder();
+    } catch (err) {
+      logger.error('failed to confirm order:', err);
+      error(err.response?.data?.message || 'Failed to confirm order receipt');
+    } finally {
+      setConfirming(false);
+    }
   };
 
   const canReviewProduct = (productId) => {
@@ -397,6 +430,50 @@ const OrderDetail = () => {
             >
               Cancel Order
             </button>
+          )}
+
+          {/* confirm receipt button */}
+          {canConfirmReceipt() && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3 mb-4">
+                <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">Confirm Order Receipt</h3>
+                  <p className="text-sm text-gray-600">
+                    Have you received your order? Please confirm to complete the transaction.
+                  </p>
+                  {getDaysUntilAutoConfirm() !== null && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      {getDaysUntilAutoConfirm() > 0
+                        ? `Auto-confirms in ${getDaysUntilAutoConfirm()} ${getDaysUntilAutoConfirm() === 1 ? 'day' : 'days'}`
+                        : 'Will be auto-confirmed soon'
+                      }
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleConfirmReceipt}
+                disabled={confirming}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+              >
+                <CheckCircle className="w-5 h-5" />
+                {confirming ? 'Confirming...' : 'Confirm Receipt'}
+              </button>
+            </div>
+          )}
+
+          {/* already confirmed message */}
+          {(order.status === 'shipped' || order.status === 'ready') && order.buyerConfirmed && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-green-800">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">Receipt confirmed</span>
+              </div>
+              <p className="text-sm text-green-700 mt-1">
+                You have confirmed receiving this order. The seller will be notified.
+              </p>
+            </div>
           )}
         </div>
       </div>
