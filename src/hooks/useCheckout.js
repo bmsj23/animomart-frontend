@@ -181,7 +181,10 @@ const useCheckout = () => {
       }
 
       const orderData = prepareOrderData(form, selectedCartItems);
+      logger.log('creating order with data:', orderData);
+
       const result = await createOrder(orderData);
+      logger.log('order creation result:', result);
 
       // cleanup localStorage and state BEFORE removing items
       // this prevents the redirect effect from triggering
@@ -193,7 +196,11 @@ const useCheckout = () => {
       if (!directCheckout) {
         // remove only the selected items from cart!!!!
         for (const item of selectedCartItems) {
-          await removeItem(item.product._id);
+          try {
+            await removeItem(item.product._id);
+          } catch (removeErr) {
+            logger.error('failed to remove item from cart:', item.product._id, removeErr);
+          }
         }
       }
 
@@ -201,12 +208,13 @@ const useCheckout = () => {
 
       // handle different response structures from backend
       const orderId = result?.order?._id || result?.data?._id || result?._id;
+      logger.log('extracted order ID:', orderId);
 
       if (orderId) {
         navigate(`/checkout/success/${orderId}`);
       } else {
         logger.error('No orderId found in result:', result);
-        showError('Order created but unable to retrieve order details');
+        // still navigate to profile since order was created
         navigate('/profile?tab=purchases');
       }
 

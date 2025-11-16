@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatCurrency } from "../../utils/formatCurrency";
 
-const ITEMS_PER_PAGE = 16; 
+const ITEMS_PER_PAGE = 12;
 
 const ListingsTab = ({ myListings: rawListings, loading, error }) => {
   const [searchParams, setSearchParams] = useSearchParams();

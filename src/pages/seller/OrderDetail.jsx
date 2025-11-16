@@ -42,12 +42,26 @@ const OrderDetail = () => {
   const handleStatusUpdate = async (newStatus) => {
     try {
       setUpdating(true);
-      await updateOrderStatus(id, newStatus);
+      logger.log('updating order status to:', newStatus);
+      logger.log('current order:', order);
+
+      const response = await updateOrderStatus(id, newStatus);
+      logger.log('update response:', response);
+
       success(`Order ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
-      fetchOrder();
+      await fetchOrder();
     } catch (err) {
       logger.error('failed to update order status:', err);
-      error(err.response?.data?.message || 'Failed to Update Order Status');
+      logger.error('error response:', err.response);
+      logger.error('error data:', err.response?.data);
+
+      // provide more detailed error message
+      const errorMessage = err.response?.data?.message ||
+                          err.response?.data?.error ||
+                          err.message ||
+                          'Failed to Update Order Status';
+
+      error(errorMessage);
     } finally {
       setUpdating(false);
     }
@@ -61,13 +75,27 @@ const OrderDetail = () => {
 
     try {
       setUpdating(true);
-      await cancelOrder(id, cancelModal.reason);
+      logger.log('cancelling order:', id);
+      logger.log('cancellation reason:', cancelModal.reason);
+
+      const response = await cancelOrder(id, cancelModal.reason);
+      logger.log('cancel response:', response);
+
       success('Order Cancelled');
       setCancelModal({ isOpen: false, reason: '' });
-      fetchOrder();
+      await fetchOrder();
     } catch (err) {
       logger.error('failed to cancel order:', err);
-      error(err.response?.data?.message || 'Failed To Cancel Order');
+      logger.error('error response:', err.response);
+      logger.error('error data:', err.response?.data);
+
+      // provide more detailed error message
+      const errorMessage = err.response?.data?.message ||
+                          err.response?.data?.error ||
+                          err.message ||
+                          'Failed To Cancel Order';
+
+      error(errorMessage);
     } finally {
       setUpdating(false);
     }

@@ -131,37 +131,38 @@ const Profile = () => {
         profilePicUrl;
     }
 
-    // 🔧 FIX: Map frontend fields to backend field names
     const updatePayload = {
       profilePicture: profilePicUrl,
     };
 
     // Only include fields that backend accepts
     if (form.username) {
-      updatePayload.name = form.username;  // Backend expects 'name'
+      updatePayload.username = form.username;
     }
     if (form.phone) {
-      updatePayload.contactNumber = form.phone;  // Backend expects 'contactNumber'
+      updatePayload.contactNumber = form.phone;
     }
 
-    console.log('Sending update payload:', updatePayload); // Debug log
+    logger.log('Sending update payload:', updatePayload); // Debug log
 
     const updated = await updateMyProfile(updatePayload);
 
-    console.log('Update response:', updated); // Debug log
+    logger.log('Update response:', updated); // dibog
 
     if (updateUser) {
       const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
 
       const mergedUser = {
         ...user,
+        name: updatedData.name || user.name,
         username: updatedData.name || updatedData.username || user.username,
+        contactNumber: updatedData.contactNumber || user.contactNumber,
         phone: updatedData.contactNumber || updatedData.phone || user.phone,
         profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
         picture: updatedData.profilePicture || user.profilePicture || user.picture,
       };
-      
-      console.log('Merged user data:', mergedUser); // Debug log
+
+      logger.log('Merged user data:', mergedUser);
       updateUser(mergedUser);
     }
 
@@ -176,8 +177,8 @@ const Profile = () => {
     setPreviewUrl("");
     setIsEditing(false);
   } catch (err) {
-    console.error('Profile update error:', err); // Debug log
-    console.error('Error response:', err.response); // Debug log
+    logger.error('Profile update error:', err); // Debug log
+    logger.error('Error response:', err.response); // Debug log
     const msg =
       err?.response?.data?.message ||
       err.message ||
@@ -257,7 +258,7 @@ const Profile = () => {
       setPurchasesLoading(true);
       setPurchasesError(null);
       try {
-        const data = await getMyPurchases();
+        const data = await getMyPurchases({ limit: 100 });
 
         // backend returns { success: true, data: { orders: [...] } }
         let orders = [];
@@ -294,10 +295,10 @@ const Profile = () => {
   setSalesError(null);
   try {
     const response = await getMySales();
-    
+
     // Handle the nested structure: response.data.orders
     let orders = [];
-    
+
     if (Array.isArray(response)) {
       orders = response;
     } else if (response?.data?.orders) {
@@ -310,10 +311,10 @@ const Profile = () => {
       // Fallback: { data: [...] }
       orders = response.data;
     }
-    
+
     // flatten order items into sale entries with buyer + order metadata
     const saleEntries = [];
-    
+
     if (Array.isArray(orders)) {
       orders.forEach((order) => {
         const orderItems =
@@ -349,7 +350,7 @@ const Profile = () => {
         response
       );
     }
-    
+
     setSales(saleEntries);
   } catch (err) {
     setSalesError(

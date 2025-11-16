@@ -48,10 +48,10 @@ export const AdminProvider = ({ children }) => {
             const ordersData = results[2].status === 'fulfilled' ? results[2].value : { data: [] };
             const reportsData = results[3].status === 'fulfilled' ? results[3].value : { data: [] };
 
-            // console.log('users data:', usersData);
-            // console.log('products data:', productsData);
-            // console.log('orders data:', ordersData);
-            // console.log('reports data:', reportsData);
+            // logger.log('users data:', usersData);
+            // logger.log('products data:', productsData);
+            // logger.log('orders data:', ordersData);
+            // logger.log('reports data:', reportsData);
 
             setStats({
                 totalUsers: usersData.data?.pagination?.totalUsers || usersData.data?.users?.length || usersData.users?.length || 0,

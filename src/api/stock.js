@@ -1,4 +1,5 @@
 import api from './axios';
+import { logger } from '../utils/logger';
 
 // validate cart stock availability (server-side)
 // calls backend /cart/validate endpoint for real-time stock validation
@@ -18,7 +19,7 @@ export const validateCartStock = async (items) => {
       data: response.data.data || response.data
     };
   } catch (error) {
-    console.error('stock validation failed:', error);
+    logger.error('stock validation failed:', error);
 
     // if backend is down or endpoint fails, perform client-side fallback validation
     const invalidItems = [];

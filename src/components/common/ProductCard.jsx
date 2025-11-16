@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { logger } from '../../utils/logger';
+//import { logger } from '../../utils/logger';
 
 const ProductCard = ({ product, onGreenBg = false }) => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const ProductCard = ({ product, onGreenBg = false }) => {
     navigate(`/products/${product._id}`);
   };
 
-  
+
 
   return (
     <div
