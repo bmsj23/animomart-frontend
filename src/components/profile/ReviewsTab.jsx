@@ -42,7 +42,7 @@ const ReviewsTab = ({
 
   if (safeReviews.length === 0) {
     return (
-      <div className="py-8 text-center">
+      <div className="my-12 py-8 text-center">
         <p className="text-gray-700 mb-4">You haven't written any reviews yet.</p>
         <Link
           to="/profile?tab=purchases"
