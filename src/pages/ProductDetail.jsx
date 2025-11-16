@@ -34,6 +34,8 @@ const ProductDetail = () => {
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   const addedTimeoutRef = useRef(null);
@@ -192,19 +194,28 @@ const ProductDetail = () => {
   };
 
   const handleToggleFavorite = async () => {
+    if (isProcessing) return;
     try {
+      setIsProcessing(true);
       if (isFavorite) {
         await removeFromWishlist(id);
         setIsFavorite(false);
       } else {
-        // add to wishlist and show confirmation modal
+        // provide product object for optimistic update (matches Bento behavior)
         await addToWishlist(id, product);
         setIsFavorite(true);
+
+        // show "Added!" feedback both as a small animation and a modal
+        setJustAdded(true);
+        setTimeout(() => setJustAdded(false), 2000);
+
         setShowWishlistPopup(true);
       }
     } catch (err) {
       logger.error('failed to toggle wishlist:', err);
       showError('failed to update wishlist');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -302,6 +313,8 @@ const ProductDetail = () => {
             isFavorite={isFavorite}
             isAdding={isAdding}
             addedToCart={addedToCart}
+            isProcessing={isProcessing}
+            justAdded={justAdded}
             onQuantityChange={setQuantity}
             onAddToCart={handleAddToCart}
             onToggleFavorite={handleToggleFavorite}
