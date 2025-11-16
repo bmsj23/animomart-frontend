@@ -25,14 +25,14 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, statusFilter, stockFilter]);
+  }, [currentPage, statusFilter, stockFilter, searchQuery]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const params = {
-        page: currentPage,
-        limit: 20
+        page: searchQuery ? 1 : currentPage,
+        limit: searchQuery ? 1000 : 20
       };
 
       if (statusFilter !== 'all') {
@@ -313,7 +313,7 @@ const Products = () => {
           </div>
 
           {/* pagination */}
-          {pagination && pagination.totalPages > 1 && (
+          {!searchQuery && pagination && pagination.totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <p className="text-sm text-gray-600">
                 Showing Page {pagination.currentPage} of {pagination.totalPages}
