@@ -1,11 +1,13 @@
-import { Star, ThumbsUp, MessageSquare } from 'lucide-react';
+import { Star, ThumbsUp, MessageSquare, X } from 'lucide-react';
 import { formatDate } from '../../utils/formatDate';
 import { useState } from 'react';
+import { logger } from '../../utils/logger';
 
 const ReviewCard = ({ review, onMarkHelpful, onAddResponse, canRespond = false }) => {
   const [showResponseForm, setShowResponseForm] = useState(false);
   const [responseText, setResponseText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState({ isOpen: false, imageUrl: '', index: 0 });
 
   const handleSubmitResponse = async () => {
     if (!responseText.trim() || isSubmitting) return;
@@ -79,8 +81,8 @@ const ReviewCard = ({ review, onMarkHelpful, onAddResponse, canRespond = false }
               key={idx}
               src={img}
               alt={`Review ${idx + 1}`}
-              className="w-20 h-20 object-cover rounded border border-gray-200 hover:cursor-pointer"
-              onClick={() => window.open(img, '_blank')}
+              className="w-20 h-20 object-cover rounded border border-gray-200 hover:opacity-75 transition-opacity hover:cursor-pointer"
+              onClick={() => setImagePreview({ isOpen: true, imageUrl: img, index: idx })}
             />
           ))}
         </div>
@@ -156,6 +158,29 @@ const ReviewCard = ({ review, onMarkHelpful, onAddResponse, canRespond = false }
                 {isSubmitting ? 'Submitting...' : 'Submit Response'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* image preview modal */}
+      {imagePreview.isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4"
+          onClick={() => setImagePreview({ isOpen: false, imageUrl: '', index: 0 })}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setImagePreview({ isOpen: false, imageUrl: '', index: 0 })}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 hover:cursor-pointer"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img
+              src={imagePreview.imageUrl}
+              alt="Review image preview"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

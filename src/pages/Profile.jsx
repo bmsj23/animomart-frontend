@@ -8,7 +8,6 @@ import { getMyListings } from "../api/products";
 import { getMyPurchases, getMySales } from "../api/orders";
 import {
   getMyReviews,
-  getUserReviews,
   createReview,
   updateReview,
   deleteReview,
@@ -375,16 +374,23 @@ const Profile = () => {
       setReviewsLoading(true);
       setReviewsError(null);
       try {
-        // The route /api/reviews/my does not exist.
-        // Use getUserReviews with the logged-in user's ID instead.
-        if (!user?._id) throw new Error("User not found");
-        const data = await getUserReviews(user._id);
-        // expected shapes: array OR { reviews: [...] } OR { data: [...] }
-        const reviews = Array.isArray(data)
-          ? data
-          : data?.reviews || data?.data || [];
+        const data = await getMyReviews();
+        logger.log('my reviews response:', data);
+
+        let reviews = [];
+        if (Array.isArray(data)) {
+          reviews = data;
+        } else if (data?.data?.reviews) {
+          reviews = data.data.reviews;
+        } else if (data?.reviews) {
+          reviews = data.reviews;
+        } else if (Array.isArray(data?.data)) {
+          reviews = data.data;
+        }
+        logger.log('extracted reviews:', reviews);
         setAuthoredReviews(reviews);
       } catch (err) {
+        logger.error('failed to load reviews:', err);
         setReviewsError(
           err?.response?.data?.message ||
             err.message ||
@@ -420,11 +426,17 @@ const Profile = () => {
     try {
       await deleteReview(reviewId);
       // refresh reviews list
-      // Use getUserReviews with the logged-in user's ID to refresh
       const data = await getMyReviews();
-      const reviews = Array.isArray(data)
-        ? data
-        : data?.reviews || data?.data || [];
+      let reviews = [];
+      if (Array.isArray(data)) {
+        reviews = data;
+      } else if (data?.data?.reviews) {
+        reviews = data.data.reviews;
+      } else if (data?.reviews) {
+        reviews = data.reviews;
+      } else if (Array.isArray(data?.data)) {
+        reviews = data.data;
+      }
       setAuthoredReviews(reviews);
     } catch (err) {
       showError(err?.response?.data?.message || "Failed to delete review");
@@ -432,36 +444,47 @@ const Profile = () => {
   };
 
   const handleReviewSubmit = async (reviewData) => {
-    if (reviewModal.existingReview) {
-      await updateReview(reviewModal.existingReview._id, reviewData);
-    } else {
-      await createReview({
-        ...reviewData,
-        productId: reviewModal.product._id,
-        orderId: reviewModal.order._id,
+    try {
+      if (reviewModal.existingReview) {
+        await updateReview(reviewModal.existingReview._id, reviewData);
+      } else {
+        await createReview({
+          ...reviewData,
+          productId: reviewModal.product._id,
+          orderId: reviewModal.order._id,
+        });
+      }
+
+      const data = await getMyReviews();
+      let reviews = [];
+      if (Array.isArray(data)) {
+        reviews = data;
+      } else if (data?.data?.reviews) {
+        reviews = data.data.reviews;
+      } else if (data?.reviews) {
+        reviews = data.reviews;
+      } else if (Array.isArray(data?.data)) {
+        reviews = data.data;
+      }
+      setAuthoredReviews(reviews);
+
+      setReviewModal({
+        show: false,
+        order: null,
+        product: null,
+        existingReview: null,
       });
+    } catch (err) {
+      logger.error('failed to submit review:', err);
+      showError(err?.response?.data?.message || 'Failed to submit review');
     }
-
-    // refresh reviews list
-    // Use getUserReviews with the logged-in user's ID to refresh
-    const data = await getMyReviews();
-    const reviews = Array.isArray(data)
-      ? data
-      : data?.reviews || data?.data || [];
-    setAuthoredReviews(reviews);
-
-    setReviewModal({
-      show: false,
-      order: null,
-      product: null,
-      existingReview: null,
-    });
   };
 
   // check if product in order can be reviewed
   const canReview = (order, productId) => {
     if (order.status !== "completed") return false;
     // check if review already exists for this product in this order
+    if (!Array.isArray(authoredReviews)) return true;
     const hasReview = authoredReviews.some(
       (r) => r.product?._id === productId && r.order === order._id
     );
