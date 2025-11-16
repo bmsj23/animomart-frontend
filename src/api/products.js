@@ -26,6 +26,17 @@ export const getProduct = async (id) => {
   return response.data;
 };
 
+// increment product view count
+export const incrementProductView = async (id) => {
+  try {
+    const response = await api.post(`/products/${id}/view`);
+    return response.data;
+  } catch (err) {
+    console.error('failed to track view:', err);
+    return null;
+  }
+};
+
 // create new product (seller)
 export const createProduct = async (productData) => {
   const response = await api.post('/products', productData);
