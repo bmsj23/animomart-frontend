@@ -100,6 +100,7 @@ const Checkout = () => {
               showAllErrors={showAllErrors}
               validateSignal={deliveryValidateSignal}
               onSectionEnter={() => setCustomerValidateSignal(s => (s ?? 0) + 1)}
+              cartItems={sellerGroups}
             />
           </div>
 
