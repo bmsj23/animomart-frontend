@@ -8,10 +8,13 @@ const ProductActions = ({
   isFavorite,
   isAdding,
   addedToCart,
+  isProcessing,
+  justAdded,
   onQuantityChange,
   onAddToCart,
   onToggleFavorite
 }) => {
+  
   const getAddToCartClass = () => {
     if (isOutOfStock) {
       return 'flex-1 bg-gray-300 text-white py-3 rounded-lg cursor-not-allowed font-medium';
@@ -64,12 +67,20 @@ const ProductActions = ({
             </button>
             <button
               onClick={onToggleFavorite}
-              className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer flex items-center justify-center"
+              disabled={isProcessing}
+              aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+              title={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+              className={`w-12 h-12 border border-gray-300 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                isFavorite
+                  ? 'bg-white/95 text-red-500'
+                  : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
+              } ${isProcessing ? 'opacity-50 cursor-wait' : 'hover:cursor-pointer'}`}
             >
-              <Heart
-                className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
-                fill={isFavorite ? 'currentColor' : 'none'}
-              />
+              {isProcessing ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Heart className={`w-6 h-6 transition-transform ${isFavorite ? 'fill-current scale-110' : ''} ${justAdded ? 'animate-bounce' : ''}`} fill={isFavorite ? 'currentColor' : 'none'} />
+              )}
             </button>
           </>
         )}
