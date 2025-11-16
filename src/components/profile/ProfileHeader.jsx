@@ -27,7 +27,7 @@ const ProfileDisplay = ({ user }) => {
         </h3>
         <p className="text-sm text-gray-600">{user?.username || 'No username provided'}</p>
         <p className="text-sm text-gray-600">{user?.email || 'No email provided'}</p>
-        <p className="text-sm text-gray-600 mt-1">Phone Number: {user?.phone || 'No phone number provided'}</p>
+        <p className="text-sm text-gray-600 mt-1">Phone Number: {user?.contactNumber || user?.phone || 'No phone number provided'}</p>
         {user?.role && (
           <p className="text-xs text-gray-500 mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
         )}
