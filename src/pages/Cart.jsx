@@ -266,7 +266,9 @@ const Cart = () => {
           />
         </div>
       ) : (
-        <EmptyCart />
+        <div className="min-h-screen" style={{ minHeight: '125vh' }}>
+          <EmptyCart />
+        </div>
       )}
 
       <Modal
