@@ -8,7 +8,8 @@ import { getMyListings } from "../api/products";
 import { getMyPurchases, getMySales } from "../api/orders";
 import {
   getMyReviews,
-  getUserReviews,  createReview,
+  getUserReviews,
+  createReview,
   updateReview,
   deleteReview,
 } from "../api/reviews";
@@ -113,81 +114,84 @@ const Profile = () => {
   };
 
   const handleSave = async (e) => {
-  if (e && e.preventDefault) e.preventDefault();
-  setIsSaving(true);
-  try {
-    let profilePicUrl = form.profilePicture;
+    if (e && e.preventDefault) e.preventDefault();
+    setIsSaving(true);
+    try {
+      let profilePicUrl = form.profilePicture;
 
-    if (selectedFile) {
-      const uploaded = await uploadProfilePicture(selectedFile);
-      profilePicUrl =
-        uploaded?.url ||
-        uploaded?.secure_url ||
-        uploaded?.path ||
-        uploaded?.imageUrl ||
-        uploaded?.data?.url ||
-        uploaded?.src ||
-        uploaded?.image ||
-        profilePicUrl;
-    }
+      if (selectedFile) {
+        const uploaded = await uploadProfilePicture(selectedFile);
+        profilePicUrl =
+          uploaded?.url ||
+          uploaded?.secure_url ||
+          uploaded?.path ||
+          uploaded?.imageUrl ||
+          uploaded?.data?.url ||
+          uploaded?.src ||
+          uploaded?.image ||
+          profilePicUrl;
+      }
 
-    const updatePayload = {
-      profilePicture: profilePicUrl,
-    };
-
-    // Only include fields that backend accepts
-    if (form.username) {
-      updatePayload.username = form.username;
-    }
-    if (form.phone) {
-      updatePayload.contactNumber = form.phone;
-    }
-
-    logger.log('Sending update payload:', updatePayload); // Debug log
-
-    const updated = await updateMyProfile(updatePayload);
-
-    logger.log('Update response:', updated); // dibog
-
-    if (updateUser) {
-      const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
-
-      const mergedUser = {
-        ...user,
-        name: updatedData.name || user.name,
-        username: updatedData.name || updatedData.username || user.username,
-        contactNumber: updatedData.contactNumber || user.contactNumber,
-        phone: updatedData.contactNumber || updatedData.phone || user.phone,
-        profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
-        picture: updatedData.profilePicture || user.profilePicture || user.picture,
+      const updatePayload = {
+        profilePicture: profilePicUrl,
       };
 
-      logger.log('Merged user data:', mergedUser);
-      updateUser(mergedUser);
-    }
-
-    if (previewUrl) {
-      try {
-        URL.revokeObjectURL(previewUrl);
-      } catch {
-        // ignore
+      // Only include fields that backend accepts
+      if (form.username) {
+        updatePayload.username = form.username;
       }
+      if (form.phone) {
+        updatePayload.contactNumber = form.phone;
+      }
+
+      logger.log("Sending update payload:", updatePayload); // Debug log
+
+      const updated = await updateMyProfile(updatePayload);
+
+      logger.log("Update response:", updated); // dibog
+
+      if (updateUser) {
+        const updatedData =
+          updated.data?.user || updated.data || updated.user || updated || {};
+
+        const mergedUser = {
+          ...user,
+          name: updatedData.name || user.name,
+          username: updatedData.name || updatedData.username || user.username,
+          contactNumber: updatedData.contactNumber || user.contactNumber,
+          phone: updatedData.contactNumber || updatedData.phone || user.phone,
+          profilePicture:
+            updatedData.profilePicture || user.profilePicture || user.picture,
+          picture:
+            updatedData.profilePicture || user.profilePicture || user.picture,
+        };
+
+        logger.log("Merged user data:", mergedUser);
+        updateUser(mergedUser);
+      }
+
+      if (previewUrl) {
+        try {
+          URL.revokeObjectURL(previewUrl);
+        } catch {
+          // ignore
+        }
+      }
+      setSelectedFile(null);
+      setPreviewUrl("");
+      setIsEditing(false);
+    } catch (err) {
+      logger.error("Profile update error:", err); // Debug log
+      logger.error("Error response:", err.response); // Debug log
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to update profile";
+      showError(msg);
+    } finally {
+      setIsSaving(false);
     }
-    setSelectedFile(null);
-    setPreviewUrl("");
-    setIsEditing(false);
-  } catch (err) {
-    logger.error('Profile update error:', err); // Debug log
-    logger.error('Error response:', err.response); // Debug log
-    const msg =
-      err?.response?.data?.message ||
-      err.message ||
-      "Failed to update profile";
-    showError(msg);
-  } finally {
-    setIsSaving(false);
-  }
-};
+  };
 
   const confirmSave = async () => {
     // close modal then run save
@@ -225,8 +229,8 @@ const Profile = () => {
       try {
         const data = await getMyListings();
 
-        // backend returns { success: true, data: { products: [...], total, page, pages } }
         let products = [];
+
         if (data?.data?.products) {
           products = data.data.products;
         } else if (data?.products) {
@@ -238,6 +242,7 @@ const Profile = () => {
         }
 
         setMyListings(products);
+        logger.log("Loaded all listings:", products.length);
       } catch (err) {
         setListingsError(
           err?.response?.data?.message ||
@@ -291,75 +296,75 @@ const Profile = () => {
 
     // load sales when switching to sales tab
     const loadSales = async () => {
-  setSalesLoading(true);
-  setSalesError(null);
-  try {
-    const response = await getMySales();
+      setSalesLoading(true);
+      setSalesError(null);
+      try {
+        const response = await getMySales();
 
-    // Handle the nested structure: response.data.orders
-    let orders = [];
+        // Handle the nested structure: response.data.orders
+        let orders = [];
 
-    if (Array.isArray(response)) {
-      orders = response;
-    } else if (response?.data?.orders) {
-      // This handles: { success: true, data: { orders: [...], pagination: {...} } }
-      orders = response.data.orders;
-    } else if (response?.orders) {
-      // Fallback: { orders: [...] }
-      orders = response.orders;
-    } else if (response?.data && Array.isArray(response.data)) {
-      // Fallback: { data: [...] }
-      orders = response.data;
-    }
-
-    // flatten order items into sale entries with buyer + order metadata
-    const saleEntries = [];
-
-    if (Array.isArray(orders)) {
-      orders.forEach((order) => {
-        const orderItems =
-          order.items || order.products || order.orderItems || [];
-        if (Array.isArray(orderItems) && orderItems.length) {
-          orderItems.forEach((it) => {
-            const product =
-              it.product || it.productId || it.productInfo || it;
-            const quantity = it.quantity || it.qty || it.count || 1;
-            const price =
-              it.price || it.amount || product?.price || order.total || 0;
-            saleEntries.push({
-              orderId: order._id || order.id,
-              product,
-              buyer:
-                order.buyer ||
-                order.customer ||
-                order.user ||
-                order.buyerInfo,
-              quantity,
-              price,
-              status: order.status || order.orderStatus,
-              createdAt: order.createdAt || order.date || order.purchasedAt,
-            });
-          });
+        if (Array.isArray(response)) {
+          orders = response;
+        } else if (response?.data?.orders) {
+          // This handles: { success: true, data: { orders: [...], pagination: {...} } }
+          orders = response.data.orders;
+        } else if (response?.orders) {
+          // Fallback: { orders: [...] }
+          orders = response.orders;
+        } else if (response?.data && Array.isArray(response.data)) {
+          // Fallback: { data: [...] }
+          orders = response.data;
         }
-      });
-    } else {
-      logger.error(
-        "loadSales: expected orders array but got:",
-        orders,
-        "raw response:",
-        response
-      );
-    }
 
-    setSales(saleEntries);
-  } catch (err) {
-    setSalesError(
-      err?.response?.data?.message || err.message || "Failed to load sales"
-    );
-  } finally {
-    setSalesLoading(false);
-  }
-};
+        // flatten order items into sale entries with buyer + order metadata
+        const saleEntries = [];
+
+        if (Array.isArray(orders)) {
+          orders.forEach((order) => {
+            const orderItems =
+              order.items || order.products || order.orderItems || [];
+            if (Array.isArray(orderItems) && orderItems.length) {
+              orderItems.forEach((it) => {
+                const product =
+                  it.product || it.productId || it.productInfo || it;
+                const quantity = it.quantity || it.qty || it.count || 1;
+                const price =
+                  it.price || it.amount || product?.price || order.total || 0;
+                saleEntries.push({
+                  orderId: order._id || order.id,
+                  product,
+                  buyer:
+                    order.buyer ||
+                    order.customer ||
+                    order.user ||
+                    order.buyerInfo,
+                  quantity,
+                  price,
+                  status: order.status || order.orderStatus,
+                  createdAt: order.createdAt || order.date || order.purchasedAt,
+                });
+              });
+            }
+          });
+        } else {
+          logger.error(
+            "loadSales: expected orders array but got:",
+            orders,
+            "raw response:",
+            response
+          );
+        }
+
+        setSales(saleEntries);
+      } catch (err) {
+        setSalesError(
+          err?.response?.data?.message || err.message || "Failed to load sales"
+        );
+      } finally {
+        setSalesLoading(false);
+      }
+    };
 
     if (activeTab === "sales") {
       loadSales();
@@ -393,7 +398,7 @@ const Profile = () => {
     if (activeTab === "reviews") {
       loadAuthoredReviews();
     }
-  }, [activeTab, user?._id]);
+  }, [activeTab, user?._id, searchParams.get("listingPage")]);
 
   // review handlers
   const handleWriteReview = (order, product) => {
@@ -417,7 +422,9 @@ const Profile = () => {
       // refresh reviews list
       // Use getUserReviews with the logged-in user's ID to refresh
       const data = await getMyReviews();
-      const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+      const reviews = Array.isArray(data)
+        ? data
+        : data?.reviews || data?.data || [];
       setAuthoredReviews(reviews);
     } catch (err) {
       showError(err?.response?.data?.message || "Failed to delete review");
@@ -438,7 +445,9 @@ const Profile = () => {
     // refresh reviews list
     // Use getUserReviews with the logged-in user's ID to refresh
     const data = await getMyReviews();
-    const reviews = Array.isArray(data) ? data : data?.reviews || data?.data || [];
+    const reviews = Array.isArray(data)
+      ? data
+      : data?.reviews || data?.data || [];
     setAuthoredReviews(reviews);
 
     setReviewModal({
