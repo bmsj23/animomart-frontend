@@ -131,55 +131,23 @@ const Profile = () => {
           profilePicUrl;
       }
 
-<<<<<<< HEAD
-    const updatePayload = {
-      profilePicture: profilePicUrl,
-    };
-
-    // Only include fields that backend accepts
-    if (form.username) {
-      updatePayload.username = form.username;
-    }
-    if (form.contactNumber) {
-      updatePayload.contactNumber = form.contactNumber;
-    }
-
-    logger.log('Sending update payload:', updatePayload); // Debug log
-
-    const updated = await updateMyProfile(updatePayload);
-
-    logger.log('Update response:', updated); // dibog
-
-    if (updateUser) {
-      const updatedData = updated.data?.user || updated.data || updated.user || updated || {};
-
-      const mergedUser = {
-        ...user,
-        name: updatedData.name || user.name,
-        username: updatedData.name || updatedData.username || user.username,
-        contactNumber: updatedData.contactNumber || user.contactNumber,
-        phone: updatedData.contactNumber || user.contactNumber || user.phone,
-        profilePicture: updatedData.profilePicture || user.profilePicture || user.picture,
-        picture: updatedData.profilePicture || user.profilePicture || user.picture,
-=======
       const updatePayload = {
         profilePicture: profilePicUrl,
->>>>>>> bed8479cef5173201ffcd1580dade71bc2f9297c
       };
 
-      // Only include fields that backend accepts
+      // only include fields that backend accepts
       if (form.username) {
         updatePayload.username = form.username;
       }
-      if (form.phone) {
-        updatePayload.contactNumber = form.phone;
+      if (form.contactNumber) {
+        updatePayload.contactNumber = form.contactNumber;
       }
 
-      logger.log("Sending update payload:", updatePayload); // Debug log
+      logger.log("Sending update payload:", updatePayload);
 
       const updated = await updateMyProfile(updatePayload);
 
-      logger.log("Update response:", updated); // dibog
+      logger.log("Update response:", updated);
 
       if (updateUser) {
         const updatedData =
@@ -327,31 +295,24 @@ const Profile = () => {
 
     // load sales when switching to sales tab
     const loadSales = async () => {
-<<<<<<< HEAD
-  setSalesLoading(true);
-  setSalesError(null);
-  try {
-    const response = await getMySales({ limit: 1000 });
-=======
       setSalesLoading(true);
       setSalesError(null);
       try {
-        const response = await getMySales();
->>>>>>> bed8479cef5173201ffcd1580dade71bc2f9297c
+        const response = await getMySales({ limit: 1000 });
 
-        // Handle the nested structure: response.data.orders
+        // handle the nested structure: response.data.orders
         let orders = [];
 
         if (Array.isArray(response)) {
           orders = response;
         } else if (response?.data?.orders) {
-          // This handles: { success: true, data: { orders: [...], pagination: {...} } }
+          // this handles: { success: true, data: { orders: [...], pagination: {...} } }
           orders = response.data.orders;
         } else if (response?.orders) {
-          // Fallback: { orders: [...] }
+          // fallback: { orders: [...] }
           orders = response.orders;
         } else if (response?.data && Array.isArray(response.data)) {
-          // Fallback: { data: [...] }
+          // fallback: { data: [...] }
           orders = response.data;
         }
 
