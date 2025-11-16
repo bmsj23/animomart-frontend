@@ -68,7 +68,7 @@ const useCheckout = () => {
         ...f,
         name: name || '',
         email: user.email || '',
-        phone: user.phone || ''
+        phone: user.contactNumber || user.phone || ''
       }));
     }
   }, [user]);
