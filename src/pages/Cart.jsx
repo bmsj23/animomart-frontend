@@ -36,6 +36,19 @@ const Cart = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // When the cart changes (or finishes loading after a refresh), scroll to top
+  useEffect(() => {
+    // avoid scrolling while still loading
+    if (loading) return;
+
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      // fallback
+      window.scrollTo(0, 0);
+    }
+  }, [loading, cart?.items?.length]);
+
   useEffect(() => {
     localStorage.setItem('cart-selected-items', JSON.stringify(Array.from(selectedItems)));
   }, [selectedItems]);
