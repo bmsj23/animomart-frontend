@@ -39,7 +39,7 @@ const SalesTab = ({ sales, loading, error }) => {
           </div>
           <div>
             {entry.orderId ? (
-              <Link to={`/orders/${entry.orderId}`} className="px-3 py-1 border rounded text-sm">View order</Link>
+              <Link to={`/seller/orders/${entry.orderId}`} className="px-3 py-1 border rounded text-sm hover:cursor-pointer hover:bg-gray-50">View order</Link>
             ) : null}
           </div>
         </div>

@@ -16,6 +16,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
+  const [stockFilter, setStockFilter] = useState(searchParams.get('filter') || '');
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
   const { success, error } = useToast();
 
@@ -24,7 +25,7 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, statusFilter]);
+  }, [currentPage, statusFilter, stockFilter]);
 
   const fetchProducts = async () => {
     try {
@@ -82,13 +83,20 @@ const Products = () => {
 
   const handleStatusFilter = (status) => {
     setStatusFilter(status);
+    setStockFilter('');
     setSearchParams({ page: 1, ...(status !== 'all' && { status }) });
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (stockFilter === 'low-stock') {
+      return matchesSearch && product.stock > 0 && product.stock <= 5;
+    }
+
+    return matchesSearch;
+  });
 
   const getStockBadge = (stock) => {
     if (stock === 0) {

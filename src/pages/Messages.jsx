@@ -92,7 +92,14 @@ const Messages = () => {
       } else {
         logger.log('Creating new conversation with user:', userId);
         // create a new conversation object for this user
-        createNewConversation(userId, productId);
+        createNewConversation(userId, productId).then((newConversation) => {
+          if (newConversation) {
+            handleSelectConversation(newConversation);
+          }
+        }).catch((err) => {
+          logger.error('Failed to create conversation:', err);
+          showError('Failed to open conversation');
+        });
       }
 
       // clear query params after handling

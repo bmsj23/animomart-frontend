@@ -83,7 +83,7 @@ const ProductDetail = () => {
         }
         if (mounted) setIsFavorite(Boolean(inList));
       } catch (err) {
-        // ignore failures — leave isFavorite as-is
+          logger.error('failed to verify wishlist status:', err);
       }
     };
 

@@ -55,7 +55,7 @@ const Login = () => {
               {/* welcome text */}
               <div className="text-center">
                 <p className="text-sm text-gray-500 mb-2">Welcome!</p>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2 font-sans">Sign in</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">Sign in</h1>
                 <p className="text-sm text-gray-600">to continue to AnimoMart</p>
               </div>
             </div>

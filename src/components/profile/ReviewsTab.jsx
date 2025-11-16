@@ -12,7 +12,7 @@ class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
   componentDidCatch(error, errorInfo) {
-    console.error("Error caught in ReviewsTab:", error, errorInfo);
+    logger.error("Error caught in ReviewsTab:", error, errorInfo);
   }
   render() {
     if (this.state.hasError) {
