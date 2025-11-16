@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { ChevronDown, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { CATEGORY_DATA } from '../../constants/categories';
@@ -131,7 +131,9 @@ const CategoryBar = () => {
         <div className="hidden md:block">
           <div className="flex items-start gap-1.5 md:gap-6">
             <div className="flex-none w-14 md:w-32">
-              <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1 pt-2">Categories</h2>
+              <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1 pt-2">
+                <Link to="/categories" className="cursor-pointer hover:text-accent transition-colors">Categories</Link>
+              </h2>
             </div>
 
             <div className="relative flex-1 min-w-0 group">
