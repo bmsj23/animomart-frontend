@@ -32,7 +32,7 @@ const ProductForm = () => {
     condition: 'New',
     images: [],
     shippingAvailable: false,
-    shippingFee: ''
+    shipping_fee: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -64,7 +64,7 @@ const ProductForm = () => {
         condition: product.condition,
         images: product.images || [],
         shippingAvailable: product.shippingAvailable || false,
-        shippingFee: product.shippingFee?.toString() || ''
+        shipping_fee: product.shipping_fee?.toString() || product.shippingFee?.toString() || ''
       });
 
       setCharCounts({
@@ -187,9 +187,9 @@ const ProductForm = () => {
     }
 
     if (formData.shippingAvailable) {
-      const shippingFee = parseFloat(formData.shippingFee);
-      if (!formData.shippingFee || isNaN(shippingFee) || shippingFee < 0) {
-        newErrors.shippingFee = 'valid shipping fee is required';
+      const shippingFee = parseFloat(formData.shipping_fee);
+      if (!formData.shipping_fee || isNaN(shippingFee) || shippingFee < 0) {
+        newErrors.shipping_fee = 'valid shipping fee is required';
       }
     }
 
@@ -220,7 +220,7 @@ const ProductForm = () => {
       };
 
       if (formData.shippingAvailable) {
-        productData.shippingFee = parseFloat(formData.shippingFee);
+        productData.shipping_fee = parseFloat(formData.shipping_fee);
       }
 
       if (isEditMode) {
