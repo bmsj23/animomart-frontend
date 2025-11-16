@@ -117,16 +117,16 @@ const ProductForm = () => {
   setUploadingImages(true);
 
   try {
-    const uploadPromises = files.map(file => 
+    const uploadPromises = files.map(file =>
       uploadImage(file, 'product') // Pass file and type
     );
 
     const results = await Promise.all(uploadPromises);
-    
-    const imageUrls = results.map(res => 
-      res.data?.url || 
-      res.data?.secure_url || 
-      res.url || 
+
+    const imageUrls = results.map(res =>
+      res.data?.url ||
+      res.data?.secure_url ||
+      res.url ||
       res.secure_url ||
       res
     );
@@ -201,7 +201,7 @@ const ProductForm = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      error('Please fix the errors', error);
+      error('Please fix the errors');
       return;
     }
 
