@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, MapPin, CreditCard, User } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, CreditCard, User, Star } from 'lucide-react';
 import { getOrder, cancelOrder } from '../api/orders';
+import { createReview } from '../api/reviews';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Modal from '../components/common/Modal';
+import ReviewForm from '../components/common/ReviewForm';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 import { logger } from '../utils/logger';
@@ -20,6 +22,8 @@ const OrderDetail = () => {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [cancelModal, setCancelModal] = useState({ isOpen: false, reason: '' });
+  const [reviewModal, setReviewModal] = useState({ isOpen: false, product: null });
+  const [reviewedProducts, setReviewedProducts] = useState([]);
 
   useEffect(() => {
     fetchOrder();
@@ -49,6 +53,13 @@ const OrderDetail = () => {
       }
 
       setOrder(orderData);
+
+      if (orderData.items) {
+        const reviewed = orderData.items
+          .filter(item => item.hasReview || item.reviewed)
+          .map(item => item.product?._id || item.product);
+        setReviewedProducts(reviewed);
+      }
     } catch (err) {
       logger.error('failed to fetch order:', err);
       error('Failed to load Order Details');
@@ -115,6 +126,30 @@ const OrderDetail = () => {
     return status === 'pending';
   };
 
+  const canReviewProduct = (productId) => {
+    return order?.status === 'completed' && !reviewedProducts.includes(productId);
+  };
+
+  const handleWriteReview = (product) => {
+    setReviewModal({ isOpen: true, product });
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      await createReview({
+        ...reviewData,
+        productId: reviewModal.product._id,
+        orderId: order._id,
+      });
+      success('Review submitted successfully');
+      setReviewedProducts(prev => [...prev, reviewModal.product._id]);
+      setReviewModal({ isOpen: false, product: null });
+    } catch (err) {
+      logger.error('failed to submit review:', err);
+      error(err.response?.data?.message || 'Failed to submit review');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -160,24 +195,45 @@ const OrderDetail = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
             <div className="space-y-4">
-              {order.items?.map((item, idx) => (
-                <div key={idx} className="flex gap-4 pb-4 border-b last:border-b-0">
-                  <img
-                    src={item.product?.images?.[0]}
-                    alt={item.product?.name}
-                    className="w-20 h-20 rounded object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{item.product?.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Quantity: {item.quantity}
-                    </p>
-                    <p className="text-sm font-semibold text-gray-900 mt-2">
-                      {formatCurrency(item.price)} × {item.quantity} = {formatCurrency(item.price * item.quantity)}
-                    </p>
+              {order.items?.map((item, idx) => {
+                const productId = item.product?._id || item.product;
+                const isReviewed = reviewedProducts.includes(productId);
+                const canReview = canReviewProduct(productId);
+
+                return (
+                  <div key={idx} className="flex gap-4 pb-4 border-b last:border-b-0">
+                    <img
+                      src={item.product?.images?.[0]}
+                      alt={item.product?.name}
+                      className="w-20 h-20 rounded object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">{item.product?.name}</h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Quantity: {item.quantity}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 mt-2">
+                        {formatCurrency(item.price)} × {item.quantity} = {formatCurrency(item.price * item.quantity)}
+                      </p>
+                      {canReview && (
+                        <button
+                          onClick={() => handleWriteReview(item.product)}
+                          className="mt-3 flex items-center gap-1 text-sm text-green-600 hover:text-green-700 font-medium hover:cursor-pointer"
+                        >
+                          <Star className="w-4 h-4" />
+                          Write Review
+                        </button>
+                      )}
+                      {isReviewed && (
+                        <span className="mt-3 flex items-center gap-1 text-sm text-gray-500">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          Reviewed
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center">
@@ -363,6 +419,39 @@ const OrderDetail = () => {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* review modal */}
+      <Modal
+        isOpen={reviewModal.isOpen}
+        onClose={() => setReviewModal({ isOpen: false, product: null })}
+        title="Write a Review"
+      >
+        {reviewModal.product && (
+          <div>
+            <div className="mb-4">
+              <div className="flex gap-3 items-start">
+                <img
+                  src={reviewModal.product.images?.[0]}
+                  alt={reviewModal.product.name}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-900">{reviewModal.product.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {formatCurrency(reviewModal.product.price || 0)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <ReviewForm
+              productId={reviewModal.product._id}
+              orderId={order._id}
+              onSubmit={handleReviewSubmit}
+              onCancel={() => setReviewModal({ isOpen: false, product: null })}
+            />
+          </div>
+        )}
       </Modal>
     </div>
   );
