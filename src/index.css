@@ -197,4 +197,31 @@
   .animate-bounceIn {
     animation: bounceIn 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+
+  /* gentle logo bounce utility */
+  @keyframes logoBounce {
+    0% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-6px);
+    }
+    55% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .logo-bounce {
+    animation: logoBounce 2.2s ease-in-out infinite;
+    will-change: transform;
+    display: inline-block;
+  }
+
+  /* smaller/punchy bounce for compact badges */
+  .logo-bounce--short {
+    animation: logoBounce 0.9s ease-in-out infinite;
+  }
 }

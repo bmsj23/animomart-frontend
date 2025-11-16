@@ -39,7 +39,7 @@ const AdminLayout = ({ children }) => {
             <>
               <Link to="/" className="flex items-center gap-3 group hover:cursor-pointer">
                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
-                  <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-10 h-10 object-contain" />
+                  <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-10 h-10 object-contain logo-bounce" />
                 </div>
                 <div>
                   <p className="font-bold text-lg text-gray-900">AnimoMart</p>
@@ -59,7 +59,7 @@ const AdminLayout = ({ children }) => {
               className="w-full flex justify-center p-2 hover:bg-gray-100 rounded-lg transition-colors hover:cursor-pointer"
             >
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-8 h-8 object-contain" />
+                <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-8 h-8 object-contain logo-bounce logo-bounce--short" />
               </div>
             </button>
           )}
