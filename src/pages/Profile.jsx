@@ -131,17 +131,16 @@ const Profile = () => {
         profilePicUrl;
     }
 
-    // 🔧 FIX: Map frontend fields to backend field names
     const updatePayload = {
       profilePicture: profilePicUrl,
     };
 
     // Only include fields that backend accepts
     if (form.username) {
-      updatePayload.name = form.username;  // Backend expects 'name'
+      updatePayload.username = form.username;
     }
     if (form.phone) {
-      updatePayload.contactNumber = form.phone;  // Backend expects 'contactNumber'
+      updatePayload.contactNumber = form.phone;
     }
 
     logger.log('Sending update payload:', updatePayload); // Debug log
