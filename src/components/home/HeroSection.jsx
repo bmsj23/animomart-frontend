@@ -3,7 +3,7 @@ import CategoryBar from './CategoryBar';
 
 const HeroSection = () => {
   return (
-    <div className="relative bg-green-700 overflow-hidden">
+    <div className="relative bg-green-900 overflow-hidden">
       {/* noise texture overlay */}
       <div
         className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
