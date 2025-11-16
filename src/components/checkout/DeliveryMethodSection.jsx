@@ -57,7 +57,14 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
   }, [validateSignal]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      onPointerDown={triggerEnter}
+      onKeyDown={(e) => {
+        // keyboard interaction (typing/tabbing) should also count as entering
+        if (e && e.key) triggerEnter();
+      }}
+    >
       <h2 className="text-xl font-semibold mb-4">Delivery Method</h2>
 
       {shippingCheck.checked && !shippingCheck.enabled && (
@@ -118,7 +125,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
               name="address"
               value={form.address}
               onChange={handleChange}
-              onFocus={triggerEnter}
               placeholder="street, building, unit"
               required
               className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.address ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
@@ -135,7 +141,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                onFocus={triggerEnter}
                 required
                 className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.city ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
               />
@@ -149,7 +154,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
                 name="postal"
                 value={form.postal}
                 onChange={handleChange}
-                onFocus={triggerEnter}
                 required
                 className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.postal ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
               />
@@ -165,7 +169,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
               name="specialInstructions"
               value={form.specialInstructions}
               onChange={handleChange}
-              onFocus={triggerEnter}
               rows="2"
               placeholder="e.g., leave at door, call upon arrival"
               className="mt-1 block w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -179,7 +182,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
             name="meetupLocation"
             value={form.meetupLocation}
             onChange={handleChange}
-            onFocus={triggerEnter}
             required
             className={`mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${(showAllErrors || triggerValidation) && !form.meetupLocation ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`}
           >
