@@ -1,5 +1,16 @@
 import { Link } from 'react-router-dom';
 
+// Scroll to top helper for footer links (gives route time to change)
+const scrollToTopAfterNav = () => {
+  setTimeout(() => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+  }, 60);
+};
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -19,12 +30,12 @@ const Footer = () => {
           <nav aria-label="Footer navigation">
             <ul className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center">
               <li>
-                <Link to="/" className="text-sm text-white hover:text-green-200 font-medium">
+                <Link to="/" onClick={scrollToTopAfterNav} className="text-sm text-white hover:text-green-200 font-medium">
                   HOME
                 </Link>
               </li>
               <li>
-                <Link to="/categories" className="text-sm text-white hover:text-green-200 font-medium">
+                <Link to="/categories" onClick={scrollToTopAfterNav} className="text-sm text-white hover:text-green-200 font-medium">
                   CATEGORIES
                 </Link>
               </li>
