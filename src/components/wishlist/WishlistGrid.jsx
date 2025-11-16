@@ -1,5 +1,5 @@
-import { useLayoutEffect, useState, useRef } from 'react';
-import ProductCard from '../common/ProductCard';
+import { useLayoutEffect, useState, useRef } from "react";
+import ProductCard from "../common/ProductCard";
 
 const WishlistGrid = ({
   products,
@@ -10,7 +10,6 @@ const WishlistGrid = ({
   hasActiveFilters,
   onClearFilters,
 }) => {
-  // local displayed list so we can animate removals before actually removing
   const [displayed, setDisplayed] = useState(products || []);
   const [removingIds, setRemovingIds] = useState(new Set());
 
@@ -46,7 +45,6 @@ const WishlistGrid = ({
     // If the page changed since last render, immediately update displayed and clear animations
     if (lastPageRef.current !== currentPage) {
       lastPageRef.current = currentPage;
-      // clear existing timers
       pendingTimers.current.forEach((v) => clearTimeout(v));
       pendingTimers.current.clear();
       setRemovingIds(new Set());
@@ -123,7 +121,9 @@ const WishlistGrid = ({
     const ANIM_MS = 320;
 
     const newDisplayedIds = new Set(displayed.map((p) => p._id));
-    const remainingIds = [...firstRects.keys()].filter((id) => newDisplayedIds.has(id));
+    const remainingIds = [...firstRects.keys()].filter((id) =>
+      newDisplayedIds.has(id)
+    );
 
     remainingIds.forEach((id) => {
       const el = itemRefs.current.get(id);
@@ -135,7 +135,7 @@ const WishlistGrid = ({
       if (dx === 0 && dy === 0) return;
 
       try {
-        el.style.transition = 'none';
+        el.style.transition = "none";
         el.style.transform = `translate(${dx}px, ${dy}px)`;
       } catch (e) {
         return;
@@ -146,7 +146,7 @@ const WishlistGrid = ({
 
       try {
         el.style.transition = `transform ${ANIM_MS}ms cubic-bezier(.2,.8,.2,1)`;
-        el.style.transform = '';
+        el.style.transform = "";
       } catch (e) {
         // ignore
       }
@@ -154,8 +154,8 @@ const WishlistGrid = ({
       setTimeout(() => {
         if (el) {
           try {
-            el.style.transition = '';
-            el.style.transform = '';
+            el.style.transition = "";
+            el.style.transform = "";
           } catch (e) {
             // ignore
           }
@@ -170,10 +170,7 @@ const WishlistGrid = ({
     return (
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-gray-100 rounded-sm h-80 animate-pulse"
-          />
+          <div key={i} className="bg-gray-100 rounded-sm h-80 animate-pulse" />
         ))}
       </div>
     );
@@ -183,16 +180,23 @@ const WishlistGrid = ({
   if (products.length === 0 && displayed.length === 0) {
     return (
       <div className="text-center py-20">
+        <div className="flex items-center justify-center min-h-[300px] py-12">
+          <img
+            src="/assets/EmptyWishlist.png"
+            alt="Empty Wishlist"
+            className="w-56 h-56 md:w-80 md:h-80 object-contain animate-slide-in"
+          />
+        </div>
         <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">
-          No products found
+          Your wishlist is empty!
         </h3>
         <p className="text-gray text-base md:text-lg mb-6 font-light">
-          Try adjusting your filters or check back later
+          Hoping you'll find something you like soon.
         </p>
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="text-primary hover:text-primary/80 font-medium transition-colors hover:cursor-pointer"
+            className="mt-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium hover:cursor-pointer delay-200"
           >
             Clear all filters
           </button>
@@ -213,8 +217,8 @@ const WishlistGrid = ({
             }}
             className={`transform will-change-transform transition-all duration-300 ${
               removingIds.has(product._id)
-                ? 'opacity-0 scale-95 -translate-y-3'
-                : 'opacity-100 scale-100 translate-y-0'
+                ? "opacity-0 scale-95 -translate-y-3"
+                : "opacity-100 scale-100 translate-y-0"
             }`}
           >
             <ProductCard product={product} />
@@ -246,17 +250,14 @@ const WishlistGrid = ({
                     onClick={() => onPageChange(page)}
                     className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
                       currentPage === page
-                        ? 'bg-primary text-white shadow-md'
-                        : 'border border-gray-200 hover:bg-surface text-main'
+                        ? "bg-primary text-white shadow-md"
+                        : "border border-gray-200 hover:bg-surface text-main"
                     }`}
                   >
                     {page}
                   </button>
                 );
-              } else if (
-                page === currentPage - 2 ||
-                page === currentPage + 2
-              ) {
+              } else if (page === currentPage - 2 || page === currentPage + 2) {
                 return (
                   <span key={page} className="px-2 text-gray">
                     ...
