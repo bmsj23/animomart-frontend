@@ -5,7 +5,7 @@ const ProductGallery = ({ images, productName }) => {
 
   return (
     <div>
-      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+      <div className="aspect-square bg-gray-100 rounded-3xl overflow-hidden mb-4">
         <img
           src={images?.[selectedImage] || 'https://via.placeholder.com/600'}
           alt={productName}
