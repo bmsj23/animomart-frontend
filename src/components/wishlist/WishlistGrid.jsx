@@ -182,7 +182,7 @@ const WishlistGrid = ({
       <div className="text-center py-20">
         <div className="flex items-center justify-center min-h-[300px] py-12">
           <img
-            src="/assets/EmptyWishlist.png"
+            src="/assets/EmptyWishlist.PNG"
             alt="Empty Wishlist"
             className="w-56 h-56 md:w-80 md:h-80 object-contain animate-slide-in"
           />
