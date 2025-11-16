@@ -67,7 +67,7 @@ const Navbar = () => {
   const isHomePage = location.pathname === '/';
 
   return (
-    <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isHomePage ? 'bg-green-700 shadow-none' : 'bg-gray-50'}`}>
+    <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isHomePage ? 'bg-green-900 shadow-none' : 'bg-gray-50'}`}>
       {/* noise texture overlay for home page */}
       {isHomePage && (
         <div

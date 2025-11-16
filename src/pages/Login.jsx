@@ -41,22 +41,22 @@ const Login = () => {
       <div className="fixed inset-0 flex flex-col lg:flex-row overflow-hidden">
         {/* left side - login form */}
         <div className="flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-12 overflow-y-auto">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md animate-fadeIn animate-scaleIn">
             {/* logo */}
             <div className="mb-10">
               <div className="flex justify-center mb-8">
                 <img
                   src="/assets/animomart_1.jpg"
                   alt="AnimoMart Logo"
-                  className="w-64 h-36 rounded-2xl object-cover"
+                  className="w-64 h-36 rounded-2xl object-cover transform transition-transform duration-500 ease-out hover:scale-105"
                 />
               </div>
 
               {/* welcome text */}
               <div className="text-center">
-                <p className="text-sm text-gray-500 mb-2">Welcome!</p>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Sign in</h1>
-                <p className="text-sm text-gray-600">to continue to AnimoMart</p>
+                <p className="text-sm text-gray-500 mb-2 transition-opacity duration-500 ease-out">Welcome!</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2 transition-transform duration-500 ease-out transform-gpu">Sign in</h1>
+                <p className="text-sm text-gray-600 transition-opacity duration-500 ease-out">to continue to AnimoMart</p>
               </div>
             </div>
 
@@ -64,6 +64,7 @@ const Login = () => {
             <div className="space-y-6">
               {/* google sign-in */}
               <div className="space-y-4">
+                <div className="transition-shadow duration-300 hover:shadow-lg rounded-md">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
@@ -76,9 +77,10 @@ const Login = () => {
                   ux_mode="popup"
                   width="100%"
                 />
+                </div>
               </div>
 
-              <div className="bg-surface rounded-lg p-4 border border-gray-200">
+              <div className="bg-surface rounded-lg p-4 border border-gray-200 transition-shadow duration-300 hover:shadow-sm">
                 <p className="text-sm text-gray-700 text-center">
                   Note: Only <span className="font-semibold text-accent">@dlsl.edu.ph</span> email addresses are allowed
                 </p>
@@ -96,7 +98,7 @@ const Login = () => {
         <div className="hidden lg:flex flex-1 bg-green-900 items-center justify-center p-12 relative overflow-hidden">
 
           {/* illustration content */}
-          <div className="relative z-10 text-center max-w-lg">
+          <div className="relative z-10 text-center max-w-lg animate-slide-in">
             <div className="mb-12 flex justify-center">
 
             </div>
