@@ -3,118 +3,52 @@ import { Link, useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatCurrency } from "../../utils/formatCurrency";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 20;
 
-const ListingsTab = ({ myListings: rawListings, loading, error }) => {
+const ListingsTab = ({ myListings: allProducts, loading, error }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const urlPage = parseInt(searchParams.get("page")) || 1;
+  const [products, setProducts] = useState([]);
+  const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(
-    Math.max(1, urlPage)
+    parseInt(searchParams.get("listingsPage")) || 1
   );
 
-  const totalItems = rawListings?.length ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pagedListings = rawListings?.slice(start, start + ITEMS_PER_PAGE) ?? [];
-
   useEffect(() => {
-    const safePage = Math.max(1, Math.min(urlPage, totalPages));
-    if (safePage !== currentPage) {
-      setCurrentPage(safePage);
-    }
-  }, [urlPage, totalPages, currentPage]);
+    if (!allProducts) return;
+
+    const pageFromUrl = parseInt(searchParams.get("listingsPage")) || 1;
+    setCurrentPage(pageFromUrl);
+
+    const totalProducts = allProducts.length;
+    const totalPages = Math.max(1, Math.ceil(totalProducts / ITEMS_PER_PAGE));
+    const start = (pageFromUrl - 1) * ITEMS_PER_PAGE;
+    const paged = allProducts.slice(start, start + ITEMS_PER_PAGE);
+
+    setProducts(paged);
+    setPagination({ totalProducts, totalPages });
+  }, [allProducts, searchParams]);
 
   const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-
     setCurrentPage(page);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", page.toString());
-    setSearchParams(newParams);
+
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    setSearchParams(params);
+
+    const filtered = applyFiltersAndSort(wishlist || [], filters.sort);
+    const limit = 20;
+    const start = (page - 1) * limit;
+    const paged = filtered.slice(start, start + limit);
+    setProducts(paged);
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
-
-    const buttons = [];
-
-    buttons.push(
-      <button
-        key={1}
-        onClick={() => handlePageChange(1)}
-        className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
-          currentPage === 1
-            ? "bg-primary text-white shadow-md"
-            : "border border-gray-200 hover:bg-surface text-main"
-        }`}
-      >
-        1
-      </button>
-    );
-
-    if (currentPage > 3) {
-      buttons.push(
-        <span key="left-ellipsis" className="px-2 text-gray">
-          ...
-        </span>
-      );
-    }
-
-    for (
-      let p = Math.max(2, currentPage - 1);
-      p <= Math.min(totalPages - 1, currentPage + 1);
-      p++
-    ) {
-      buttons.push(
-        <button
-          key={p}
-          onClick={() => handlePageChange(p)}
-          className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
-            currentPage === p
-              ? "bg-primary text-white shadow-md"
-              : "border border-gray-200 hover:bg-surface text-main"
-          }`}
-        >
-          {p}
-        </button>
-      );
-    }
-
-    if (currentPage < totalPages - 2) {
-      buttons.push(
-        <span key="right-ellipsis" className="px-2 text-gray">
-          ...
-        </span>
-      );
-    }
-
-    if (totalPages > 1) {
-      buttons.push(
-        <button
-          key={totalPages}
-          onClick={() => handlePageChange(totalPages)}
-          className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
-            currentPage === totalPages
-              ? "bg-primary text-white shadow-md"
-              : "border border-gray-200 hover:bg-surface text-main"
-          }`}
-        >
-          {totalPages}
-        </button>
-      );
-    }
-
-    return buttons;
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
 
   if (error) return <p className="text-red-600">{error}</p>;
 
-  if (totalItems === 0) {
+  if (!allProducts || allProducts.length === 0) {
     return (
       <div className="py-8 text-center">
         <p className="text-gray-700 mb-4">
@@ -122,7 +56,7 @@ const ListingsTab = ({ myListings: rawListings, loading, error }) => {
         </p>
         <Link
           to="/sell"
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
           List a product
         </Link>
@@ -134,10 +68,10 @@ const ListingsTab = ({ myListings: rawListings, loading, error }) => {
     <div className="space-y-8">
       {/* Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {pagedListings.map((product) => (
+        {products.map((product) => (
           <div
             key={product._id}
-            className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm"
+            className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
           >
             <Link to={`/products/${product._id}`} className="block">
               <img
@@ -170,24 +104,23 @@ const ListingsTab = ({ myListings: rawListings, loading, error }) => {
         ))}
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-12">
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
+            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-green-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
           >
             Previous
           </button>
 
-          <div className="flex items-center gap-2">
-            {renderPagination()}
-          </div>
+          <div className="flex items-center gap-2">{renderPagination()}</div>
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
+            disabled={currentPage === pagination.totalPages}
+            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-green-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
           >
             Next
           </button>
