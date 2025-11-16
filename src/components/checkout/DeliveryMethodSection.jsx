@@ -1,11 +1,23 @@
 import { Package, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false, validateSignal = null, onSectionEnter }) => {
-  // When validateSignal changes (non-null), show required-field errors for this section
+const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false, validateSignal = null, onSectionEnter, cartItems = [] }) => {
   const [triggerValidation, setTriggerValidation] = useState(false);
-  // has the user already entered/interacted with this section? prevent repeated signals
   const [entered, setEntered] = useState(false);
+
+  const allItems = cartItems.flatMap(group => group.items || []);
+  const hasShippingDisabledProduct = allItems.some(item => {
+    const product = item.product || item;
+    return product.shippingAvailable === false;
+  });
+  const shippingEnabled = !hasShippingDisabledProduct;
+
+  // if shipping is disabled for any product, default to meetup
+  useEffect(() => {
+    if (!shippingEnabled && form.deliveryMethod === 'shipping') {
+      setForm(f => ({ ...f, deliveryMethod: 'meetup' }));
+    }
+  }, [shippingEnabled, form.deliveryMethod, setForm]);
 
   const triggerEnter = () => {
     if (entered) return;
@@ -29,14 +41,25 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
     >
       <h2 className="text-xl font-semibold mb-4">Delivery Method</h2>
 
+      {!shippingEnabled && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> One or more items in your cart do not support shipping. Please select meetup for delivery.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <button
           type="button"
           onClick={() => {
-            setForm(f => ({ ...f, deliveryMethod: 'shipping' }));
-            triggerEnter();
+            if (shippingEnabled) {
+              setForm(f => ({ ...f, deliveryMethod: 'shipping' }));
+              triggerEnter();
+            }
           }}
-          className={`p-4 border-2 rounded-lg transition-all hover:cursor-pointer ${
+          disabled={!shippingEnabled}
+          className={`p-4 border-2 rounded-lg transition-all ${!shippingEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'} ${
             form.deliveryMethod === 'shipping'
               ? 'border-green-500 bg-green-50'
               : 'border-gray-200 hover:border-gray-300'
@@ -45,6 +68,9 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
           <Package className="w-6 h-6 mx-auto mb-2 text-green-600" />
           <div className="font-medium">Shipping</div>
           <div className="text-xs text-gray-500">Delivered to your address</div>
+          {!shippingEnabled && (
+            <div className="text-xs text-red-600 mt-1">Not available</div>
+          )}
         </button>
 
         <button

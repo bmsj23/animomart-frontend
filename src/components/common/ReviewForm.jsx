@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Star, Upload, X } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
+import { uploadSingleImage } from '../../api/upload';
+import { logger } from '../../utils/logger';
 
-const ReviewForm = ({ productId, orderId, onSubmit, onCancel }) => {
+const ReviewForm = ({ productId, orderId, onSubmit, onCancel, existingReview }) => {
   const { error: showError } = useToast();
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(existingReview?.rating || 0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [images, setImages] = useState([]);
+  const [reviewText, setReviewText] = useState(existingReview?.reviewText || '');
+  const [images, setImages] = useState(
+    existingReview?.images?.map(url => ({ url, isExisting: true })) || []
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageUpload = (e) => {
@@ -17,11 +21,10 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel }) => {
       return;
     }
 
-    // convert to cloudinary urls or base64 for preview
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImages((prev) => [...prev, reader.result]);
+        setImages((prev) => [...prev, { file, preview: reader.result, isExisting: false }]);
       };
       reader.readAsDataURL(file);
     });
@@ -42,19 +45,32 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel }) => {
       return;
     }
 
-    if (reviewText.length < 10) {
-      showError('review must be at least 10 characters');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
+      const imageUrls = [];
+      for (const img of images) {
+        if (img.isExisting) {
+          imageUrls.push(img.url);
+        } else if (img.file) {
+          try {
+            const uploaded = await uploadSingleImage(img.file, 'review');
+            const url = uploaded?.url || uploaded?.secure_url || uploaded?.data?.url || uploaded?.imageUrl;
+            if (url) {
+              imageUrls.push(url);
+            }
+          } catch (uploadErr) {
+            logger.error('failed to upload image:', uploadErr);
+            showError('failed to upload one or more images');
+          }
+        }
+      }
+
       await onSubmit({
         productId,
         orderId,
         rating,
         reviewText: reviewText.trim(),
-        images,
+        images: imageUrls,
       });
     } catch (err) {
       logger.error('failed to submit review:', err);
@@ -131,7 +147,7 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel }) => {
           {images.map((img, idx) => (
             <div key={idx} className="relative">
               <img
-                src={img}
+                src={img.preview || img.url}
                 alt={`Preview ${idx + 1}`}
                 className="w-20 h-20 object-cover rounded border border-gray-200"
               />

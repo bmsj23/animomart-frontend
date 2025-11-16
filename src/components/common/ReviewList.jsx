@@ -12,6 +12,7 @@ const ReviewList = ({ productId, canRespond = false, sellerId }) => {
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
+  const [ratingDistribution, setRatingDistribution] = useState([0, 0, 0, 0, 0]);
   const [filterRating, setFilterRating] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -28,10 +29,28 @@ const ReviewList = ({ productId, canRespond = false, sellerId }) => {
       if (filterRating) params.rating = filterRating;
 
       const data = await getProductReviews(productId, params);
+      logger.log('review api response:', data);
+
       setReviews(data.data.reviews || []);
       setAverageRating(data.data.averageRating || 0);
       setTotalReviews(data.data.totalReviews || 0);
       setTotalPages(data.data.pagination?.totalPages || 1);
+
+      logger.log('average rating:', data.data.averageRating);
+      logger.log('total reviews:', data.data.totalReviews);
+      logger.log('rating distribution:', data.data.ratingDistribution);
+
+      if (data.data.ratingDistribution) {
+        setRatingDistribution(data.data.ratingDistribution);
+      } else {
+        const dist = [0, 0, 0, 0, 0];
+        (data.data.reviews || []).forEach((review) => {
+          if (review.rating >= 1 && review.rating <= 5) {
+            dist[review.rating - 1]++;
+          }
+        });
+        setRatingDistribution(dist);
+      }
     } catch (err) {
       logger.error('failed to fetch reviews:', err);
       showError('failed to load reviews');
@@ -63,17 +82,7 @@ const ReviewList = ({ productId, canRespond = false, sellerId }) => {
     }
   };
 
-  const getRatingDistribution = () => {
-    const dist = [0, 0, 0, 0, 0];
-    reviews.forEach((review) => {
-      if (review.rating >= 1 && review.rating <= 5) {
-        dist[review.rating - 1]++;
-      }
-    });
-    return dist;
-  };
 
-  const distribution = getRatingDistribution();
 
   if (loading && currentPage === 1) {
     return (
@@ -114,7 +123,7 @@ const ReviewList = ({ productId, canRespond = false, sellerId }) => {
           <div className="flex-1">
             <div className="space-y-2">
               {[5, 4, 3, 2, 1].map((star) => {
-                const count = distribution[star - 1] || 0;
+                const count = ratingDistribution[star - 1] || 0;
                 const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
 
                 return (
