@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getProduct, getSimilarProducts } from '../api/products';
+import { getProduct, getSimilarProducts, incrementProductView } from '../api/products';
 import { checkWishlist } from '../api/wishlist';
 import { addToCart } from '../api/cart';
 import { useWishlist } from '../hooks/useWishlist';
@@ -39,6 +39,7 @@ const ProductDetail = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   const addedTimeoutRef = useRef(null);
+  const viewTrackedRef = useRef(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -47,6 +48,7 @@ const ProductDetail = () => {
     // reset optimistic add state when navigating to a new product
     setAddedToCart(false);
     setIsAdding(false);
+    viewTrackedRef.current = false;
     // update favorite state based on wishlist
     setIsFavorite(Boolean(isInWishlist(id)));
     if (addedTimeoutRef.current) {
@@ -115,6 +117,11 @@ const ProductDetail = () => {
       const response = await getProduct(id);
       logger.log('Product response:', response);
       setProduct(response.data);
+
+      if (!viewTrackedRef.current) {
+        viewTrackedRef.current = true;
+        incrementProductView(id);
+      }
     } catch (err) {
       logger.error('Failed to fetch product:', err);
       logger.error('Error response:', err.response?.data);
