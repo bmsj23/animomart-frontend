@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/common/Modal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -12,7 +12,13 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showAllErrors, setShowAllErrors] = useState(false);
-  const [customerValidateSignal, setCustomerValidateSignal] = useState(0);
+  // signal to tell CustomerInfoForm to reveal errors for step-based validation
+  const [customerValidateSignal, setCustomerValidateSignal] = useState(null);
+  // signal to tell DeliveryMethodSection to reveal errors when proceeding to payment
+  const [deliveryValidateSignal, setDeliveryValidateSignal] = useState(null);
+
+  const deliveryRef = useRef(null);
+  const paymentRef = useRef(null);
 
   const {
     form,
@@ -32,6 +38,38 @@ const Checkout = () => {
     navigate('/cart');
   };
 
+  // Observe when the user scrolls the delivery/payment sections into view
+  // and trigger validation for the previous step. This makes validation
+  // step-based: errors for CustomerInfo show when user enters Delivery,
+  // and errors for Delivery show when user enters Payment.
+  useEffect(() => {
+    if (!deliveryRef.current || !paymentRef.current) return;
+
+    const options = { root: null, rootMargin: '0px 0px -40% 0px', threshold: 0 };
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        // require a small scroll to avoid firing on initial mount
+        const scrolled = (window.scrollY || window.pageYOffset) > 20;
+        if (!scrolled) return;
+        if (entry.target === deliveryRef.current) {
+          // user scrolled into Delivery -> validate CustomerInfo
+          setCustomerValidateSignal(s => (s ?? 0) + 1);
+        }
+        if (entry.target === paymentRef.current) {
+          // user scrolled into Payment -> validate Delivery
+          setDeliveryValidateSignal(s => (s ?? 0) + 1);
+        }
+      });
+    }, options);
+
+    obs.observe(deliveryRef.current);
+    obs.observe(paymentRef.current);
+
+    return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (cartLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -47,21 +85,36 @@ const Checkout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
         {/* left column - forms */}
         <div className="space-y-6">
-          <CustomerInfoForm form={form} handleChange={handleChange} showAllErrors={showAllErrors} validateSignal={customerValidateSignal} />
+          <div ref={deliveryRef}>
+            <CustomerInfoForm
+              form={form}
+              handleChange={handleChange}
+              showAllErrors={showAllErrors}
+              validateSignal={customerValidateSignal}
+            />
 
-          <DeliveryMethodSection
-            form={form}
-            setForm={setForm}
-            handleChange={handleChange}
-            showAllErrors={showAllErrors}
-            onSectionEnter={() => setCustomerValidateSignal(s => s + 1)}
-          />
+            <DeliveryMethodSection
+              form={form}
+              setForm={setForm}
+              handleChange={handleChange}
+              showAllErrors={showAllErrors}
+              validateSignal={deliveryValidateSignal}
+              onSectionEnter={() => setCustomerValidateSignal(s => (s ?? 0) + 1)}
+            />
+          </div>
 
-          <PaymentMethodSection
-            form={form}
-            setForm={setForm}
-            deliveryMethod={form.deliveryMethod}
-          />
+          <div ref={paymentRef}>
+            <PaymentMethodSection
+              form={form}
+              setForm={setForm}
+              deliveryMethod={form.deliveryMethod}
+              onSectionEnter={() => {
+                // when user interacts with Payment, validate Delivery and Customer
+                setDeliveryValidateSignal(s => (s ?? 0) + 1);
+                setCustomerValidateSignal(s => (s ?? 0) + 1);
+              }}
+            />
+          </div>
         </div>
 
         {/* right column - order summary */}

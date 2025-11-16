@@ -38,7 +38,7 @@ const paymentMethods = [
   }
 ];
 
-const PaymentMethodSection = ({ form, setForm, deliveryMethod }) => {
+const PaymentMethodSection = ({ form, setForm, deliveryMethod, onSectionEnter }) => {
   const availableMethods = paymentMethods.filter(method => {
     if (method.availableFor === 'both') return true;
     if (method.availableFor === 'shipping' && deliveryMethod === 'shipping') return true;
@@ -71,7 +71,10 @@ const PaymentMethodSection = ({ form, setForm, deliveryMethod }) => {
             <button
               key={method.id}
               type="button"
-              onClick={() => setForm(f => ({ ...f, paymentMethod: method.id }))}
+              onClick={() => {
+                setForm(f => ({ ...f, paymentMethod: method.id }));
+                if (typeof onSectionEnter === 'function') onSectionEnter();
+              }}
               className={`w-full p-4 border-2 rounded-lg transition-all text-left hover:cursor-pointer ${
                 form.paymentMethod === method.id
                   ? 'border-green-500 bg-green-50'

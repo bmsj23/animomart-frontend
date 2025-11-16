@@ -8,17 +8,20 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateS
   // validators (simple and readable)
   const validators = {
     name: (v) => {
-      if (!v || String(v).trim().length < 3) return 'Please enter your full name (min 3 characters).';
+      const val = String(v || '').trim();
+      if (!val || val.length < 3) return 'Please enter your full name (min 3 characters).';
       return '';
     },
     email: (v) => {
-      if (!v) return 'Email is required.';
+      const val = String(v || '').trim();
+      if (!val) return 'Email is required.';
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(v) ? '' : 'Please enter a valid email address.';
+      return re.test(val) ? '' : 'Please enter a valid email address.';
     },
     phone: (v) => {
-      if (!v) return 'Phone number is required.';
-      const digits = String(v).replace(/\D/g, '');
+      const val = String(v || '').trim();
+      if (!val) return 'Phone number is required.';
+      const digits = val.replace(/\D/g, '');
       return digits.length >= 7 ? '' : 'Please enter a valid phone number.';
     }
   };
@@ -77,9 +80,10 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateS
   }, [validateSignal]);
 
   // helper to build className and whether to show error
-  const showError = (field) => touched[field] && errors[field];
+  const hasError = (field) => Boolean(touched[field] && errors[field]);
+  const getError = (field) => errors[field] || '';
   const inputClass = (field) =>
-    `mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${showError(field) ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`;
+    `mt-1 block w-full rounded-md px-3 py-2 focus:ring-2 ${hasError(field) ? 'border-red-500 ring-red-100 border' : 'border border-gray-200 focus:ring-green-500 focus:border-transparent'}`;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -94,11 +98,11 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateS
             onChange={handleInput}
             onBlur={handleBlur}
             required
-            aria-invalid={Boolean(showError('name'))}
-            aria-describedby={showError('name') ? 'name-error' : undefined}
+            aria-invalid={hasError('name')}
+            aria-describedby={hasError('name') ? 'name-error' : undefined}
             className={inputClass('name')}
           />
-          {showError('name') && <p id="name-error" className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            {hasError('name') && <p id="name-error" className="mt-1 text-sm text-red-600">{getError('name')}</p>}
         </div>
 
         <div>
@@ -110,11 +114,11 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateS
             onChange={handleInput}
             onBlur={handleBlur}
             required
-            aria-invalid={Boolean(showError('email'))}
-            aria-describedby={showError('email') ? 'email-error' : undefined}
+            aria-invalid={hasError('email')}
+            aria-describedby={hasError('email') ? 'email-error' : undefined}
             className={inputClass('email')}
           />
-          {showError('email') && <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            {hasError('email') && <p id="email-error" className="mt-1 text-sm text-red-600">{getError('email')}</p>}
         </div>
 
         <div>
@@ -127,11 +131,11 @@ const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateS
             onBlur={handleBlur}
             required
             placeholder="09123456789"
-            aria-invalid={Boolean(showError('phone'))}
-            aria-describedby={showError('phone') ? 'phone-error' : undefined}
+            aria-invalid={hasError('phone')}
+            aria-describedby={hasError('phone') ? 'phone-error' : undefined}
             className={inputClass('phone')}
           />
-          {showError('phone') && <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+            {hasError('phone') && <p id="phone-error" className="mt-1 text-sm text-red-600">{getError('phone')}</p>}
         </div>
       </form>
     </div>
