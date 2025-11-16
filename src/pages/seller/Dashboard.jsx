@@ -38,7 +38,7 @@ const Dashboard = () => {
       setLoading(true);
       const [productsRes, ordersRes, statsRes] = await Promise.all([
         getMyListings({ limit: 100 }),
-        getMySales({ limit: 10 }),
+        getMySales({ limit: 1000 }),
         getOrderStats()
       ]);
 
@@ -62,14 +62,20 @@ const Dashboard = () => {
       setRecentOrders(orders.slice(0, 5));
 
       const statsData = statsRes.data || statsRes;
+
+      const completedOrders = orders.filter(o => o.status === 'completed');
+      const calculatedRevenue = completedOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
       setStats({
         totalProducts,
         activeProducts,
         pendingOrders,
         lowStockCount: allLowStock.length,
-        totalRevenue: statsData.totalRevenue || 0,
-        completedOrders: statsData.completedOrders || 0,
-        averageOrderValue: statsData.averageOrderValue || 0
+        totalRevenue: Math.max(calculatedRevenue, statsData.totalRevenue || 0),
+        completedOrders: Math.max(completedOrders.length, statsData.completedOrders || 0),
+        averageOrderValue: calculatedRevenue > 0 && completedOrders.length > 0
+          ? calculatedRevenue / completedOrders.length
+          : statsData.averageOrderValue || 0
       });
 
       // prepare analytics data
