@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, ArrowRight, Sparkles, TrendingUp, Package, Grid3x3 } from 'lucide-react';
+import { Heart, ArrowRight, Sparkles, TrendingUp, Zap, Grid3x3 } from 'lucide-react';
 import { getProducts } from '../../api/products';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useNavigate } from 'react-router-dom';
@@ -260,24 +260,24 @@ const BentoBox = () => {
       title: 'New Arrivals',
       subtitle: 'Latest listings',
       icon: Sparkles,
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-900',
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-900',
       onClick: () => navigate('/browse?sort=newest')
     },
     {
       title: 'Trending',
       subtitle: 'Popular on campus',
       icon: TrendingUp,
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-900',
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-900',
       onClick: () => navigate('/browse?sort=trending')
     },
     {
       title: 'Electronics',
       subtitle: 'Tech essentials',
-      icon: Package,
-      bgColor: 'bg-amber-50',
-      textColor: 'text-amber-900',
+      icon: Zap,
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-900',
       onClick: () => navigate('/categories/Electronics')
     },
     {
