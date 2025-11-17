@@ -95,20 +95,37 @@ const Login = () => {
 
               {/* google sign-in */}
               <div className="space-y-4">
-                <div className="w-full [&>div]:w-full! [&>div>div]:w-full!">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  useOneTap={false}
-                  theme="outline"
-                  size="large"
-                  text="signin_with"
-                  shape="rectangular"
-                  context="signin"
-                  ux_mode="popup"
-                  type="standard"
-                  width="100%"
-                />
+                <div 
+                  className="w-full min-w-full"
+                  style={{ 
+                    width: '100%',
+                    minWidth: '100%',
+                    display: 'block'
+                  }}
+                >
+                  <div 
+                    id="google-signin-wrapper"
+                    className="w-full"
+                    style={{
+                      width: '100%',
+                      minWidth: '100%',
+                      maxWidth: '100%'
+                    }}
+                  >
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      useOneTap={false}
+                      theme="outline"
+                      size="large"
+                      text="signin_with"
+                      shape="rectangular"
+                      context="signin"
+                      ux_mode="popup"
+                      width={window.innerWidth < 640 ? 300 : 400}
+                      logo_alignment="left"
+                    />
+                  </div>
                 </div>
               </div>
 
