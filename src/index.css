@@ -224,18 +224,4 @@
   .logo-bounce--short {
     animation: logoBounce 0.9s ease-in-out infinite;
   }
-
-  #google-signin-wrapper,
-  #google-signin-wrapper > div,
-  #google-signin-wrapper > div > div,
-  #google-signin-wrapper iframe {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  #google-signin-wrapper > div > div > iframe {
-    min-width: 450px !important;
-    width: 450px !important;
-  }
 }
