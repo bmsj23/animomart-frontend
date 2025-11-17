@@ -93,46 +93,28 @@ const Login = () => {
                 </div>
               )}
 
-              {/* google sign-in */}
-              <div className="space-y-4">
-                <div 
-                  className="w-full min-w-full"
-                  style={{ 
-                    width: '100%',
-                    minWidth: '100%',
-                    display: 'block'
-                  }}
-                >
-                  <div 
-                    id="google-signin-wrapper"
-                    className="w-full"
-                    style={{
-                      width: '100%',
-                      minWidth: '100%',
-                      maxWidth: '100%'
-                    }}
-                  >
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      useOneTap={false}
-                      theme="outline"
-                      size="large"
-                      text="signin_with"
-                      shape="rectangular"
-                      context="signin"
-                      ux_mode="popup"
-                      width={window.innerWidth < 640 ? 320 : 450}
-                      logo_alignment="left"
-                    />
-                  </div>
-                </div>
-              </div>
+              <div className="flex flex-col items-center gap-4">
+                {/* google sign-in */}
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="light"
+                  size="large"
+                  text="signin_with"
+                  shape="rectangular"
+                  context="signin"
+                  ux_mode="popup"
+                  width={400}
+                  logo_alignment="left"
+                />
 
-              <div className="bg-surface rounded-lg p-4 border border-gray-200 transition-shadow duration-300 hover:shadow-sm">
-                <p className="text-sm text-gray-700 text-center">
-                  Note: Only <span className="font-semibold text-accent">@dlsl.edu.ph</span> email addresses are allowed
-                </p>
+                {/* note */}
+                <div className="bg-surface rounded-lg p-3 border border-gray-200 transition-shadow duration-300 w-[400px] hover:shadow-sm">
+                  <p className="text-xs text-gray-700 text-center">
+                    Note: Only <span className="font-bold text-accent">@dlsl.edu.ph</span> email addresses are allowed
+                  </p>
+                </div>
               </div>
             </div>
 
