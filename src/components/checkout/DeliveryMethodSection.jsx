@@ -16,15 +16,24 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
       const product = item.product || item;
       return {
         name: product.name,
-        shippingAvailable: product.shippingAvailable
+        shippingAvailable: product.shippingAvailable,
+        productId: product._id
       };
     }));
 
     const hasShippingDisabledProduct = allItems.some(item => {
       const product = item.product || item;
-      return product.shippingAvailable !== true;
+      const isDisabled = product.shippingAvailable !== true;
+      if (isDisabled) {
+        logger.log(`Product "${product.name}" has shipping disabled:`, {
+          shippingAvailable: product.shippingAvailable,
+          type: typeof product.shippingAvailable
+        });
+      }
+      return isDisabled;
     });
 
+    logger.log('Final shipping availability:', !hasShippingDisabledProduct);
     return !hasShippingDisabledProduct;
   }, [cartItems]);
 
