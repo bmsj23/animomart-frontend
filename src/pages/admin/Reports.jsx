@@ -19,7 +19,7 @@ const Reports = () => {
   const [actionModal, setActionModal] = useState({ show: false, type: '', report: null });
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
-  const { showSuccess, showError } = useToast();
+  const { success: showSuccess, error: showError } = useToast();
 
   const fetchReports = useCallback(async () => {
     try {
@@ -84,9 +84,7 @@ const Reports = () => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
   };
 
@@ -179,7 +177,7 @@ const Reports = () => {
         onClose={() => setActionModal({ show: false, type: '', report: null })}
         onConfirm={() => {
           if (actionModal.type === 'review') {
-            handleUpdateStatus(actionModal.report._id, 'reviewed');
+            handleUpdateStatus(actionModal.report._id, 'under_review');
           } else if (actionModal.type === 'resolve') {
             handleResolveReport(actionModal.report._id);
           }
