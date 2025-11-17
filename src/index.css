@@ -229,8 +229,13 @@
   #google-signin-wrapper > div,
   #google-signin-wrapper > div > div,
   #google-signin-wrapper iframe {
-    width: 125% !important;
-    min-width: 125% !important;
-    max-width: 125% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #google-signin-wrapper > div > div > iframe {
+    min-width: 450px !important;
+    width: 450px !important;
   }
 }
