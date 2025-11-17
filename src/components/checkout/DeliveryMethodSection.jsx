@@ -11,7 +11,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
     if (!cartItems || cartItems.length === 0) return null; // return null when not ready
 
     const allItems = cartItems.flatMap(group => group.items || []);
-    console.log('🔍 Checking shipping availability for items:', allItems.map(item => {
+    logger.log('🔍 Checking shipping availability for items:', allItems.map(item => {
       const product = item.product || item;
       return {
         name: product.name,
