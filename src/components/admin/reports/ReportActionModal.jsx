@@ -6,22 +6,22 @@ const ReportActionModal = ({ isOpen, type, onClose, onConfirm }) => {
 
   const config = {
     review: {
-      title: 'mark report as reviewed',
+      title: 'Mark Report as Reviewed',
       icon: Eye,
       iconColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      message: 'Mark this report as reviewed? this indicates you have looked into the matter.',
+      message: 'Mark this report as reviewed? This indicates you have looked into the matter.',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonText: 'Mark as Reviewed',
     },
     resolve: {
-      title: 'resolve report',
+      title: 'Resolve Report',
       icon: CheckCircle,
       iconColor: 'text-green-600',
       bgColor: 'bg-green-50',
-      message: 'resolve this report? this indicates the issue has been addressed and closed.',
+      message: 'Resolve this report? This indicates the issue has been addressed and closed.',
       buttonColor: 'bg-green-600 hover:bg-green-700',
-      buttonText: 'resolve report',
+      buttonText: 'Resolve Report',
     },
   };
 
@@ -48,7 +48,7 @@ const ReportActionModal = ({ isOpen, type, onClose, onConfirm }) => {
             onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors hover:cursor-pointer"
           >
-            cancel
+            Cancel
           </button>
           <button
             onClick={onConfirm}
