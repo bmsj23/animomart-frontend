@@ -122,7 +122,7 @@ const Login = () => {
                       shape="rectangular"
                       context="signin"
                       ux_mode="popup"
-                      width={window.innerWidth < 640 ? 300 : 400}
+                      width={window.innerWidth < 640 ? 320 : 450}
                       logo_alignment="left"
                     />
                   </div>
