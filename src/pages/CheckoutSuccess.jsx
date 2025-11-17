@@ -82,9 +82,8 @@ const CheckoutSuccess = () => {
       {/* order status */}
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
         <div className="flex gap-3">
-          <Package className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-blue-900">Order Status: {order.status}</p>
+            <p className="font-medium text-blue-900">Order Status: {order.status.charAt(0).toUpperCase() + order.status.slice(1)}</p>
             <p className="text-sm text-blue-700 mt-1">
               You will receive updates about your order via email. You can also track your order in your profile.
             </p>
@@ -184,12 +183,12 @@ const CheckoutSuccess = () => {
                   {order.paymentMethod === 'cash_on_delivery' && 'Cash On Delivery'}
                   {order.paymentMethod === 'cash_on_meetup' && 'Cash On Meetup'}
                   {order.paymentMethod === 'gcash' && 'GCash'}
-                  {order.paymentMethod === 'maya' && 'Maya'}
+                  {order.paymentMethod === 'Maya' && 'maya'}
                   {!['cash_on_delivery', 'cash_on_meetup', 'gcash', 'paymaya'].includes(order.paymentMethod) &&
-                    (order.paymentMethod || 'N/A')}
+                    (order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) || 'N/A')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Status: <span className="text-amber-600 font-medium">{order.paymentStatus}</span>
+                  Status: <span className="text-amber-600 font-medium">{order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}</span>
                 </p>
               </div>
             </div>

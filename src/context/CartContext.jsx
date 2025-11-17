@@ -10,6 +10,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
   const [itemCount, setItemCount] = useState(0);
+  const [invalidItems, setInvalidItems] = useState([]);
   const { isAuthenticated } = useAuth();
 
   // fetch cart when user is authenticated
@@ -39,16 +40,31 @@ export const CartProvider = ({ children }) => {
 
       // filter out items with null/deleted products
       if (data?.items) {
-        const validItems = data.items.filter(item => {
-          return item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+        const validItems = [];
+        const invalidItemsList = [];
+
+        data.items.forEach(item => {
+          const isValid = item && item.product && item.product._id && item.product.name && item.product.price !== undefined;
+          if (isValid) {
+            validItems.push(item);
+          } else {
+            invalidItemsList.push({
+              _id: item._id,
+              productId: item.product?._id || 'unknown',
+              name: item.product?.name || 'unknown product',
+              reason: !item.product ? 'product deleted' : 'missing product data'
+            });
+          }
         });
 
         setCart({
           ...data,
           items: validItems
         });
+        setInvalidItems(invalidItemsList);
       } else {
         setCart(data);
+        setInvalidItems([]);
       }
     } catch (error) {
       logger.error('Error fetching cart:', error);
@@ -148,6 +164,7 @@ export const CartProvider = ({ children }) => {
     setCart,
     loading,
     itemCount,
+    invalidItems,
     fetchCart,
     addItem,
     updateItem,

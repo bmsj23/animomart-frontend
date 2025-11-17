@@ -32,7 +32,7 @@ export const incrementProductView = async (id) => {
     const response = await api.post(`/products/${id}/view`);
     return response.data;
   } catch (err) {
-    console.error('failed to track view:', err);
+    logger.error('failed to track view:', err);
     return null;
   }
 };
