@@ -74,7 +74,7 @@ export const updateReportStatus = async (id, status, adminNotes = '') => {
 
 // admin: resolve report
 export const resolveReport = async (id, resolution) => {
-  const response = await api.post(`/admin/reports/resolve/${id}`, { resolution });
+  const response = await api.put(`/admin/reports/${id}/resolve`, { resolution });
   return response.data;
 };
 
