@@ -1,5 +1,6 @@
 import { Package, MapPin } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
+import { logger } from '../../utils/logger';
 
 const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = false, validateSignal = null, onSectionEnter, cartItems = [] }) => {
   const [triggerValidation, setTriggerValidation] = useState(false);
@@ -11,7 +12,7 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
     if (!cartItems || cartItems.length === 0) return null; // return null when not ready
 
     const allItems = cartItems.flatMap(group => group.items || []);
-    logger.log('🔍 Checking shipping availability for items:', allItems.map(item => {
+    logger.log('Checking shipping availability for items:', allItems.map(item => {
       const product = item.product || item;
       return {
         name: product.name,
