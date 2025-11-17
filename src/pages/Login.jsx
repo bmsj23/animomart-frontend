@@ -106,6 +106,7 @@ const Login = () => {
                   shape="rectangular"
                   context="signin"
                   ux_mode="popup"
+                  width="100%"
                 />
                 </div>
               </div>
