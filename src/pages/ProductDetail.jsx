@@ -16,6 +16,7 @@ import SellerInfo from '../components/product-detail/SellerInfo';
 import SuccessPopup from '../components/product-detail/SuccessPopup';
 import WishlistPopup from '../components/product-detail/WishlistPopup';
 import SimilarProducts from '../components/product-detail/SimilarProducts';
+import ReportModal from '../components/common/ReportModal';
 import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
@@ -38,6 +39,7 @@ const ProductDetail = () => {
   const [justAdded, setJustAdded] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showWishlistPopup, setShowWishlistPopup] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const addedTimeoutRef = useRef(null);
   const viewTrackedRef = useRef(false);
 
@@ -328,8 +330,27 @@ const ProductDetail = () => {
           />
 
           <SellerInfo seller={product.seller} productId={id} isOwnProduct={isOwnProduct} />
+
+          {!isOwnProduct && user && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+              >
+                Report this product
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        entityType="product"
+        entityId={id}
+        entityName={product.name}
+      />
 
       {/* reviews section */}
       <div className="mt-12 border-t border-gray-200 pt-12">
