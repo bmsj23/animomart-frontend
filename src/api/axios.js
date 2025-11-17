@@ -60,9 +60,18 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // handle 403 forbidden - redirect to home
+    // handle 403 forbidden - check if user is suspended (then if suspended, log them out and revoke access)
     if (error.response?.status === 403) {
-      window.location.href = '/';
+      const message = error.response?.data?.message || '';
+      if (message.toLowerCase().includes('suspend')) {
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.setItem('suspension-message', 'Your account has been suspended. Please contact support.');
+        window.location.href = '/login';
+      } else {
+        window.location.href = '/';
+      }
     }
 
     return Promise.reject(error);
