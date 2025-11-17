@@ -126,13 +126,25 @@ const useCheckout = () => {
     sellerGroups = groupItemsBySeller(selectedCartItems);
     subtotal = calculateSubtotal(selectedCartItems);
   } else if (groupedCartData?.sellers) {
-    // cart checkout (filter backend grouped data to only selected items)
+    // cart checkout (use backend grouped data but ensure na we have full product info)
+    // merge with selectedCartItems to get complete product data including shippingAvailable
+    const productMap = new Map();
+    selectedCartItems.forEach(item => {
+      productMap.set(item.product._id, item.product);
+    });
+
     sellerGroups = groupedCartData.sellers
       .map(group => ({
         ...group,
-        items: group.items.filter(item =>
-          selectedItemIds.has(item.product?._id || item._id)
-        )
+        items: group.items
+          .filter(item => selectedItemIds.has(item.product?._id || item._id))
+          .map(item => {
+            const fullProduct = productMap.get(item.product?._id || item._id);
+            return {
+              ...item,
+              product: fullProduct || item.product
+            };
+          })
       }))
       .filter(group => group.items.length > 0);
 

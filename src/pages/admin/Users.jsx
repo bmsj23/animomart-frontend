@@ -12,7 +12,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionModal, setActionModal] = useState({ show: false, type: '', user: null });
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const { showSuccess, showError } = useToast();
+  const { success, error } = useToast();
 
   useEffect(() => {
     fetchUsers();
@@ -23,9 +23,9 @@ const Users = () => {
       setLoading(true);
       const response = await adminApi.getAllUsers();
       setUsers(response.data?.users || []);
-    } catch (error) {
-      logger.error('error fetching users:', error);
-      showError('failed to fetch users');
+    } catch (err) {
+      logger.error('error fetching users:', err);
+      error('failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -34,36 +34,36 @@ const Users = () => {
   const handleSuspendUser = async (userId) => {
     try {
       await adminApi.suspendUser(userId, { reason: 'suspended by admin' });
-      showSuccess('user suspended successfully');
+      success('user suspended successfully');
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
-    } catch (error) {
-      logger.error('error suspending user:', error);
-      showError('failed to suspend user');
+    } catch (err) {
+      logger.error('error suspending user:', err);
+      error('failed to suspend user');
     }
   };
 
   const handleActivateUser = async (userId) => {
     try {
       await adminApi.activateUser(userId);
-      showSuccess('user activated successfully');
+      success('User activated successfully');
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
-    } catch (error) {
-      logger.error('error activating user:', error);
-      showError('failed to activate user');
+    } catch (err) {
+      logger.error('error activating user:', err);
+      error('failed to activate user');
     }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
       await adminApi.deleteUser(userId);
-      showSuccess('user deleted successfully');
+      success('User deleted successfully');
       fetchUsers();
       setActionModal({ show: false, type: '', user: null });
-    } catch (error) {
-      logger.error('error deleting user:', error);
-      showError('failed to delete user');
+    } catch (err) {
+      logger.error('error deleting user:', err);
+      error('failed to delete user');
     }
   };
 
@@ -285,7 +285,7 @@ const Users = () => {
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 hover:cursor-pointer"
                               >
                                 <Ban className="w-4 h-4" />
-                                suspend user
+                                Suspend
                               </button>
                             ) : (
                               <button
@@ -296,7 +296,7 @@ const Users = () => {
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 hover:cursor-pointer"
                               >
                                 <CheckCircle className="w-4 h-4" />
-                                activate user
+                                Activate
                               </button>
                             )}
                             <button
@@ -307,7 +307,7 @@ const Users = () => {
                               className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 hover:cursor-pointer"
                             >
                               <Trash2 className="w-4 h-4" />
-                              delete user
+                              Delete
                             </button>
                           </div>
                         )}
@@ -327,13 +327,13 @@ const Users = () => {
         isOpen={actionModal.show}
         onClose={() => setActionModal({ show: false, type: '', user: null })}
         title={
-          actionModal.type === 'suspend' ? 'suspend user' :
-          actionModal.type === 'activate' ? 'activate user' :
-          'delete user'
+          actionModal.type === 'suspend' ? 'Suspend User' :
+          actionModal.type === 'activate' ? 'Activate User' :
+          'Delete User'
         }
         description={
-          actionModal.type === 'suspend' ? `are you sure you want to suspend ${actionModal.user?.name}? they will not be able to access the platform.` :
-          actionModal.type === 'activate' ? `activate ${actionModal.user?.name}? they will regain access to the platform.` :
+          actionModal.type === 'suspend' ? `Are you sure you want to suspend ${actionModal.user?.name}? They will not be able to access the platform.` :
+          actionModal.type === 'activate' ? `Activate ${actionModal.user?.name}'s account? They will regain access to the platform.` :
           `permanently delete ${actionModal.user?.name}? this action cannot be undone.`
         }
         icon={
@@ -357,7 +357,7 @@ const Users = () => {
               onClick={() => setActionModal({ show: false, type: '', user: null })}
               className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors hover:cursor-pointer"
             >
-              cancel
+              Cancel
             </button>
             <button
               onClick={() => {
@@ -371,7 +371,7 @@ const Users = () => {
                   : 'bg-green-600 hover:bg-green-700'
               }`}
             >
-              confirm
+              Confirm
             </button>
           </>
         }

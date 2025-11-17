@@ -117,7 +117,7 @@ const Checkout = () => {
           />
       </div>
 
-      <Modal isOpen={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} title="cancel checkout">
+      <Modal isOpen={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} title="Cancel Checkout">
         <p>Are you sure you want to cancel the checkout? Your form will be cleared.</p>
         <div className="mt-4 flex justify-end gap-2">
           <button
