@@ -19,6 +19,28 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await authApi.getCurrentUser();
+        const freshUserData = response.data?.user || response.user || response.data || response;
+
+        if (freshUserData?.isSuspended) {
+          logger.log('User suspended, logging out');
+          await logout();
+          localStorage.setItem('suspension-message', 'Your account has been suspended. Please contact support.');
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        logger.error('Failed to check user status:', err);
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -39,6 +61,12 @@ export const AuthProvider = ({ children }) => {
             const response = await authApi.getCurrentUser();
             const freshUserData = response.data?.user || response.user || response.data || response;
             if (freshUserData) {
+              if (freshUserData.isSuspended) {
+                logger.log('User is suspended, logging out');
+                logout();
+                return;
+              }
+
               const normalizedFreshUser = {
                 ...freshUserData,
                 profilePicture: freshUserData.profilePicture || freshUserData.picture
@@ -79,6 +107,11 @@ export const AuthProvider = ({ children }) => {
       // check if user is from DLSL
       if (!userData.email.endsWith('@dlsl.edu.ph')) {
         throw new Error('Only @dlsl.edu.ph email addresses are allowed');
+      }
+
+      // check if user is suspended
+      if (userData.isSuspended) {
+        throw new Error('Your account has been suspended. Please contact support.');
       }
 
       const normalizedUser = {
