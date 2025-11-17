@@ -142,6 +142,9 @@ const Navbar = () => {
                   <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
                     My Profile
                   </Link>
+                  <Link to="/my-reports" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
+                    My Reports
+                  </Link>
                   {isSeller && (
                     <Link to="/seller/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
                       Seller Dashboard
