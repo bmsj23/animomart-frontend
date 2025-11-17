@@ -1,4 +1,5 @@
 import api from './axios';
+import { logger } from '../utils/logger';
 
 // get all products with optional filters
 export const getProducts = async (params = {}) => {
