@@ -54,11 +54,18 @@ const useCheckout = () => {
         setGroupedCartData(data);
       } catch (err) {
         logger.error('failed to fetch grouped cart:', err);
+
+        if (err.response?.status === 400 && err.response?.data?.message?.includes('invalid items')) {
+          showError('Your cart contains invalid items. Please remove them before checking out.');
+          setTimeout(() => {
+            navigate('/cart');
+          }, 1500);
+        }
       }
     };
 
     fetchGroupedCart();
-  }, [directCheckout, selectedItemIds.size]);
+  }, [directCheckout, selectedItemIds.size, navigate, showError]);
 
   // load user info
   useEffect(() => {
