@@ -1,20 +1,28 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { UserRoundX } from 'lucide-react';
 import { logger } from '../utils/logger';
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const { error: showError } = useToast();
   const navigate = useNavigate();
+  const [suspensionMessage, setSuspensionMessage] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+    const message = localStorage.getItem('suspension-message');
+    if (message) {
+      setSuspensionMessage(message);
+      showError(message);
+      localStorage.removeItem('suspension-message');
+    }
+  }, [isAuthenticated, navigate, showError]);
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -22,10 +30,13 @@ const Login = () => {
       navigate('/');
     } catch (err) {
       logger.error('Login failed:', err);
-      if (err.message.includes('@dlsl.edu.ph')) {
+      if (err.message.includes('suspended')) {
+        setSuspensionMessage('Your account has been suspended. Please contact support.');
+        showError('Your account has been suspended. Please contact support.');
+      } else if (err.message.includes('@dlsl.edu.ph')) {
         showError('Only @dlsl.edu.ph email addresses are allowed');
       } else {
-        showError('Login failed. Please try again.');
+        showError(err.message || 'Login failed. Please try again.');
       }
     }
   };
@@ -62,9 +73,29 @@ const Login = () => {
 
             {/* form card */}
             <div className="space-y-6">
+              {/* suspension warning banner */}
+              {suspensionMessage && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0">
+
+                      <UserRoundX className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-red-800">
+                        Account Suspended
+                      </h3>
+                      <p className="mt-1 text-sm text-red-700">
+                        {suspensionMessage}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* google sign-in */}
               <div className="space-y-4">
-                <div className="transition-shadow duration-300 hover:shadow-lg rounded-md">
+                <div className="w-full [&>div]:w-full! [&>div>div]:w-full!">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
@@ -75,7 +106,6 @@ const Login = () => {
                   shape="rectangular"
                   context="signin"
                   ux_mode="popup"
-                  width="100%"
                 />
                 </div>
               </div>
