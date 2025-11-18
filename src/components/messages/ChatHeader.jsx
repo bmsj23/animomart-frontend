@@ -1,4 +1,5 @@
 import { ShoppingBag, ArrowLeft } from 'lucide-react';
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const ChatHeader = ({
   conversation,
@@ -23,9 +24,7 @@ const ChatHeader = ({
           )}
 
           <div className="relative shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
-              {getConversationName(conversation).charAt(0).toUpperCase()}
-            </div>
+            <ProfileAvatar user={conversation.otherUser} size="sm" />
             {isUserOnline(conversation._id) && (
               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 border-2 border-white rounded-full" />
             )}
