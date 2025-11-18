@@ -18,16 +18,24 @@ const ProductInfo = ({
   const noteTags = rawNotes.filter((note, index) => note && rawNotes.indexOf(note) === index);
 
   return (
-    <div className={`rounded-2xl border border-green-50 bg-white shadow-sm p-6 space-y-6 ${className}`}>
-      <div className="space-y-2">
+    <div className={`rounded-2xl border border-green-50 bg-white shadow-sm p-6 flex flex-col ${className}`}>
+      <div className="space-y-6 flex-1">
+      <div className="space-y-4">
         <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">
           {formatCategory(product.category)}
         </p>
-        <h1 className="text-4xl md:text-5xl font-serif font-light text-gray-900 leading-snug tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-serif font-light text-gray-900 leading-snug tracking-tight">
           {product.name}
         </h1>
-        <p className="text-5xl font-light text-green-800 tracking-tight">
+        <p className="text-5xl font-semibold text-green-800 tracking-tight">
           {formatPrice(product.price)}
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Stock</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
+          {product.stock}
         </p>
       </div>
 
@@ -40,7 +48,7 @@ const ProductInfo = ({
 
       {noteTags.length > 0 && (
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">main notes</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Condition</p>
           <div className="flex flex-wrap gap-2">
             {noteTags.map((note, index) => (
               <span
@@ -54,8 +62,10 @@ const ProductInfo = ({
         </div>
       )}
 
+      </div>
+
       {children && (
-        <div className="pt-4 border-t border-gray-100">
+        <div className="pt-6 border-t border-gray-100 mt-auto">
           {children}
         </div>
       )}

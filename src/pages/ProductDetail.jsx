@@ -337,7 +337,7 @@ const ProductDetail = () => {
             formatCondition={formatCondition}
             formatCategory={formatCategory}
             isOutOfStock={isOutOfStock}
-            className="h-full flex flex-col"
+            className="h-full"
           >
             <ProductActions
               isOwnProduct={isOwnProduct}
