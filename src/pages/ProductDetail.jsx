@@ -153,15 +153,13 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (isAdding || addedToCart) return;
+  const attemptAddToCart = async ({ updateAddedState = true, showPopup = true } = {}) => {
+    if (isAdding || (addedToCart && updateAddedState)) return false;
 
-    // check current quantity in cart
     const cartItem = cart?.items?.find(item => item.product?._id === id);
     const currentCartQuantity = cartItem?.quantity || 0;
     const totalQuantity = currentCartQuantity + quantity;
 
-    // validate against available stock
     if (totalQuantity > product.stock) {
       const remaining = product.stock - currentCartQuantity;
       if (remaining <= 0) {
@@ -169,11 +167,11 @@ const ProductDetail = () => {
       } else {
         showError(`Only ${remaining} more can be added. You already have ${currentCartQuantity} in your cart`);
       }
-      return;
+      return false;
     }
 
     setIsAdding(true);
-    if (addedTimeoutRef.current) {
+    if (updateAddedState && addedTimeoutRef.current) {
       clearTimeout(addedTimeoutRef.current);
       addedTimeoutRef.current = null;
     }
@@ -182,24 +180,44 @@ const ProductDetail = () => {
       await addToCart({ productId: id, quantity });
       await fetchCart();
 
-      // only update UI after backend confirms success (non-optimistic)
-      setAddedToCart(true);
-      setShowSuccessPopup(true);
-
-      // show 'Added to Cart' for 1.5 seconds, then reset
-      if (addedTimeoutRef.current) {
-        clearTimeout(addedTimeoutRef.current);
+      if (updateAddedState) {
+        setAddedToCart(true);
       }
-      addedTimeoutRef.current = setTimeout(() => {
-        setAddedToCart(false);
-        addedTimeoutRef.current = null;
-      }, 2000);
+
+      if (showPopup) {
+        setShowSuccessPopup(true);
+      }
+
+      if (updateAddedState) {
+        if (addedTimeoutRef.current) {
+          clearTimeout(addedTimeoutRef.current);
+        }
+        addedTimeoutRef.current = setTimeout(() => {
+          setAddedToCart(false);
+          addedTimeoutRef.current = null;
+        }, 2000);
+      }
+      return true;
     } catch (err) {
       logger.error('Failed to add to cart:', err);
-      setAddedToCart(false);
+      if (updateAddedState) {
+        setAddedToCart(false);
+      }
       showError(err.response?.data?.message || 'Failed to add to cart');
+      return false;
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    await attemptAddToCart();
+  };
+
+  const handleBuyNow = async () => {
+    const success = await attemptAddToCart({ updateAddedState: false, showPopup: false });
+    if (success) {
+      navigate('/checkout');
     }
   };
 
