@@ -225,3 +225,99 @@
     animation: logoBounce 0.9s ease-in-out infinite;
   }
 }
+  /* Login left-panel decorative icons - entrance + float */
+  @keyframes iconEntrance {
+    from {
+      transform: translateY(18px) translateX(18px) scale(0.92);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes iconFloat {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-6px) translateX(2px); }
+    100% { transform: translateY(0) translateX(0); }
+  }
+
+  .login-icon {
+    will-change: transform, opacity;
+    transition: opacity 180ms linear;
+    opacity: 0;
+    animation-fill-mode: both;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.08));
+    display: block;
+    object-fit: contain;
+    max-width: none;
+    max-height: none;
+    min-width: 120px;
+    min-height: 120px;
+  }
+
+  /* each icon has a staggered entrance delay and a subtle float loop */
+  .login-icon--1 {
+    animation: iconEntrance 520ms cubic-bezier(.2,.9,.3,1) 120ms both,
+               iconFloat 4.8s ease-in-out 640ms infinite;
+  }
+
+  .login-icon--2 {
+    animation: iconEntrance 560ms cubic-bezier(.2,.9,.3,1) 240ms both,
+               iconFloat 5.2s ease-in-out 820ms infinite;
+  }
+
+  .login-icon--3 {
+    animation: iconEntrance 600ms cubic-bezier(.2,.9,.3,1) 360ms both,
+               iconFloat 5.6s ease-in-out 1020ms infinite;
+  }
+
+  .login-icon--4 {
+    animation: iconEntrance 640ms cubic-bezier(.2,.9,.3,1) 480ms both,
+               iconFloat 6s ease-in-out 1240ms infinite;
+  }
+
+  /* responsive, keep icons modest on small screens (increased size) */
+  .login-icon { width: 120px; height: 120px; }
+
+  /* Make the Money icon slightly larger so it reads with the others */
+  .login-icon--4 {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    z-index: 12;
+  }
+
+  /* Make the Cart icon more prominent */
+  .login-icon--1 {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    z-index: 13;
+  }
+
+  /* Ensure PriceTag is full size and not constrained by other rules */
+  .login-icon--3 {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    z-index: 11;
+  }
+
+  /* All icons use the base size (keep uniform) */
+
+  @media (max-width: 1024px) {
+    .login-icon { display: none; }
+  }
+
+  /* Respect user's reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .login-icon, .logo-bounce, .animate-bounceIn, .animate-scaleIn, .animate-slide-in {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }

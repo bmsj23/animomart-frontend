@@ -51,16 +51,19 @@ const Login = () => {
     <GoogleOAuthProvider clientId={clientId}>
       <div className="fixed inset-0 flex flex-col lg:flex-row overflow-hidden">
         {/* left side - login form */}
-        <div className="flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-12 overflow-y-auto">
+        <div className="relative flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-12 overflow-y-auto">
+          {/* decorative icons (absolute) */}
           <div className="w-full max-w-md animate-fadeIn animate-scaleIn">
+                
             {/* logo */}
             <div className="mb-10">
-              <div className="flex justify-center mb-8">
+              <div className="flex justify-center mb-8 relative">
                 <img
                   src="/assets/animomart_1.jpg"
                   alt="AnimoMart Logo"
                   className="w-64 h-36 rounded-2xl object-cover transform transition-transform duration-500 ease-out hover:scale-105 logo-bounce"
                 />
+                {/* price tag positioned above the logo, centered */}
               </div>
 
               {/* welcome text */}

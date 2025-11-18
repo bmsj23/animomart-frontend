@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Package, Search, ChevronRight, Calendar } from 'lucide-react';
+import { Search, ChevronRight, Calendar } from 'lucide-react';
 import { getMySales } from '../../api/orders';
 import { useToast } from '../../hooks/useToast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -130,12 +130,18 @@ const Orders = () => {
       {/* orders list */}
       {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
-          <p className="text-gray-600">
-            {searchQuery ? 'Try Adjusting Your Search' : 'You Have No Orders Yet'}
-          </p>
-        </div>
+            <div className="flex items-center justify-center py-6">
+              <img
+                src="/assets/NoProducts.png"
+                alt="No orders"
+                className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+              />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
+            <p className="text-gray-600">
+              {searchQuery ? 'Try Adjusting Your Search' : 'You Have No Orders Yet'}
+            </p>
+          </div>
       ) : (
         <>
           <div className="space-y-4">
