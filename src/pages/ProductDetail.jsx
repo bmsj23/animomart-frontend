@@ -17,6 +17,7 @@ import SuccessPopup from '../components/product-detail/SuccessPopup';
 import WishlistPopup from '../components/product-detail/WishlistPopup';
 import SimilarProducts from '../components/product-detail/SimilarProducts';
 import ReportModal from '../components/common/ReportModal';
+import DeliveryOptions from '../components/product-detail/DeliveryOptions';
 import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
