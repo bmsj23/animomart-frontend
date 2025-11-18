@@ -42,6 +42,13 @@ const ProductsTable = ({
           {products.length === 0 ? (
             <tr>
               <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                <div className="flex items-center justify-center py-6">
+                  <img
+                    src="/assets/NoProducts.png"
+                    alt="No products"
+                    className="w-36 h-36 md:w-44 md:h-44 object-contain mx-auto mb-4"
+                  />
+                </div>
                 No products found
               </td>
             </tr>

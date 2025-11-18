@@ -131,7 +131,16 @@ const Products = () => {
 
         <div className="md:hidden divide-y divide-gray-200">
           {currentProducts.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No products found</div>
+            <div className="p-8 text-center text-gray-500">
+              <div className="flex items-center justify-center py-6">
+                <img
+                  src="/assets/NoProducts.png"
+                  alt="No products"
+                  className="w-40 h-40 md:w-48 md:h-48 object-contain mx-auto mb-4"
+                />
+              </div>
+              <div>No products found</div>
+            </div>
           ) : (
             currentProducts.map((product) => (
               <ProductsMobileCard

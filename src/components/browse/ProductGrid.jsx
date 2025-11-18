@@ -14,6 +14,13 @@ const ProductGrid = ({ products, loading, onClearFilters, hasActiveFilters }) =>
   if (products.length === 0) {
     return (
       <div className="text-center py-20">
+        <div className="flex items-center justify-center min-h-[240px] py-6">
+          <img
+            src="/assets/NoProducts.png"
+            alt="No products"
+            className="w-60 h-64 md:w-96 md:h-96 object-contain mx-auto mb-0 animate-slide-in"
+          />
+        </div>
         <h3 className="font-serif text-2xl md:text-3xl text-main mb-3">No products found</h3>
         <p className="text-gray text-base md:text-lg mb-6 font-light">
           Try adjusting your filters or check back later

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Plus, Search, Edit2, Trash2, Pause, Play, Package, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Pause, Play, Eye } from 'lucide-react';
 import { getMyListings, updateProductStatus, deleteProduct } from '../../api/products';
 import { useToast } from '../../hooks/useToast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -185,7 +185,13 @@ const Products = () => {
       {/* products list */}
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <div className="flex items-center justify-center py-6">
+              <img
+                src="/assets/NoProducts.png"
+                alt="No products"
+                className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+              />
+            </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Found</h3>
           <p className="text-gray-600 mb-6">
             {searchQuery ? 'Try adjusting your Search' : 'Start by listing your first product'}

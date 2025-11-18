@@ -286,9 +286,14 @@ const CategoryDetail = () => {
             </div>
           ) : products.length === 0 ? (
             <div className="py-24 text-center">
-              <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShoppingBag className="w-10 h-10 text-gray-300" />
+              <div className="flex items-center justify-center py-6">
+                  <img
+                    src="/assets/NoProducts.png"
+                    alt="No products"
+                    className="w-60 h-64 md:w-96 md:h-96 object-contain mx-auto mb-0 animate-slide-in"
+                  />
               </div>
+              
               <h3 className="text-3xl font-light text-main mb-3">
                 No products found
               </h3>
