@@ -309,59 +309,78 @@ const ProductDetail = () => {
 
       {/* breadcrumb */}
       <div className="mb-6">
-        <nav className="flex text-sm text-gray-500">
-          <Link to="/" className="hover:text-green-600">Home</Link>
-          <span className="mx-2">/</span>
-          <Link to="/browse" className="hover:text-green-600">Browse</Link>
-          <span className="mx-2">/</span>
-          <Link to={`/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-green-600">
+        <nav className="flex flex-wrap items-center gap-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.35em] text-gray-500">
+          <Link to="/" className="text-green-800 hover:text-green-600 hover:cursor-pointer">home</Link>
+          <span className="text-gray-400">•</span>
+          <Link to="/browse" className="text-green-800 hover:text-green-600 hover:cursor-pointer">browse</Link>
+          <span className="text-gray-400">•</span>
+          <Link
+            to={`/browse?category=${encodeURIComponent(product.category)}`}
+            className="text-green-800 hover:text-green-600 hover:cursor-pointer"
+          >
             {formatCategory(product.category)}
           </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900">{product.name}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-900 tracking-normal">{product.name}</span>
         </nav>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <ProductGallery images={product.images} productName={product.name} />
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-10 xl:gap-14 mb-16">
+        <div className="lg:h-full">
+          <ProductGallery images={product.images} productName={product.name} />
+        </div>
 
-        <div>
+        <div className="lg:h-full">
           <ProductInfo
             product={product}
             formatPrice={formatPrice}
             formatCondition={formatCondition}
             formatCategory={formatCategory}
             isOutOfStock={isOutOfStock}
-          />
-
-          <ProductActions
-            isOwnProduct={isOwnProduct}
-            isOutOfStock={isOutOfStock}
-            quantity={quantity}
-            maxStock={product.stock}
-            isFavorite={isFavorite}
-            isAdding={isAdding}
-            addedToCart={addedToCart}
-            isProcessing={isProcessing}
-            justAdded={justAdded}
-            onQuantityChange={setQuantity}
-            onAddToCart={handleAddToCart}
-            onToggleFavorite={handleToggleFavorite}
-          />
-
-          <SellerInfo seller={product.seller} productId={id} isOwnProduct={isOwnProduct} />
-
-          {!isOwnProduct && user && (
-            <div className="mt-4">
-              <button
-                onClick={() => setShowReportModal(true)}
-                className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
-              >
-                Report this product
-              </button>
-            </div>
-          )}
+            className="h-full flex flex-col"
+          >
+            <ProductActions
+              isOwnProduct={isOwnProduct}
+              isOutOfStock={isOutOfStock}
+              quantity={quantity}
+              maxStock={product.stock}
+              isFavorite={isFavorite}
+              isAdding={isAdding}
+              addedToCart={addedToCart}
+              isProcessing={isProcessing}
+              justAdded={justAdded}
+              onQuantityChange={setQuantity}
+              onAddToCart={handleAddToCart}
+              onToggleFavorite={handleToggleFavorite}
+              onBuyNow={handleBuyNow}
+            />
+          </ProductInfo>
         </div>
+
+        <div className="lg:h-full">
+          <DeliveryOptions
+            product={product}
+            formatPrice={formatPrice}
+            className="h-full flex flex-col"
+          />
+        </div>
+
+        <div className="lg:h-full">
+          <div className="rounded-2xl border border-green-50 bg-white shadow-sm p-6 h-full flex flex-col">
+            <SellerInfo seller={product.seller} productId={id} isOwnProduct={isOwnProduct} />
+          </div>
+        </div>
+
+        {!isOwnProduct && user && (
+          <div className="lg:col-span-2">
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="w-full px-6 py-3 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-2xl font-medium transition-all duration-200 hover:cursor-pointer"
+            >
+              Report this Product
+            </button>
+          </div>
+        )}
       </div>
 
       <ReportModal
@@ -373,8 +392,8 @@ const ProductDetail = () => {
       />
 
       {/* reviews section */}
-      <div className="mt-12 border-t border-gray-200 pt-12">
-        <h2 className="text-2xl font-serif font-light text-gray-900 mb-6">Customer Reviews</h2>
+      <div className="mt-16 border-t border-gray-200 pt-12">
+        <h2 className="text-3xl font-serif font-light text-gray-900 mb-8 tracking-tight">Customer Reviews</h2>
         <ReviewList
           productId={id}
           canRespond={user?._id === product.seller?._id}
@@ -383,6 +402,7 @@ const ProductDetail = () => {
       </div>
 
       <SimilarProducts products={similarProducts} loading={loadingSimilar} />
+    </div>
     </div>
   );
 };
