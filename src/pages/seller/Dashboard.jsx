@@ -272,7 +272,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Low Stock Alerts</h2>
-            <Link to="/seller/products" className="text-sm text-green-600 hover:text-green-700 hover:cursor-pointer">
+            <Link to="/seller/products?filter=lowStock" className="text-sm text-green-600 hover:text-green-700 hover:cursor-pointer">
               View All
             </Link>
           </div>
