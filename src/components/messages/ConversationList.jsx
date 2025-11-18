@@ -1,4 +1,5 @@
 import { ShoppingBag, User } from 'lucide-react';
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const ConversationList = ({
   conversations,
@@ -32,9 +33,7 @@ const ConversationList = ({
           <div className="flex items-center gap-3">
             {/* avatar */}
             <div className="relative">
-              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                {getConversationName(conversation).charAt(0).toUpperCase()}
-              </div>
+              <ProfileAvatar user={conversation.otherUser} size="md" />
               {isUserOnline(conversation._id) && (
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
               )}
