@@ -393,7 +393,7 @@ const ProductDetail = () => {
 
       {/* reviews section */}
       <div className="mt-16 border-t border-gray-200 pt-12">
-        <h2 className="text-3xl font-serif font-light text-gray-900 mb-8 tracking-tight">Customer Reviews</h2>
+        <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 tracking-tight">Customer Reviews</h2>
         <ReviewList
           productId={id}
           canRespond={user?._id === product.seller?._id}
