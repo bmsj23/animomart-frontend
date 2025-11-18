@@ -6,6 +6,16 @@ import { formatCurrency } from "../../utils/formatCurrency";
 
 const ITEMS_PER_PAGE = 20;
 
+const getStatusColor = (status) => {
+  const statusLower = status?.toLowerCase() || '';
+  if (statusLower === 'pending') return 'bg-yellow-100 text-yellow-700';
+  if (statusLower === 'processing' || statusLower === 'ready') return 'bg-blue-100 text-blue-700';
+  if (statusLower === 'shipped') return 'bg-purple-100 text-purple-700';
+  if (statusLower === 'completed' || statusLower === 'delivered') return 'bg-green-100 text-green-700';
+  if (statusLower === 'cancelled' || statusLower === 'canceled') return 'bg-red-100 text-red-700';
+  return 'bg-gray-100 text-gray-700';
+};
+
 const SalesTab = ({ sales, loading, error }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlPage = parseInt(searchParams.get("page")) || 1;
@@ -187,7 +197,7 @@ const SalesTab = ({ sales, loading, error }) => {
               <span className="font-medium text-green-700">{formatCurrency(entry.price)}</span>
               <span>Qty: {entry.quantity}</span>
               {entry.createdAt && <span>• {new Date(entry.createdAt).toLocaleDateString()}</span>}
-              {entry.status && <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded">{entry.status}</span>}
+              {entry.status && <span className={`ml-2 text-xs px-2 py-1 rounded ${getStatusColor(entry.status)}`}>{entry.status}</span>}
             </div>
           </div>
           <div>
