@@ -6,6 +6,16 @@ import { formatCurrency } from "../../utils/formatCurrency";
 
 const ITEMS_PER_PAGE = 20;
 
+const getStatusColor = (status) => {
+  const statusLower = status?.toLowerCase() || '';
+  if (statusLower === 'pending') return 'bg-yellow-100 text-yellow-700';
+  if (statusLower === 'processing' || statusLower === 'ready') return 'bg-blue-100 text-blue-700';
+  if (statusLower === 'shipped') return 'bg-purple-100 text-purple-700';
+  if (statusLower === 'completed' || statusLower === 'delivered') return 'bg-green-100 text-green-700';
+  if (statusLower === 'cancelled' || statusLower === 'canceled') return 'bg-red-100 text-red-700';
+  return 'bg-gray-100 text-gray-700';
+};
+
 const PurchasesTab = ({
   purchaseOrders,
   loading,
@@ -186,8 +196,11 @@ const PurchasesTab = ({
             <div className="flex-1">
               <h3 className="font-semibold">Order #{order.orderNumber || order._id?.slice(-8)}</h3>
               <p className="text-sm text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString()} • {order.status}
+                {new Date(order.createdAt).toLocaleDateString()}
               </p>
+              <span className={`inline-block mt-1 text-xs px-2 py-1 rounded ${getStatusColor(order.status)}`}>
+                {order.status}
+              </span>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-lg font-bold text-green-700">

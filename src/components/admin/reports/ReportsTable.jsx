@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { FileText, User, Calendar, MoreVertical, Eye, CheckCircle } from 'lucide-react';
+import { formatReason } from '../../../utils/formatReason';
 
 const ReportsTable = ({
   reports,
@@ -126,7 +127,7 @@ const ReportsTable = ({
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-gray-900 line-clamp-1">{report.reason}</span>
+                  <span className="text-gray-900 line-clamp-1">{formatReason(report.reason)}</span>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getPriorityColor(report.priority || 'medium')}`}>
@@ -195,7 +196,7 @@ const ReportsTable = ({
             </button>
           )}
 
-          {(activeReport.status === 'pending' || activeReport.status === 'reviewed') && (
+          {(activeReport.status === 'pending' || activeReport.status === 'under_review' || activeReport.status === 'reviewed') && (
             <button
               onClick={() => {
                 onOpenActionModal('resolve', activeReport);

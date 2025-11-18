@@ -57,7 +57,7 @@ export const CATEGORY_DATA = [
   {
     name: 'Gaming & Hobbies',
     subcategories: ['Video Games', 'Board Games', 'Collectibles', 'Art Supplies', 'Other Hobbies'],
-    image: 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80',
     description: 'Gaming, collectibles, and hobby items'
   },
   {

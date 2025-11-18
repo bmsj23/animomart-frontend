@@ -37,10 +37,13 @@ const Modal = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
   };
 
   return createPortal(
-    <div className="fixed inset-0 overflow-y-auto z-[9999]">
+    <div className="fixed inset-0 overflow-y-auto z-50">
       {/* backdrop */}
       <div
         className="fixed inset-0 bg-black/50 transition-all"

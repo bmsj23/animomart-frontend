@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FileText, AlertTriangle, Clock, CheckCircle, XCircle, Eye, X } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertTriangle, X, Package, Store, Eye } from 'lucide-react';
 import { getMyReports } from '../api/reports';
 import { useToast } from '../hooks/useToast';
 import { formatDate } from '../utils/formatDate';
+import { formatReason } from '../utils/formatReason';
+import { formatCurrency } from '../utils/formatCurrency';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-
-const REASON_LABELS = {
-  'inappropriate_content': 'Inappropriate Content',
-  'spam': 'Spam',
-  'scam_or_fraud': 'Scam or Fraud',
-  'harassment': 'Harassment',
-  'counterfeit_product': 'Counterfeit Product',
-  'other': 'Other',
-};
 
 const STATUS_CONFIG = {
   pending: {
@@ -90,7 +83,7 @@ const MyReports = () => {
                 </span>
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">
-                {REASON_LABELS[report.reason] || report.reason}
+                {formatReason(report.reason)}
               </h3>
               <p className="text-sm text-gray-600 line-clamp-2">
                 {report.description}
@@ -146,7 +139,6 @@ const MyReports = () => {
         {/* header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <FileText className="w-8 h-8 text-accent" />
             <h1 className="text-3xl font-bold text-gray-900">My Reports</h1>
           </div>
           <p className="text-gray-600">
@@ -210,12 +202,14 @@ const ReportDetailModal = ({ report, onClose }) => {
 
   const statusConfig = STATUS_CONFIG[report.status];
   const StatusIcon = statusConfig.icon;
+  const product = report.reportedEntity?.entityType === 'product' ? report.reportedEntity.details : null;
+  const seller = product?.seller || report.reportedUser;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         {/* header */}
-        <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
+        <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white border-gray-100">
           <h2 className="text-xl font-semibold">Report Details</h2>
           <button
             onClick={onClose}
@@ -238,24 +232,84 @@ const ReportDetailModal = ({ report, onClose }) => {
             </div>
           </div>
 
-          {/* reported entity */}
-          <div>
-            <span className="text-sm font-medium text-gray-700 block mb-2">Reported Entity</span>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-900">
-                <span className="font-medium">Type:</span> {report.reportedEntity.entityType}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                ID: {report.reportedEntity.entityId}
-              </p>
+          {/* product details */}
+          {product && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Package className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium text-gray-700">Reported Product</span>
+              </div>
+              <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
+                {product.images?.[0] && (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                )}
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{product.name}</p>
+                  <p className="text-accent font-bold">{formatCurrency(product.price)}</p>
+                  {product.description && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                      {product.description}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* seller information */}
+          {seller && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Store className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium text-gray-700">Seller Information</span>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Name</span>
+                  <span className="font-medium text-gray-900">{seller.name || 'Unknown'}</span>
+                </div>
+                {seller.email && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Email</span>
+                    <span className="font-medium text-gray-900 truncate ml-4" title={seller.email}>
+                      {seller.email}
+                    </span>
+                  </div>
+                )}
+                {seller.shopName && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Shop Name</span>
+                    <span className="font-medium text-gray-900">{seller.shopName}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* reported entity (fallback if not product) */}
+          {!product && (
+            <div>
+              <span className="text-sm font-medium text-gray-700 block mb-2">Reported Entity</span>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-900">
+                  <span className="font-medium">Type:</span> {report.reportedEntity.entityType}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  ID: {report.reportedEntity.entityId}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* reason */}
           <div>
             <span className="text-sm font-medium text-gray-700 block mb-2">Reason</span>
-            <p className="text-sm text-gray-900">
-              {REASON_LABELS[report.reason] || report.reason}
+            <p className="text-sm text-gray-900 font-medium">
+              {formatReason(report.reason)}
             </p>
           </div>
 

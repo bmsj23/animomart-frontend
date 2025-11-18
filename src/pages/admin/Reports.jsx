@@ -54,9 +54,9 @@ const Reports = () => {
     }
   };
 
-  const handleResolveReport = async (reportId) => {
+  const handleResolveReport = async (reportId, resolution) => {
     try {
-      await resolveReport(reportId, 'resolved by admin');
+      await resolveReport(reportId, resolution);
       showSuccess('report resolved successfully');
       fetchReports();
       setActionModal({ show: false, type: '', report: null });
@@ -175,11 +175,11 @@ const Reports = () => {
         isOpen={actionModal.show && (actionModal.type === 'review' || actionModal.type === 'resolve')}
         type={actionModal.type}
         onClose={() => setActionModal({ show: false, type: '', report: null })}
-        onConfirm={() => {
+        onConfirm={(resolutionText) => {
           if (actionModal.type === 'review') {
             handleUpdateStatus(actionModal.report._id, 'under_review');
           } else if (actionModal.type === 'resolve') {
-            handleResolveReport(actionModal.report._id);
+            handleResolveReport(actionModal.report._id, resolutionText);
           }
         }}
       />

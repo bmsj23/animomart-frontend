@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../hooks/useAdmin';
 import { getAllOrders, getAllProducts, getAllUsers } from '../../api/admin';
 import { useToast } from '../../hooks/useToast';
@@ -57,6 +58,7 @@ const StatCard = ({ title, value, icon: Icon, color, loading, index }) => {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { stats, loading } = useAdmin();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
@@ -340,13 +342,22 @@ const Dashboard = () => {
             <p className="text-green-100 text-sm mb-6">
               Manage your marketplace efficiently with quick access to key features
             </p>
-            <button className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer">
+            <button
+              onClick={() => navigate('/admin/users')}
+              className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer"
+            >
               <span className="font-medium">View All Users</span>
             </button>
-            <button className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer">
+            <button
+              onClick={() => navigate('/admin/products')}
+              className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer"
+            >
               <span className="font-medium">Manage Products</span>
             </button>
-            <button className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer">
+            <button
+              onClick={() => navigate('/admin/reports')}
+              className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-left transition-colors backdrop-blur-sm hover:cursor-pointer"
+            >
               <span className="font-medium">Review Reports</span>
             </button>
           </div>
