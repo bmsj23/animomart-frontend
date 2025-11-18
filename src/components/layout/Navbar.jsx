@@ -1,6 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, Package } from 'lucide-react';
+import {
+  Heart,
+  ShoppingCart,
+  ChevronDown,
+  Menu,
+  X,
+  MessageSquare,
+  Plus,
+  Package,
+  User,
+  FileText,
+  ShieldCheck
+} from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import SearchBar from './SearchBar';
@@ -65,6 +77,23 @@ const Navbar = () => {
 
   // check if we're on home page to apply green background
   const isHomePage = location.pathname === '/';
+
+  const baseProfileLinks = [
+    { label: 'My Profile', to: '/profile', icon: User },
+    { label: 'Wishlist', to: '/wishlist', icon: Heart },
+    { label: 'Messages', to: '/messages', icon: MessageSquare },
+    { label: 'My Reports', to: '/my-reports', icon: FileText }
+  ];
+
+  const profileLinks = [...baseProfileLinks];
+
+  if (isSeller) {
+    profileLinks.push({ label: 'Seller Dashboard', to: '/seller/dashboard', icon: Package });
+  }
+
+  if (isAdmin) {
+    profileLinks.push({ label: 'Admin Dashboard', to: '/admin', icon: ShieldCheck });
+  }
 
   return (
     <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isHomePage ? 'bg-green-900 shadow-none' : 'bg-gray-50'}`}>
@@ -136,24 +165,37 @@ const Navbar = () => {
               <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 hover:cursor-pointer">
                 <ProfileAvatar user={user} size="lg" />
               </button>
-              <ChevronDown className="w-4 h-4 text-gray-400 absolute top-0 right-0" />
               {isProfileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                  <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
-                    My Profile
-                  </Link>
-                  {isSeller && (
-                    <Link to="/seller/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
-                      Seller Dashboard
-                    </Link>
-                  )}
-                  {isAdmin && (
-                    <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer" onClick={() => setIsProfileOpen(false)}>
-                      Admin Dashboard
-                    </Link>
-                  )}
-                  <hr className="my-2" />
-                  <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-red-600 hover:cursor-pointer hover:bg-red-100">
+                <div className="absolute right-0 top-full mt-3 w-72 rounded-3xl border border-gray-100 bg-white shadow-2xl p-4 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <ProfileAvatar user={user} size="md" className="border border-gray-200" />
+                    <div className="flex-1">
+                      <p className="text-base font-semibold text-gray-900">{user?.name || 'Guest'}</p>
+                      <p className="text-xs text-gray-500">{user?.email || '—'}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    {profileLinks.map((item) => {
+                      const IconElement = item.icon;
+                      return (
+                        <Link
+                          key={item.label}
+                          to={item.to}
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-green-800 hover:cursor-pointer transition-colors"
+                        >
+                          <IconElement className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-red-50 text-red-600 font-semibold hover:bg-red-100 hover:cursor-pointer transition-colors"
+                  >
                     Logout
                   </button>
                 </div>

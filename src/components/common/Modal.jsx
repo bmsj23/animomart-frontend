@@ -37,10 +37,13 @@ const Modal = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
   };
 
   return createPortal(
-    <div className="fixed inset-0 overflow-y-auto z-41">
+    <div className="fixed inset-0 overflow-y-auto z-50">
       {/* backdrop */}
       <div
         className="fixed inset-0 bg-black/50 transition-all"
@@ -60,47 +63,46 @@ const Modal = ({
           >
             <X className="h-5 w-5" />
           </button>
-
-          <div className="p-6">
-            {/* header with icon, title, description - all stacked vertically */}
-            {(icon || title || description) && (
-              <div className="mb-6">
-                {icon && (
-                  <div className="flex justify-center mb-4">
-                    <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
-                      <div className={iconColor}>
-                        {icon}
-                      </div>
+          {/* header  */}
+          {(icon || title || description) && (
+            <div className="p-6 pb-4">
+              {icon && (
+                <div className="flex justify-center mb-4">
+                  <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
+                    <div className={iconColor}>
+                      {icon}
                     </div>
                   </div>
-                )}
-                {title && (
-                  <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
-                    {title}
-                  </h3>
-                )}
-                {description && (
-                  <p className="text-sm text-gray-600 text-center">
-                    {description}
-                  </p>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+              {title && (
+                <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+                  {title}
+                </h3>
+              )}
+              {description && (
+                <p className="text-sm text-gray-600 text-center">
+                  {description}
+                </p>
+              )}
+            </div>
+          )}
 
-            {/* content */}
-            {children && (
-              <div className="mb-6">
-                {children}
-              </div>
-            )}
+          {/* content */}
+          {children && (
+            <div className={`px-6 ${actions ? '' : 'pb-6'}`}>
+              {children}
+            </div>
+          )}
 
-            {/* actions */}
-            {actions && (
+          {/* actions */}
+          {actions && (
+            <div className="px-6 pb-6 pt-2">
               <div className="flex gap-3 justify-end">
                 {actions}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>,

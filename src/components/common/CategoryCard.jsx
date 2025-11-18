@@ -14,7 +14,7 @@ const CategoryCard = ({ category }) => {
       className="group cursor-pointer"
     >
       {/* category image */}
-      <div className="relative bg-white rounded-sm overflow-hidden mb-6 shadow-sm hover:shadow-2xl transition-all duration-500 ease-out"
+      <div className="relative bg-white rounded-2xl overflow-hidden mb-6 shadow-sm hover:shadow-2xl transition-all duration-500 ease-out"
            style={{ aspectRatio: '4/5' }}
       >
         {/* image with subtle zoom on hover */}

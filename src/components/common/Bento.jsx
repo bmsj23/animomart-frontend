@@ -308,7 +308,7 @@ const BentoBox = () => {
     <div className="w-full max-w-7xl mx-auto">
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[180px] md:auto-rows-[220px] mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[180px] md:auto-rows-[220px] mb-4">
 
         {/* left: featured product */}
         <div className="col-span-2 row-span-3">

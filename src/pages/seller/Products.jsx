@@ -91,7 +91,7 @@ const Products = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (stockFilter === 'low-stock') {
+    if (stockFilter === 'lowStock' || stockFilter === 'low-stock') {
       return matchesSearch && product.stock > 0 && product.stock <= 5;
     }
 

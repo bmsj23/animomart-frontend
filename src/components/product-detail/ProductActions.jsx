@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 
 const ProductActions = ({
   isOwnProduct,
@@ -12,84 +13,118 @@ const ProductActions = ({
   justAdded,
   onQuantityChange,
   onAddToCart,
-  onToggleFavorite
+  onToggleFavorite,
+  onBuyNow = () => {}
 }) => {
-  
+  const { showInfo } = useToast();
+
+  const handleDecrement = () => {
+    if (quantity <= 1) {
+      showInfo('minimum quantity is 1');
+      return;
+    }
+    onQuantityChange(quantity - 1);
+  };
+
+  const handleIncrement = () => {
+    if (quantity >= maxStock) {
+      showInfo(`maximum available stock is ${maxStock}`);
+      return;
+    }
+    onQuantityChange(quantity + 1);
+  };
+
   const getAddToCartClass = () => {
     if (isOutOfStock) {
-      return 'flex-1 bg-gray-300 text-white py-3 rounded-lg cursor-not-allowed font-medium';
+      return 'border border-gray-200 text-gray-400 bg-gray-100 pointer-events-none';
     }
     if (addedToCart) {
-      return 'flex-1 bg-green-800 text-white py-3 rounded-lg cursor-not-allowed font-medium';
+      return 'border border-green-900 bg-green-900 text-white cursor-not-allowed';
     }
-    return 'flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 hover:cursor-pointer transition-colors font-medium';
+    return 'border border-green-800 text-green-800 bg-white hover:bg-green-600 hover:text-white hover:cursor-pointer';
+  };
+
+  const getBuyNowClass = () => {
+    if (isOutOfStock) {
+      return 'bg-gray-200 text-gray-500 pointer-events-none';
+    }
+    return 'bg-green-800 text-white hover:bg-green-700 hover:cursor-pointer shadow-sm';
   };
 
   return (
-    <div>
-      {!isOwnProduct && !isOutOfStock && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
-              className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              min="1"
-              max={maxStock}
-              value={quantity}
-              onChange={(e) => onQuantityChange(Math.max(1, Math.min(maxStock, parseInt(e.target.value) || 1)))}
-              className="w-20 px-4 py-2 border border-gray-300 rounded-lg text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <button
-              onClick={() => onQuantityChange(Math.min(maxStock, quantity + 1))}
-              className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer"
-            >
-              +
-            </button>
+    <div className="space-y-6">
+      {!isOwnProduct && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <span>Quantity</span>
           </div>
-        </div>
-      )}
-
-      <div className="flex gap-3 mb-6">
-        {!isOwnProduct && (
-          <>
-            <button
-              onClick={onAddToCart}
-              disabled={isOutOfStock || isAdding || addedToCart}
-              className={getAddToCartClass()}
-            >
-              {isOutOfStock ? 'Out of Stock' : (addedToCart ? 'Added to Cart' : 'Add to Cart')}
-            </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              <button
+                onClick={handleDecrement}
+                disabled={quantity <= 1 || isOutOfStock}
+                className="w-11 h-11 border border-gray-300 rounded-full text-lg font-medium hover:bg-gray-50 hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                -
+              </button>
+              <div className="w-24 h-11 rounded-full border border-gray-300 flex items-center justify-center text-lg font-semibold text-gray-900">
+                {quantity}
+              </div>
+              <button
+                onClick={handleIncrement}
+                disabled={quantity >= maxStock || isOutOfStock}
+                className="w-11 h-11 border border-gray-300 rounded-full text-lg font-medium hover:bg-gray-50 hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                +
+              </button>
+            </div>
             <button
               onClick={onToggleFavorite}
               disabled={isProcessing}
-              aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
-              title={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
-              className={`w-12 h-12 border border-gray-300 rounded-lg transition-all duration-300 flex items-center justify-center ${
-                isFavorite
-                  ? 'bg-white/95 text-red-500'
-                  : 'bg-white/80 text-gray-600 hover:bg-white/95 hover:text-red-500'
+              aria-label={isFavorite ? 'remove from wishlist' : 'Add to Wishlist'}
+              title={isFavorite ? 'remove from wishlist' : 'Add to Wishlist'}
+              className={`w-11 h-11 border rounded-full flex items-center justify-center transition-all ${
+                isFavorite ? 'border-red-300 text-red-500' : 'border-gray-300 text-gray-600 hover:border-red-200 hover:text-red-500'
               } ${isProcessing ? 'opacity-50 cursor-wait' : 'hover:cursor-pointer'}`}
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Heart className={`w-6 h-6 transition-transform ${isFavorite ? 'fill-current scale-110' : ''} ${justAdded ? 'animate-bounce' : ''}`} fill={isFavorite ? 'currentColor' : 'none'} />
+                <Heart
+                  className={`w-4 h-4 transition-transform ${isFavorite ? 'fill-current scale-105' : ''} ${justAdded ? 'animate-bounce' : ''}`}
+                  fill={isFavorite ? 'currentColor' : 'none'}
+                />
               )}
             </button>
-          </>
-        )}
-        {isOwnProduct && (
-          <div className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-            <p className="text-blue-800 font-medium">This is your listing</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {!isOwnProduct ? (
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={onAddToCart}
+            disabled={isOutOfStock || isAdding || addedToCart}
+            className={`${getAddToCartClass()} flex-1 min-w-40 min-h-12 rounded-2xl text-base font-semibold transition-colors duration-200 ${isAdding ? 'cursor-wait opacity-60' : ''}`}
+          >
+            {isOutOfStock ? 'Out of Stock' : addedToCart ? 'Added to Cart' : 'Add to Cart'}
+          </button>
+          <button
+            onClick={() => {
+              if (isOutOfStock || isAdding) return;
+              onBuyNow();
+            }}
+            disabled={isOutOfStock || isAdding}
+            className={`${getBuyNowClass()} flex-1 min-w-40 min-h-12 rounded-2xl text-base font-semibold transition-colors duration-200 ${isAdding ? 'cursor-wait opacity-60' : ''}`}
+          >
+            Buy Now
+          </button>
+        </div>
+      ) : (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center text-sm font-medium text-blue-800">
+          This is your listing
+        </div>
+      )}
     </div>
   );
 };

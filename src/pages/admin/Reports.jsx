@@ -19,7 +19,7 @@ const Reports = () => {
   const [actionModal, setActionModal] = useState({ show: false, type: '', report: null });
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
-  const { showSuccess, showError } = useToast();
+  const { success: showSuccess, error: showError } = useToast();
 
   const fetchReports = useCallback(async () => {
     try {
@@ -54,9 +54,9 @@ const Reports = () => {
     }
   };
 
-  const handleResolveReport = async (reportId) => {
+  const handleResolveReport = async (reportId, resolution) => {
     try {
-      await resolveReport(reportId, 'resolved by admin');
+      await resolveReport(reportId, resolution);
       showSuccess('report resolved successfully');
       fetchReports();
       setActionModal({ show: false, type: '', report: null });
@@ -84,9 +84,7 @@ const Reports = () => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
   };
 
@@ -177,11 +175,11 @@ const Reports = () => {
         isOpen={actionModal.show && (actionModal.type === 'review' || actionModal.type === 'resolve')}
         type={actionModal.type}
         onClose={() => setActionModal({ show: false, type: '', report: null })}
-        onConfirm={() => {
+        onConfirm={(resolutionText) => {
           if (actionModal.type === 'review') {
-            handleUpdateStatus(actionModal.report._id, 'reviewed');
+            handleUpdateStatus(actionModal.report._id, 'under_review');
           } else if (actionModal.type === 'resolve') {
-            handleResolveReport(actionModal.report._id);
+            handleResolveReport(actionModal.report._id, resolutionText);
           }
         }}
       />

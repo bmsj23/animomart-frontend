@@ -28,6 +28,7 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
 import Sell from './pages/Sell';
+import MyReports from './pages/MyReports';
 
 // admin pages
 import Dashboard from './pages/admin/Dashboard';
@@ -177,6 +178,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <Profile />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-reports"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <MyReports />
                     </MainLayout>
                   </ProtectedRoute>
                 }

@@ -113,7 +113,7 @@ const Login = () => {
                 />
 
                 {/* note */}
-                <div className="bg-surface rounded-lg p-3 border border-gray-200 transition-shadow duration-300 w-[400px] hover:shadow-sm">
+                <div className="bg-surface rounded-sm p-3 border border-gray-200 transition-shadow duration-300 w-[400px] hover:shadow-sm">
                   <p className="text-xs text-gray-700 text-center">
                     Note: Only <span className="font-bold text-accent">@dlsl.edu.ph</span> email addresses are allowed
                   </p>

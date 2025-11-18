@@ -3,51 +3,70 @@ const ProductInfo = ({
   formatPrice,
   formatCondition,
   formatCategory,
-  isOutOfStock
+  isOutOfStock,
+  children,
+  className = ''
 }) => {
+  const rawNotes = product.notes?.length
+    ? product.notes
+    : product.tags?.length
+      ? product.tags
+      : [
+          formatCondition(product.condition),
+          isOutOfStock ? 'out of stock' : null
+        ];
+  const noteTags = rawNotes.filter((note, index) => note && rawNotes.indexOf(note) === index);
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-
-      <div className="mb-6">
-        <p className="text-4xl font-bold text-green-600">{formatPrice(product.price)}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-6">
-        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-          {formatCondition(product.condition)}
-        </span>
-        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+    <div className={`rounded-2xl border border-green-50 bg-white shadow-sm p-6 flex flex-col ${className}`}>
+      <div className="space-y-6 flex-1">
+      <div className="space-y-4">
+        <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">
           {formatCategory(product.category)}
-        </span>
-        {isOutOfStock && (
-          <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-            Out of Stock
-          </span>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <p className="text-gray-700">
-          <span className="font-medium">Stock:</span> {product.stock} available
+        </p>
+        <h1 className="text-3xl md:text-4xl font-serif font-light text-gray-900 leading-snug tracking-tight">
+          {product.name}
+        </h1>
+        <p className="text-5xl font-semibold text-green-800 tracking-tight">
+          {formatPrice(product.price)}
         </p>
       </div>
 
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Description</h2>
-        <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Stock</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
+          {product.stock}
+        </p>
       </div>
 
-      {product.meetupLocations?.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Meetup Locations</h2>
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">description</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
+          {product.description}
+        </p>
+      </div>
+
+      {noteTags.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Condition</p>
           <div className="flex flex-wrap gap-2">
-            {product.meetupLocations.map((location, index) => (
-              <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
-                {location}
+            {noteTags.map((note, index) => (
+              <span
+                key={`${note}-${index}`}
+                className="px-4 py-2 rounded-full border border-green-100 bg-green-50 text-sm font-medium text-green-800"
+              >
+                {note}
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      </div>
+
+      {children && (
+        <div className="pt-6 border-t border-gray-100 mt-auto">
+          {children}
         </div>
       )}
     </div>

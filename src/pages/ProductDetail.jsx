@@ -16,6 +16,8 @@ import SellerInfo from '../components/product-detail/SellerInfo';
 import SuccessPopup from '../components/product-detail/SuccessPopup';
 import WishlistPopup from '../components/product-detail/WishlistPopup';
 import SimilarProducts from '../components/product-detail/SimilarProducts';
+import ReportModal from '../components/common/ReportModal';
+import DeliveryOptions from '../components/product-detail/DeliveryOptions';
 import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
@@ -38,6 +40,7 @@ const ProductDetail = () => {
   const [justAdded, setJustAdded] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showWishlistPopup, setShowWishlistPopup] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const addedTimeoutRef = useRef(null);
   const viewTrackedRef = useRef(false);
 
@@ -150,15 +153,13 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (isAdding || addedToCart) return;
+  const attemptAddToCart = async ({ updateAddedState = true, showPopup = true } = {}) => {
+    if (isAdding || (addedToCart && updateAddedState)) return false;
 
-    // check current quantity in cart
     const cartItem = cart?.items?.find(item => item.product?._id === id);
     const currentCartQuantity = cartItem?.quantity || 0;
     const totalQuantity = currentCartQuantity + quantity;
 
-    // validate against available stock
     if (totalQuantity > product.stock) {
       const remaining = product.stock - currentCartQuantity;
       if (remaining <= 0) {
@@ -166,11 +167,11 @@ const ProductDetail = () => {
       } else {
         showError(`Only ${remaining} more can be added. You already have ${currentCartQuantity} in your cart`);
       }
-      return;
+      return false;
     }
 
     setIsAdding(true);
-    if (addedTimeoutRef.current) {
+    if (updateAddedState && addedTimeoutRef.current) {
       clearTimeout(addedTimeoutRef.current);
       addedTimeoutRef.current = null;
     }
@@ -179,24 +180,44 @@ const ProductDetail = () => {
       await addToCart({ productId: id, quantity });
       await fetchCart();
 
-      // only update UI after backend confirms success (non-optimistic)
-      setAddedToCart(true);
-      setShowSuccessPopup(true);
-
-      // show 'Added to Cart' for 1.5 seconds, then reset
-      if (addedTimeoutRef.current) {
-        clearTimeout(addedTimeoutRef.current);
+      if (updateAddedState) {
+        setAddedToCart(true);
       }
-      addedTimeoutRef.current = setTimeout(() => {
-        setAddedToCart(false);
-        addedTimeoutRef.current = null;
-      }, 2000);
+
+      if (showPopup) {
+        setShowSuccessPopup(true);
+      }
+
+      if (updateAddedState) {
+        if (addedTimeoutRef.current) {
+          clearTimeout(addedTimeoutRef.current);
+        }
+        addedTimeoutRef.current = setTimeout(() => {
+          setAddedToCart(false);
+          addedTimeoutRef.current = null;
+        }, 2000);
+      }
+      return true;
     } catch (err) {
       logger.error('Failed to add to cart:', err);
-      setAddedToCart(false);
+      if (updateAddedState) {
+        setAddedToCart(false);
+      }
       showError(err.response?.data?.message || 'Failed to add to cart');
+      return false;
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    await attemptAddToCart();
+  };
+
+  const handleBuyNow = async () => {
+    const success = await attemptAddToCart({ updateAddedState: false, showPopup: false });
+    if (success) {
+      navigate('/checkout');
     }
   };
 
@@ -273,7 +294,8 @@ const ProductDetail = () => {
   const isOutOfStock = product.stock === 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="bg-[#f7f8fb]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <SuccessPopup
         show={showSuccessPopup}
         quantity={quantity}
@@ -287,53 +309,91 @@ const ProductDetail = () => {
 
       {/* breadcrumb */}
       <div className="mb-6">
-        <nav className="flex text-sm text-gray-500">
-          <Link to="/" className="hover:text-green-600">Home</Link>
-          <span className="mx-2">/</span>
-          <Link to="/browse" className="hover:text-green-600">Browse</Link>
-          <span className="mx-2">/</span>
-          <Link to={`/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-green-600">
+        <nav className="flex flex-wrap items-center gap-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.35em] text-gray-500">
+          <Link to="/" className="text-green-800 hover:text-green-600 hover:cursor-pointer">home</Link>
+          <span className="text-gray-400">•</span>
+          <Link to="/browse" className="text-green-800 hover:text-green-600 hover:cursor-pointer">browse</Link>
+          <span className="text-gray-400">•</span>
+          <Link
+            to={`/browse?category=${encodeURIComponent(product.category)}`}
+            className="text-green-800 hover:text-green-600 hover:cursor-pointer"
+          >
             {formatCategory(product.category)}
           </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900">{product.name}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-900 tracking-normal">{product.name}</span>
         </nav>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <ProductGallery images={product.images} productName={product.name} />
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-10 xl:gap-14 mb-16">
+        <div className="lg:h-full">
+          <ProductGallery images={product.images} productName={product.name} />
+        </div>
 
-        <div>
+        <div className="lg:h-full">
           <ProductInfo
             product={product}
             formatPrice={formatPrice}
             formatCondition={formatCondition}
             formatCategory={formatCategory}
             isOutOfStock={isOutOfStock}
-          />
-
-          <ProductActions
-            isOwnProduct={isOwnProduct}
-            isOutOfStock={isOutOfStock}
-            quantity={quantity}
-            maxStock={product.stock}
-            isFavorite={isFavorite}
-            isAdding={isAdding}
-            addedToCart={addedToCart}
-            isProcessing={isProcessing}
-            justAdded={justAdded}
-            onQuantityChange={setQuantity}
-            onAddToCart={handleAddToCart}
-            onToggleFavorite={handleToggleFavorite}
-          />
-
-          <SellerInfo seller={product.seller} productId={id} isOwnProduct={isOwnProduct} />
+            className="h-full"
+          >
+            <ProductActions
+              isOwnProduct={isOwnProduct}
+              isOutOfStock={isOutOfStock}
+              quantity={quantity}
+              maxStock={product.stock}
+              isFavorite={isFavorite}
+              isAdding={isAdding}
+              addedToCart={addedToCart}
+              isProcessing={isProcessing}
+              justAdded={justAdded}
+              onQuantityChange={setQuantity}
+              onAddToCart={handleAddToCart}
+              onToggleFavorite={handleToggleFavorite}
+              onBuyNow={handleBuyNow}
+            />
+          </ProductInfo>
         </div>
+
+        <div className="lg:h-full">
+          <DeliveryOptions
+            product={product}
+            formatPrice={formatPrice}
+            className="h-full flex flex-col"
+          />
+        </div>
+
+        <div className="lg:h-full">
+          <div className="rounded-2xl border border-green-50 bg-white shadow-sm p-6 h-full flex flex-col">
+            <SellerInfo seller={product.seller} productId={id} isOwnProduct={isOwnProduct} />
+          </div>
+        </div>
+
+        {!isOwnProduct && user && (
+          <div className="lg:col-span-2">
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="w-full px-6 py-3 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-2xl font-medium transition-all duration-200 hover:cursor-pointer"
+            >
+              Report this Product
+            </button>
+          </div>
+        )}
       </div>
 
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        entityType="product"
+        entityId={id}
+        entityName={product.name}
+      />
+
       {/* reviews section */}
-      <div className="mt-12 border-t border-gray-200 pt-12">
-        <h2 className="text-2xl font-serif font-light text-gray-900 mb-6">Customer Reviews</h2>
+      <div className="mt-16 border-t border-gray-200 pt-12">
+        <h2 className="text-3xl font-serif font-light text-gray-900 mb-8 tracking-tight">Customer Reviews</h2>
         <ReviewList
           productId={id}
           canRespond={user?._id === product.seller?._id}
@@ -342,6 +402,7 @@ const ProductDetail = () => {
       </div>
 
       <SimilarProducts products={similarProducts} loading={loadingSimilar} />
+    </div>
     </div>
   );
 };
