@@ -1,6 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ShoppingCart, ChevronDown, Menu, X, MessageSquare, Plus, Package } from 'lucide-react';
+import {
+  Heart,
+  ShoppingCart,
+  ChevronDown,
+  Menu,
+  X,
+  MessageSquare,
+  Plus,
+  Package,
+  User,
+  FileText,
+  ShieldCheck
+} from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import SearchBar from './SearchBar';
@@ -65,6 +77,23 @@ const Navbar = () => {
 
   // check if we're on home page to apply green background
   const isHomePage = location.pathname === '/';
+
+  const baseProfileLinks = [
+    { label: 'My Profile', to: '/profile', icon: User },
+    { label: 'Wishlist', to: '/wishlist', icon: Heart },
+    { label: 'Messages', to: '/messages', icon: MessageSquare },
+    { label: 'My Reports', to: '/my-reports', icon: FileText }
+  ];
+
+  const profileLinks = [...baseProfileLinks];
+
+  if (isSeller) {
+    profileLinks.push({ label: 'Seller Dashboard', to: '/seller/dashboard', icon: Package });
+  }
+
+  if (isAdmin) {
+    profileLinks.push({ label: 'Admin Dashboard', to: '/admin', icon: ShieldCheck });
+  }
 
   return (
     <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isHomePage ? 'bg-green-900 shadow-none' : 'bg-gray-50'}`}>
