@@ -28,8 +28,15 @@ import ReviewsTab from "../components/profile/ReviewsTab";
 
 const Profile = () => {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', tabId);
+    setSearchParams(newParams, { replace: true });
+  };
 
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
@@ -81,7 +88,13 @@ const Profile = () => {
     product: null,
     existingReview: null,
   });
+  const [deleteModal, setDeleteModal] = useState({
+    show: false,
+    reviewId: null,
+  });
   const [purchaseOrders, setPurchaseOrders] = useState([]);
+
+  const listingPage = searchParams.get("listingPage");
 
   const [form, setForm] = useState({
     username: user?.username || "",
@@ -262,6 +275,20 @@ const Profile = () => {
       setPurchasesLoading(true);
       setPurchasesError(null);
       try {
+
+        const reviewData = await getMyReviews({ limit: 1000 });
+        let reviews = [];
+        if (Array.isArray(reviewData)) {
+          reviews = reviewData;
+        } else if (reviewData?.data?.reviews) {
+          reviews = reviewData.data.reviews;
+        } else if (reviewData?.reviews) {
+          reviews = reviewData.reviews;
+        } else if (Array.isArray(reviewData?.data)) {
+          reviews = reviewData.data;
+        }
+        setAuthoredReviews(reviews);
+
         const data = await getMyPurchases({ limit: 1000 });
 
         // backend returns { success: true, data: { orders: [...] } }
@@ -404,7 +431,7 @@ const Profile = () => {
     if (activeTab === "reviews") {
       loadAuthoredReviews();
     }
-  }, [activeTab, user?._id, searchParams.get("listingPage")]);
+  }, [activeTab, user?._id, listingPage]);
 
   // review handlers
   const handleWriteReview = (order, product) => {
@@ -421,11 +448,15 @@ const Profile = () => {
   };
 
   const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm("are you sure you want to delete this review?")) return;
+    setDeleteModal({ show: true, reviewId });
+  };
+
+  const confirmDeleteReview = async () => {
+    const reviewId = deleteModal.reviewId;
+    setDeleteModal({ show: false, reviewId: null });
 
     try {
       await deleteReview(reviewId);
-      // refresh reviews list
       const data = await getMyReviews();
       let reviews = [];
       if (Array.isArray(data)) {
@@ -483,8 +514,7 @@ const Profile = () => {
   // check if product in order can be reviewed
   const canReview = (order, productId) => {
     if (order.status !== "completed") return false;
-    // check if review already exists for this product in this order
-    if (!Array.isArray(authoredReviews)) return true;
+    if (!Array.isArray(authoredReviews)) return false;
     const hasReview = authoredReviews.some(
       (r) => r.product?._id === productId && r.order === order._id
     );
@@ -499,19 +529,31 @@ const Profile = () => {
     if (key === "ArrowRight" || key === "ArrowDown") {
       newIndex = (index + 1) % tabs.length;
       setActiveTab(tabs[newIndex].id);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', tabs[newIndex].id);
+      window.history.replaceState({}, '', `?${newParams.toString()}`);
       document.getElementById(`tab-${tabs[newIndex].id}`)?.focus();
       e.preventDefault();
     } else if (key === "ArrowLeft" || key === "ArrowUp") {
       newIndex = (index - 1 + tabs.length) % tabs.length;
       setActiveTab(tabs[newIndex].id);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', tabs[newIndex].id);
+      window.history.replaceState({}, '', `?${newParams.toString()}`);
       document.getElementById(`tab-${tabs[newIndex].id}`)?.focus();
       e.preventDefault();
     } else if (key === "Home") {
       setActiveTab(tabs[0].id);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', tabs[0].id);
+      window.history.replaceState({}, '', `?${newParams.toString()}`);
       document.getElementById(`tab-${tabs[0].id}`)?.focus();
       e.preventDefault();
     } else if (key === "End") {
       setActiveTab(tabs[tabs.length - 1].id);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', tabs[tabs.length - 1].id);
+      window.history.replaceState({}, '', `?${newParams.toString()}`);
       document.getElementById(`tab-${tabs[tabs.length - 1].id}`)?.focus();
       e.preventDefault();
     }
@@ -538,7 +580,7 @@ const Profile = () => {
               <ProfileTabs
                 tabs={tabs}
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
                 onKeyDown={handleKeyDown}
               />
             </div>
@@ -687,6 +729,30 @@ const Profile = () => {
             })
           }
         />
+      </Modal>
+
+      <Modal
+        isOpen={deleteModal.show}
+        onClose={() => setDeleteModal({ show: false, reviewId: null })}
+        title="Confirm deletion"
+      >
+        <p>Are you sure you want to delete this review?</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setDeleteModal({ show: false, reviewId: null })}
+            className="px-4 py-2 border rounded-md hover:cursor-pointer hover:bg-gray-100 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDeleteReview}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:cursor-pointer hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
       </Modal>
       </div>
     </div>
