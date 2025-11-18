@@ -32,13 +32,15 @@ const ProfileEditForm = ({
                 <User className="w-20 h-20 text-gray-500" />
               </div>
             )}
-            <button
-              type="button"
-              onClick={() => document.getElementById('profile-file-input')?.click()}
-              className="text-sm px-3 py-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors"
-            >
-              Change photo
-            </button>
+            <div className="flex justify-center mt-2">
+              <button
+                type="button"
+                onClick={() => document.getElementById('profile-file-input')?.click()}
+                className="text-sm px-3 py-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors"
+              >
+                Change photo
+              </button>
+            </div>
           </div>
 
           <div className="flex-1">
