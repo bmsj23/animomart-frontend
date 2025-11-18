@@ -55,7 +55,7 @@ const ReviewCard = ({ review, onMarkHelpful, onAddResponse, canRespond = false }
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-4 h-4 ${
+                  className={`w-4 h-4 pointer-events-none ${
                     i < review.rating
                       ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300'
