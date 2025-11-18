@@ -16,11 +16,11 @@ const DeliveryOptions = ({ product, formatPrice, className = '' }) => {
     },
     {
       label: 'Meetup Details',
-      value: meetupLocations.length > 0 ? meetupLocations.join(' • ') : 'No meetup locations listed'
+      value: meetupLocations.length > 0 ? meetupLocations.join(' • ') : 'Around DLSL Campus'
     },
     {
       label: 'Stock status',
-      value: `${product.stock} ready to ship`
+      value: product.stock > 0 ? 'Available' : 'Out of stock'
     }
   ];
 
