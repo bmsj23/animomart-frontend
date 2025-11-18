@@ -57,7 +57,6 @@ const ProductActions = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>Quantity</span>
-            <span className="text-gray-600">Available: {maxStock}</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 flex-1">
@@ -82,8 +81,8 @@ const ProductActions = ({
             <button
               onClick={onToggleFavorite}
               disabled={isProcessing}
-              aria-label={isFavorite ? 'remove from wishlist' : 'add to wishlist'}
-              title={isFavorite ? 'remove from wishlist' : 'add to wishlist'}
+              aria-label={isFavorite ? 'remove from wishlist' : 'Add to Wishlist'}
+              title={isFavorite ? 'remove from wishlist' : 'Add to Wishlist'}
               className={`w-11 h-11 border rounded-full flex items-center justify-center transition-all ${
                 isFavorite ? 'border-red-300 text-red-500' : 'border-gray-300 text-gray-600 hover:border-red-200 hover:text-red-500'
               } ${isProcessing ? 'opacity-50 cursor-wait' : 'hover:cursor-pointer'}`}
