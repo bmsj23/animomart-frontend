@@ -79,13 +79,13 @@ const MessageBubble = ({
         >
           {/* images */}
           {message.images && message.images.length > 0 && (
-            <div className="mb-2 space-y-2">
+            <div className="mb-2 grid grid-cols-2 gap-2">
               {message.images.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
                   alt="Sent image"
-                  className="rounded-lg max-w-full cursor-pointer hover:opacity-90"
+                  className="rounded-lg w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => window.open(img, '_blank')}
                 />
               ))}
@@ -98,7 +98,7 @@ const MessageBubble = ({
               <img
                 src={message.image}
                 alt="Sent image"
-                className="rounded-lg max-w-full cursor-pointer hover:opacity-90"
+                className="rounded-lg max-w-[200px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => window.open(message.image, '_blank')}
               />
             </div>
