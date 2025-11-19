@@ -164,19 +164,37 @@ const Dashboard = () => {
       categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
     });
 
-    const categoryDistribution = Array.from(categoryMap.entries())
+    const sortedCategories = Array.from(categoryMap.entries())
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
 
+    const topCategories = sortedCategories.slice(0, 6);
+    const othersCount = sortedCategories.slice(6).reduce((sum, cat) => sum + cat.value, 0);
+
+    const categoryDistribution = othersCount > 0
+      ? [...topCategories, { name: 'Others', value: othersCount }]
+      : topCategories;
+
     // top sellers
     const sellerRevenueMap = new Map();
+
     orders.forEach(order => {
       if (order.status === 'completed') {
-        const sellerId = order.seller?._id || order.seller;
-        const sellerName = order.seller?.name || 'Unknown Seller';
-        const current = sellerRevenueMap.get(sellerId) || { name: sellerName, revenue: 0 };
-        current.revenue += order.totalAmount;
-        sellerRevenueMap.set(sellerId, current);
+        order.items?.forEach(item => {
+          // try multiple paths to get seller info
+          const seller = item.seller || item.product?.seller || order.seller;
+          const sellerId = seller?._id || seller;
+          const sellerName = seller?.name || seller?.username ||
+                           item.product?.seller?.name || item.product?.seller?.username ||
+                           order.seller?.name || order.seller?.username || 'Unknown Seller';
+          const itemTotal = (item.price || 0) * (item.quantity || 1);
+
+          if (sellerId && sellerId !== 'Unknown Seller') {
+            const current = sellerRevenueMap.get(sellerId) || { name: sellerName, revenue: 0 };
+            current.revenue += itemTotal;
+            sellerRevenueMap.set(sellerId, current);
+          }
+        });
       }
     });
 
