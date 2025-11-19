@@ -29,7 +29,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
           className="flex items-center gap-2 px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          export analytics (CSV)
+          Export Analytics (CSV)
         </button>
       </div>
 

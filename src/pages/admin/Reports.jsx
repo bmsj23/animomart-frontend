@@ -141,8 +141,11 @@ const Reports = () => {
         </div>
 
         {filteredReports.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <img src="/assets/Report.png" alt="No Reports" className="w-35 h-35 md:w-40 md:h-40 mb-8 ml-2" />
+            <h1 className="text-xl font-semibold text-main">
             No reports found
+            </h1>
           </div>
         ) : (
           <>
