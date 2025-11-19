@@ -130,7 +130,7 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel, existingReview }) 
         />
         <div className="flex justify-between mt-1">
           <span className="text-xs text-gray-500">
-            minimum 10 characters
+            Minimum 10 characters
           </span>
           <span className="text-xs text-gray-500">
             {reviewText.length}/500
@@ -174,7 +174,7 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel, existingReview }) 
           )}
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          you can upload up to 3 images
+          You can upload up to 3 images
         </p>
       </div>
 
@@ -183,7 +183,7 @@ const ReviewForm = ({ productId, orderId, onSubmit, onCancel, existingReview }) 
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || rating === 0 || !reviewText.trim()}
-          className="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium hover:cursor-pointer"
+          className="flex-1 bg-green-800 text-white py-2.5 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium hover:cursor-pointer"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Review'}
         </button>
