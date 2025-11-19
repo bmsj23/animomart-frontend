@@ -148,7 +148,7 @@ const ReviewsTab = ({
         <p className="text-gray-700 mb-4">You haven't written any reviews yet.</p>
         <Link
           to="/profile?tab=purchases"
-          className="px-4 py-2 bg-green-600 text-white rounded-md"
+          className="px-4 py-2 bg-green-800 text-white rounded-md"
         >
           View purchases
         </Link>
