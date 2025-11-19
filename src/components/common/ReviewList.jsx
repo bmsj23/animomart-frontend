@@ -175,8 +175,8 @@ const ReviewList = ({ productId, canRespond = false, sellerId }) => {
       {/* reviews list */}
       {reviews.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          <p>no reviews yet for this product</p>
-          <p className="text-sm mt-2">be the first to review!</p>
+          <p>No reviews yet for this product.</p>
+          <p className="text-sm mt-2">Be the first to review!</p>
         </div>
       ) : (
         <>
