@@ -135,22 +135,6 @@ const Wishlist = () => {
     setShowFilters(false);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-
-    const params = new URLSearchParams(searchParams);
-    params.set("page", page.toString());
-    setSearchParams(params);
-
-    const filtered = applyFiltersAndSort(wishlist || [], filters.sort);
-    const limit = 16;
-    const start = (page - 1) * limit;
-    const paged = filtered.slice(start, start + limit);
-    setProducts(paged);
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const hasActiveFilters =
     filters.category ||
     filters.condition ||
@@ -161,7 +145,6 @@ const Wishlist = () => {
     <div className="min-h-screen bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <WishlistHeader
-          productsCount={products.length}
           totalProducts={pagination.totalProducts}
         />
 
@@ -176,9 +159,7 @@ const Wishlist = () => {
         <WishlistGrid
           products={products}
           loading={loading}
-          pagination={pagination}
           currentPage={currentPage}
-          onPageChange={handlePageChange}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
         />
