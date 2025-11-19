@@ -135,9 +135,16 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
   const handleTyping = useCallback(() => {
     if (!socket || !selectedConversation) return;
 
-    // emit typing event
+    const recipientId = selectedConversation.otherUserId ||
+                       selectedConversation.otherUser?._id ||
+                       selectedConversation._id;
+
+    const conversationId = selectedConversation.conversationId ||
+                          selectedConversation._id;
+
     socket.emit('typing', {
-      to: selectedConversation._id,
+      conversationId,
+      recipientId,
       isTyping: true
     });
 
@@ -149,7 +156,8 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
     // set timeout to stop typing
     typingTimeoutRef.current = setTimeout(() => {
       socket.emit('typing', {
-        to: selectedConversation._id,
+        conversationId,
+        recipientId,
         isTyping: false
       });
     }, 1000);
