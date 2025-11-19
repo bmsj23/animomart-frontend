@@ -205,14 +205,13 @@ const Cart = () => {
     setSelectedItems(new Set());
 
     try {
-      // add to wishlist (can be parallel)
+      // add to wishlist
       const results = await Promise.allSettled(ids.map(id => {
         const cartItem = previousCart.items.find(it => it.product._id === id);
         const productObj = cartItem?.product || null;
         return addToWishlist(id, productObj);
       }));
 
-      // error check (excluding "already in wishlist")
       const errors = results.filter(r =>
         r.status === 'rejected' &&
         !r.reason?.response?.data?.message?.toLowerCase().includes('already in wishlist')
