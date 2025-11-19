@@ -129,9 +129,7 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  // Optimistic remove: update UI immediately and revert if API fails
   const removeFromWishlist = async (productId) => {
-    // store previous state for rollback
     let previous = [];
     setWishlist((prev) => {
       previous = prev;

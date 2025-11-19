@@ -12,9 +12,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showAllErrors, setShowAllErrors] = useState(false);
-  // signal to tell CustomerInfoForm to reveal errors for step-based validation
   const [customerValidateSignal, setCustomerValidateSignal] = useState(null);
-  // signal to tell DeliveryMethodSection to reveal errors when proceeding to payment
   const [deliveryValidateSignal, setDeliveryValidateSignal] = useState(null);
 
   const deliveryRef = useRef(null);
@@ -37,11 +35,6 @@ const Checkout = () => {
     setShowCancelConfirm(false);
     navigate('/cart');
   };
-
-  // Observe when the user scrolls the delivery/payment sections into view
-  // We no longer use IntersectionObserver to trigger validation on passive scroll.
-  // Instead, the child sections (Delivery/Payment) call `onSectionEnter` when
-  // the user performs an explicit action (click/select/change) inside the section.
 
   if (cartLoading) {
     return (

@@ -45,7 +45,7 @@ export const uploadProfilePicture = async (file) => {
 // delete image
 export const deleteImage = async (imageUrl) => {
   const response = await api.delete('/upload', {
-    data: { imageUrl } // ✅ FIX: DELETE requests need data in body
+    data: { imageUrl }
   });
   return response.data;
 };

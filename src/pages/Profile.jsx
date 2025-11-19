@@ -193,8 +193,8 @@ const Profile = () => {
       setPreviewUrl("");
       setIsEditing(false);
     } catch (err) {
-      logger.error("Profile update error:", err); // Debug log
-      logger.error("Error response:", err.response); // Debug log
+      logger.error("Profile update error:", err);
+      logger.error("Error response:", err.response);
       const msg =
         err?.response?.data?.message ||
         err.message ||

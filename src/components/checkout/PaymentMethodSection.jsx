@@ -46,9 +46,6 @@ const PaymentMethodSection = ({ form, setForm, deliveryMethod, onSectionEnter })
     return false;
   });
 
-  // Ensure there's always a valid default payment method for the selected delivery method.
-  // If the current form.paymentMethod is not available for the chosen deliveryMethod,
-  // set it to the first available method.
   useEffect(() => {
     if (!availableMethods || availableMethods.length === 0) return;
     const current = form.paymentMethod;
@@ -56,7 +53,6 @@ const PaymentMethodSection = ({ form, setForm, deliveryMethod, onSectionEnter })
     if (!found) {
       setForm(f => ({ ...f, paymentMethod: availableMethods[0].id }));
     }
-    // only re-run when deliveryMethod or form.paymentMethod changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryMethod]);
 
