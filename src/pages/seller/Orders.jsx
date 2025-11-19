@@ -8,6 +8,52 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
 import { logger } from '../../utils/logger';
 
+const getEmptyStateContent = (statusFilter) => {
+  const states = {
+    shipped: {
+      image: '/assets/Shipped.PNG',
+      title: 'No Shipped Orders',
+      description: 'Orders marked as shipped will appear here'
+    },
+    completed: {
+      image: '/assets/NoProducts.png',
+      title: 'No Completed Orders',
+      description: 'Completed orders will appear here'
+    },
+    cancelled: {
+      image: '/assets/NoProducts.png',
+      title: 'No Cancelled Orders',
+      description: 'Cancelled orders will appear here'
+    },
+    pending: {
+      image: '/assets/NoProducts.png',
+      title: 'No Pending Orders',
+      description: 'Pending orders will appear here'
+    },
+    confirmed: {
+      image: '/assets/NoProducts.png',
+      title: 'No Confirmed Orders',
+      description: 'Confirmed orders will appear here'
+    },
+    processing: {
+      image: '/assets/NoProducts.png',
+      title: 'No Processing Orders',
+      description: 'Orders being processed will appear here'
+    },
+    ready: {
+      image: '/assets/NoProducts.png',
+      title: 'No Ready Orders',
+      description: 'Orders ready for pickup/delivery will appear here'
+    },
+    all: {
+      image: '/assets/NoProducts.png',
+      title: 'No Orders Found',
+      description: 'You have no orders yet'
+    }
+  };
+  return states[statusFilter] || states.all;
+};
+
 const Orders = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
@@ -71,6 +117,7 @@ const Orders = () => {
       confirmed: 'bg-blue-100 text-blue-800',
       processing: 'bg-purple-100 text-purple-800',
       ready: 'bg-green-100 text-green-800',
+      shipped: 'bg-cyan-100 text-cyan-800',
       completed: 'bg-gray-100 text-gray-800',
       cancelled: 'bg-red-100 text-red-800'
     };
@@ -110,7 +157,7 @@ const Orders = () => {
 
           {/* status filter */}
           <div className="flex gap-2 overflow-x-auto">
-            {['all', 'pending', 'confirmed', 'processing', 'ready', 'completed', 'cancelled'].map((status) => (
+            {['all', 'pending', 'confirmed', 'processing', 'ready', 'shipped', 'completed', 'cancelled'].map((status) => (
               <button
                 key={status}
                 onClick={() => handleStatusFilter(status)}
@@ -132,14 +179,16 @@ const Orders = () => {
         <div className="bg-white rounded-lg shadow p-12 text-center">
             <div className="flex items-center justify-center py-6">
               <img
-                src="/assets/NoProducts.png"
+                src={searchQuery ? '/assets/NoProducts.png' : getEmptyStateContent(statusFilter).image}
                 alt="No orders"
                 className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
               />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {searchQuery ? 'No Orders Found' : getEmptyStateContent(statusFilter).title}
+            </h3>
             <p className="text-gray-600">
-              {searchQuery ? 'Try Adjusting Your Search' : 'You Have No Orders Yet'}
+              {searchQuery ? 'Try adjusting your search' : getEmptyStateContent(statusFilter).description}
             </p>
           </div>
       ) : (
