@@ -29,7 +29,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
           className="flex items-center gap-2 px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          export analytics (CSV)
+          Export Analytics (CSV)
         </button>
       </div>
 
@@ -80,7 +80,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth (Last 30 Days)</h3>
           {userGrowthData.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
-              <p>no user growth data available</p>
+              <p>No user growth data available</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -127,7 +127,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Selling Products</h3>
           {topProductsData.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
-              <p>no product sales yet</p>
+              <p>No product sales yet</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -155,7 +155,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Category Distribution</h3>
           {categoryData.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
-              <p>no category data</p>
+              <p>No category data</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -166,9 +166,9 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''
+                    percent > 0.01 ? `${name} ${(percent * 100).toFixed(0)}%` : ''
                   }
-                  outerRadius={80}
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -179,7 +179,6 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
                 <Tooltip
                   contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
                 />
-                <Legend />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -191,7 +190,7 @@ const AdminAnalytics = ({ marketplaceData, onExport }) => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Sellers</h3>
         {topSellersData.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p>no seller data available</p>
+            <p>No seller data available</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
