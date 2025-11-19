@@ -129,14 +129,14 @@ const CategoryBar = () => {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pb-2 pt-3">
         {/* desktop category bar */}
         <div className="hidden md:block">
-          <div className="flex items-start gap-1.5 md:gap-6">
+          <div className="flex items-start gap-1.5 md:gap-6 overflow-visible">
             <div className="flex-none w-14 md:w-32">
               <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1 pt-2">
                 <Link to="/categories" className="cursor-pointer hover:text-accent transition-colors">Categories</Link>
               </h2>
             </div>
 
-            <div className="relative flex-1 min-w-0 group">
+            <div className="relative flex-1 min-w-0 group overflow-visible">
               {showLeftScroll && (
                 <button
                   onClick={() => scroll('left')}
@@ -159,38 +159,37 @@ const CategoryBar = () => {
 
               <div
                 ref={scrollContainerRef}
-                className="flex items-center gap-2 overflow-x-auto scrollbar-hide scroll-smooth min-w-0"
+                className="flex items-center gap-2 overflow-x-auto scrollbar-hide scroll-smooth min-w-0 py-2"
                 style={{
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
                   maskImage: showLeftScroll && showRightScroll
-                    ? 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+                    ? 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
                     : showLeftScroll
-                      ? 'linear-gradient(to right, transparent 0%, black 5%, black 100%)'
+                      ? 'linear-gradient(to right, transparent, black 5%)'
                       : showRightScroll
-                        ? 'linear-gradient(to right, black 0%, black 95%, transparent 100%)'
+                        ? 'linear-gradient(to right, black 95%, transparent)'
                         : 'none',
                   WebkitMaskImage: showLeftScroll && showRightScroll
-                    ? 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+                    ? 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
                     : showLeftScroll
-                      ? 'linear-gradient(to right, transparent 0%, black 5%, black 100%)'
+                      ? 'linear-gradient(to right, transparent, black 5%)'
                       : showRightScroll
-                        ? 'linear-gradient(to right, black 0%, black 95%, transparent 100%)'
+                        ? 'linear-gradient(to right, black 95%, transparent)'
                         : 'none'
                 }}
               >
                 {CATEGORY_DATA.map((category) => (
                   <div
                     key={category.name}
-                    className="relative group"
+                    className="relative group z-10"
                     onMouseEnter={() => handleMouseEnter(category.name)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <button
                       ref={el => buttonRefs.current[category.name] = el}
                       onClick={() => handleCategoryClick(category.name)}
-                      className="flex items-center gap-1.5 px-6 h-14 bg-white hover:bg-gradient-to-b hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 transition-all whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-0.5"
-                      style={{ transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                      className="relative flex items-center gap-1.5 px-6 h-14 bg-white hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
                     >
                       {category.name}
                       {category.subcategories.length > 0 && (
@@ -200,18 +199,15 @@ const CategoryBar = () => {
 
                     {category.subcategories.length > 0 && hoveredCategory === category.name && createPortal(
                       <div
-                        className={`bg-white rounded-xl border border-gray-200 shadow-xl py-3 w-[200px] ${
+                        className={`fixed bg-white rounded-xl border border-gray-200 shadow-xl py-3 w-[200px] origin-top-left transition-all duration-200 ease-out ${
                           isDropdownVisible
                             ? 'opacity-100 scale-100 translate-y-0'
                             : 'opacity-0 scale-95 -translate-y-4'
                         }`}
                         style={{
-                          position: 'fixed',
                           top: `${dropdownPosition.top}px`,
                           left: `${dropdownPosition.left}px`,
-                          zIndex: 999999,
-                          transformOrigin: 'top left',
-                          transition: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1)'
+                          zIndex: 999999
                         }}
                         onMouseEnter={handleDropdownEnter}
                         onMouseLeave={handleDropdownLeave}
@@ -224,8 +220,8 @@ const CategoryBar = () => {
                             <button
                               key={sub}
                               onClick={() => handleCategoryClick(sub, true)}
-                              style={{ transitionDelay: `${i * 45}ms` }}
                               className={`w-full text-left px-3 py-2 text-sm text-gray-700 rounded-lg font-medium hover:cursor-pointer transform transition-all duration-300 ${isDropdownVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'} hover:bg-green-50 hover:text-green-800`}
+                              style={{ transitionDelay: `${i * 85}ms` }}
                             >
                               {sub}
                             </button>
