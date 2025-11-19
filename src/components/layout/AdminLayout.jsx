@@ -132,7 +132,7 @@ const AdminLayout = ({ children }) => {
       {/* mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-green-800 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold">A</span>
           </div>
           <span className="text-lg font-bold text-green-600">
