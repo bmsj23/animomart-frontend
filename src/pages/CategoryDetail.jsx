@@ -189,57 +189,56 @@ const CategoryDetail = () => {
           <div className="mt-8 mx-auto w-16 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
         </div>
 
-        {/* filter & sort bar (hidden when there are no products) */}
+        {/* filter & sort bar */}
         {!loading && products.length > 0 && (
-          <div className="mb-8 pb-6 border-b border-gray-200">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="relative" ref={filterRef}>
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 text-main hover:text-primary transition-colors text-sm tracking-wide hover:cursor-pointer"
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span className="font-medium">Filter and Sort</span>
-                </button>
+        <div className="mb-8 pb-6 border-b border-gray-200">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="relative" ref={filterRef}>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 text-main hover:text-primary transition-colors text-sm tracking-wide hover:cursor-pointer"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="font-medium">Filter and Sort</span>
+              </button>
 
-                {/* dropdown menu */}
-                {showFilters && (
-                  <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden animate-fade-in">
-                    <div className="p-2">
-                      <p className="px-3 py-2 text-xs font-medium text-gray uppercase tracking-wider">Sort by</p>
-                      <button
-                        onClick={() => handleSortChange('newest')}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
-                          sortBy === 'newest' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
-                        }`}
-                      >
-                        Newest First
-                      </button>
-                      <button
-                        onClick={() => handleSortChange('price-low')}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
-                          sortBy === 'price-low' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
-                        }`}
-                      >
-                        Price: Low to High
-                      </button>
-                      <button
-                        onClick={() => handleSortChange('price-high')}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
-                          sortBy === 'price-high' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
-                        }`}
-                      >
-                        Price: High to Low
-                      </button>
-                      <button
-                        onClick={() => handleSortChange('name')}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
-                          sortBy === 'name' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
-                        }`}
-                      >
-                        Name: A to Z
-                      </button>
-                    </div>
+              {/* dropdown menu */}
+              {showFilters && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden animate-fade-in">
+                  <div className="p-2">
+                    <p className="px-3 py-2 text-xs font-medium text-gray uppercase tracking-wider">Sort by</p>
+                    <button
+                      onClick={() => handleSortChange('newest')}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
+                        sortBy === 'newest' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
+                      }`}
+                    >
+                      Newest First
+                    </button>
+                    <button
+                      onClick={() => handleSortChange('price-low')}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
+                        sortBy === 'price-low' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
+                      }`}
+                    >
+                      Price: Low to High
+                    </button>
+                    <button
+                      onClick={() => handleSortChange('price-high')}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
+                        sortBy === 'price-high' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
+                      }`}
+                    >
+                      Price: High to Low
+                    </button>
+                    <button
+                      onClick={() => handleSortChange('name')}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm hover:cursor-pointer ${
+                        sortBy === 'name' ? 'bg-primary text-white' : 'text-main hover:bg-surface'
+                      }`}
+                    >
+                      Name: A to Z
+                    </button>
                   </div>
                 )}
               </div>
@@ -249,6 +248,7 @@ const CategoryDetail = () => {
               </p>
             </div>
           </div>
+        </div>
         )}
 
         {/* horizontal scrollable category filter buttons */}
@@ -285,15 +285,15 @@ const CategoryDetail = () => {
               </div>
             </div>
           ) : products.length === 0 ? (
-            <div className="py-24 text-center">
-              <div className="flex items-center justify-center py-6">
+            <div className="py-8 text-center">
+              <div className="flex items-center justify-center">
                   <img
                     src="/assets/NoProducts.png"
                     alt="No products"
-                    className="w-60 h-64 md:w-96 md:h-96 object-contain mx-auto mb-0 animate-slide-in"
+                    className="w-60 h-64 md:w-80 md:h-80 object-contain mx-auto mb-4 animate-slide-in"
                   />
               </div>
-              
+
               <h3 className="text-3xl font-light text-main mb-3">
                 No products found
               </h3>

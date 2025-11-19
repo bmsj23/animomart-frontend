@@ -7,6 +7,7 @@ import DeliveryMethodSection from '../components/checkout/DeliveryMethodSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection';
 import OrderSummary from '../components/checkout/OrderSummary';
 import useCheckout from '../hooks/useCheckout';
+import { logger } from '../utils/logger';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const Checkout = () => {
     try {
       window.scrollTo({ top: 0, behavior: 'auto' });
     } catch (e) {
+      logger.log(e);
       window.scrollTo(0, 0);
     }
   }, []);

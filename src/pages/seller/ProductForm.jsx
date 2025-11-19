@@ -220,7 +220,9 @@ const ProductForm = () => {
       };
 
       if (formData.shippingAvailable) {
-        productData.shipping_fee = parseFloat(formData.shipping_fee);
+        productData.shippingFee = parseFloat(formData.shipping_fee);
+      } else {
+        productData.shippingFee = null;
       }
 
       if (isEditMode) {

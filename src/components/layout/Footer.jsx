@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { logger } from '../../utils/logger';
 
 // Scroll to top helper for footer links (gives route time to change)
 const scrollToTopAfterNav = () => {
@@ -6,6 +7,7 @@ const scrollToTopAfterNav = () => {
     try {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
+      logger.log(e);
       window.scrollTo(0, 0);
     }
   }, 60);
@@ -16,7 +18,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-green-900 border-t border-green-800 mt-auto text-white w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col md:flex-row items-center md:items-center justify-between">
           {/* logo left with tagline (stacked on small, side-by-side on md+) */}
           <div className="mb-4 md:mb-0 flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4">
