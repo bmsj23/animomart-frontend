@@ -45,7 +45,6 @@ const ProductDetail = () => {
   const viewTrackedRef = useRef(false);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
     fetchProduct();
     fetchSimilarProducts();
     // reset optimistic add state when navigating to a new product

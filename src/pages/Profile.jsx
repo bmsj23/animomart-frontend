@@ -55,11 +55,11 @@ const Profile = () => {
     { id: "listings", label: "My Listings" },
     { id: "purchases", label: "My Purchases" },
     { id: "sales", label: "My Sales" },
-    { id: "reviews", label: "Reviews" },
+    { id: "reviews", label: "My Reviews" },
   ];
 
   const { user, updateUser } = useAuth();
-  const { error: showError } = useToast();
+  const { success: showSuccess, error: showError } = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -469,6 +469,7 @@ const Profile = () => {
         reviews = data.data;
       }
       setAuthoredReviews(reviews);
+      showSuccess("Review deleted successfully");
     } catch (err) {
       showError(err?.response?.data?.message || "Failed to delete review");
     }
