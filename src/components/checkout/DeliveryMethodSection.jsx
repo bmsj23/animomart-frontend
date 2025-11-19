@@ -12,14 +12,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
     if (!cartItems || cartItems.length === 0) return null; // return null when not ready
 
     const allItems = cartItems.flatMap(group => group.items || []);
-    logger.log('Checking shipping availability for items:', allItems.map(item => {
-      const product = item.product || item;
-      return {
-        name: product.name,
-        shippingAvailable: product.shippingAvailable,
-        productId: product._id
-      };
-    }));
 
     const hasShippingDisabledProduct = allItems.some(item => {
       const product = item.product || item;
@@ -33,7 +25,6 @@ const DeliveryMethodSection = ({ form, setForm, handleChange, showAllErrors = fa
       return isDisabled;
     });
 
-    logger.log('Final shipping availability:', !hasShippingDisabledProduct);
     return !hasShippingDisabledProduct;
   }, [cartItems]);
 
