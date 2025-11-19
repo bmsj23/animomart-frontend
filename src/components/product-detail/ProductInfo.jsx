@@ -13,7 +13,7 @@ const ProductInfo = ({
       ? product.tags
       : [
           formatCondition(product.condition),
-          isOutOfStock ? 'out of stock' : null
+          isOutOfStock ? 'Out of Stock' : null
         ];
   const noteTags = rawNotes.filter((note, index) => note && rawNotes.indexOf(note) === index);
 
@@ -48,16 +48,23 @@ const ProductInfo = ({
 
       {noteTags.length > 0 && (
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Condition</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-green-700 font-semibold">Main Notes</p>
           <div className="flex flex-wrap gap-2">
-            {noteTags.map((note, index) => (
-              <span
-                key={`${note}-${index}`}
-                className="px-4 py-2 rounded-full border border-green-100 bg-green-50 text-sm font-medium text-green-800"
-              >
-                {note}
-              </span>
-            ))}
+            {noteTags.map((note, index) => {
+              const isOutOfStockNote = note.toLowerCase() === 'out of stock';
+              return (
+                <span
+                  key={`${note}-${index}`}
+                  className={`px-4 py-2 rounded-full border text-sm font-medium ${
+                    isOutOfStockNote
+                      ? 'border-red-100 bg-red-50 text-red-800'
+                      : 'border-green-100 bg-green-50 text-green-800'
+                  }`}
+                >
+                  {note}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}
