@@ -57,7 +57,7 @@ const CategoryDetail = () => {
           // filter by specific subcategory
           params.category = selectedSubcategory;
         }
-
+        //
         const response = await getProducts(params);
         let fetchedProducts = response.data.products || [];
 
