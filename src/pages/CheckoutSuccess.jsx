@@ -219,7 +219,7 @@ const CheckoutSuccess = () => {
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
           to="/profile?tab=purchases"
-          className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium"
+          className="flex-1 flex items-center justify-center gap-2 bg-green-800 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium"
         >
           <ShoppingBag className="w-5 h-5" />
           View My Purchases
