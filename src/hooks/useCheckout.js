@@ -158,7 +158,12 @@ const useCheckout = () => {
     subtotal = calculateSubtotal(selectedCartItems);
   }
 
-  const shippingFee = form.deliveryMethod === 'shipping' ? 50 : 0;
+  const shippingFee = form.deliveryMethod === 'shipping'
+    ? selectedCartItems.reduce((total, item) => {
+        const productShippingFee = item.product?.shippingFee ?? item.product?.shipping_fee ?? 0;
+        return total + (productShippingFee * item.quantity);
+      }, 0)
+    : 0;
   const total = subtotal + shippingFee;
 
   const handleChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
