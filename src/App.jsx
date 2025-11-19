@@ -17,6 +17,7 @@ import Toast from './components/common/Toast';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Browse from './pages/Browse';
+import Trending from './pages/Trending';
 import Categories from './pages/Categories';
 import CategoryDetail from './pages/CategoryDetail';
 import ProductDetail from './pages/ProductDetail';
@@ -75,6 +76,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <Browse />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trending"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <Trending />
                     </MainLayout>
                   </ProtectedRoute>
                 }
