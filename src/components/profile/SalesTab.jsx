@@ -4,6 +4,42 @@ import { Filter } from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatCurrency } from "../../utils/formatCurrency";
 
+const getEmptyStateContent = (statusFilter) => {
+  const states = {
+    shipped: {
+      image: '/assets/Shipped.PNG',
+      title: 'No Shipped Sales',
+      description: 'Sales marked as shipped will appear here'
+    },
+    completed: {
+      image: '/assets/NoProducts.png',
+      title: 'No Completed Sales',
+      description: 'Completed sales will appear here'
+    },
+    cancelled: {
+      image: '/assets/NoProducts.png',
+      title: 'No Cancelled Sales',
+      description: 'Cancelled sales will appear here'
+    },
+    pending: {
+      image: '/assets/NoProducts.png',
+      title: 'No Pending Sales',
+      description: 'Pending sales will appear here'
+    },
+    processing: {
+      image: '/assets/NoProducts.png',
+      title: 'No Processing Sales',
+      description: 'Processing sales will appear here'
+    },
+    all: {
+      image: '/assets/NoProducts.png',
+      title: 'No Sales Found',
+      description: 'Your sales will appear here'
+    }
+  };
+  return states[statusFilter] || states.all;
+};
+
 const ITEMS_PER_PAGE = 20;
 
 const getStatusColor = (status) => {
@@ -145,7 +181,7 @@ const SalesTab = ({ sales, loading, error }) => {
     return (
       <div className="py-8 text-center">
         <p className="text-gray-700 mb-4">You haven't made any sales yet.</p>
-        <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-600 text-white rounded-md">View my listings</Link>
+        <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-800 text-white rounded-md">View my listings</Link>
       </div>
     );
   }
@@ -182,11 +218,12 @@ const SalesTab = ({ sales, loading, error }) => {
       {filteredSales.length === 0 ? (
         <div className="py-8 text-center">
           <img
-            src="/assets/Shipped.PNG"
-            alt="No products"
-            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+            src={getEmptyStateContent(statusFilter).image}
+            alt="No sales"
+            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-4 animate-slide-in"
           />
-          <p className="text-gray-700">No {statusFilter !== "all" ? statusFilter : ""} sales found</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{getEmptyStateContent(statusFilter).title}</h3>
+          <p className="text-gray-600">{getEmptyStateContent(statusFilter).description}</p>
         </div>
       ) : (
         <>

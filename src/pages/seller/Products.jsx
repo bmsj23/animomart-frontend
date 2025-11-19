@@ -199,7 +199,7 @@ const Products = () => {
           {!searchQuery && (
             <Link
               to="/seller/products/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>List Product</span>

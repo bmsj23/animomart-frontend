@@ -82,7 +82,7 @@ const OrderSummary = ({ sellerGroups, subtotal, shippingFee, total, isProcessing
         <button
           onClick={onSubmit}
           disabled={isProcessing}
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full bg-green-800 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {isProcessing ? 'Processing...' : 'Place Order'}
         </button>

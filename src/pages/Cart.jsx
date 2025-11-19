@@ -11,6 +11,7 @@ import CartItem from '../components/cart/CartItem';
 import OrderSummary from '../components/cart/OrderSummary';
 import EmptyCart from '../components/cart/EmptyCart';
 import { logger } from '../utils/logger';
+import * as cartApi from '../api/cart';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -172,13 +173,22 @@ const Cart = () => {
     const previousCart = cart;
     setCart({ ...cart, items: cart.items.filter(item => !selectedItems.has(item.product._id)) });
     setSelectedItems(new Set());
+
     try {
       for (const id of ids) {
-        await removeItem(id);
+        try {
+          await cartApi.removeFromCart(id);
+        } catch (err) {
+          logger.error(`Failed to remove item ${id}:`, err);
+        }
       }
+
+      await fetchCart();
+      showSuccess('Selected items removed from cart');
     } catch (err) {
       setCart(previousCart);
-      showError('Failed to delete selected items', err);
+      showError('Failed to delete selected items');
+      logger.error('Bulk delete error:', err);
     }
   };
 
@@ -204,11 +214,16 @@ const Cart = () => {
   const moveSelectedToWishlist = async () => {
     if (!selectedItems || selectedItems.size === 0) return;
     const ids = Array.from(selectedItems);
+    const previousCart = cart;
     setBulkDeleteConfirm({ show: false });
 
+    setCart({ ...cart, items: cart.items.filter(item => !selectedItems.has(item.product._id)) });
+    setSelectedItems(new Set());
+
     try {
+      // add to wishlist (can be parallel)
       const results = await Promise.allSettled(ids.map(id => {
-        const cartItem = cart.items.find(it => it.product._id === id);
+        const cartItem = previousCart.items.find(it => it.product._id === id);
         const productObj = cartItem?.product || null;
         return addToWishlist(id, productObj);
       }));
@@ -224,11 +239,16 @@ const Cart = () => {
       }
 
       for (const id of ids) {
-        await removeItem(id);
+        try {
+          await cartApi.removeFromCart(id);
+        } catch (err) {
+          logger.error(`Failed to remove item ${id} from cart:`, err);
+        }
       }
-
-      setSelectedItems(new Set());
+      await fetchCart();
+      showSuccess('Items moved to wishlist');
     } catch (err) {
+      setCart(previousCart);
       logger.error('failed to move selected items to wishlist:', err);
       showError(err.response?.data?.message || 'failed to move selected items to wishlist');
     }

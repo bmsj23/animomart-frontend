@@ -154,7 +154,7 @@ const ListingsTab = ({ myListings: allProducts, loading, error }) => {
         </p>
         <Link
           to="/sell"
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors hover:cursor-pointer"
+          className="px-4 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 transition-colors hover:cursor-pointer"
         >
           List a product
         </Link>

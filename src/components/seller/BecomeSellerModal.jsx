@@ -121,8 +121,8 @@ const BecomeSellerModal = ({ isOpen, onClose, onSuccess }) => {
             </span>
           </div>
           <div className="flex gap-2">
-            <div className={`h-2 flex-1 rounded-full ${step >= 1 ? 'bg-green-600' : 'bg-gray-200'}`} />
-            <div className={`h-2 flex-1 rounded-full ${step >= 2 ? 'bg-green-600' : 'bg-gray-200'}`} />
+            <div className={`h-2 flex-1 rounded-full ${step >= 1 ? 'bg-green-800' : 'bg-gray-200'}`} />
+            <div className={`h-2 flex-1 rounded-full ${step >= 2 ? 'bg-green-800' : 'bg-gray-200'}`} />
           </div>
         </div>
 
@@ -182,7 +182,7 @@ const BecomeSellerModal = ({ isOpen, onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={handleNext}
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors hover:cursor-pointer"
+                className="w-full bg-green-800 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors hover:cursor-pointer"
               >
                 Continue
               </button>
@@ -278,7 +278,7 @@ const BecomeSellerModal = ({ isOpen, onClose, onSuccess }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+                  className="flex-1 bg-green-800 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
                 >
                   {loading ? 'Creating...' : 'Become A Seller'}
                 </button>

@@ -30,7 +30,7 @@ const ImagesSection = ({
               <X className="w-4 h-4" />
             </button>
             {index === 0 && (
-              <span className="absolute bottom-1 left-1 px-2 py-1 bg-green-600 text-white text-xs rounded">
+              <span className="absolute bottom-1 left-1 px-2 py-1 bg-green-800 text-white text-xs rounded">
                 cover
               </span>
             )}

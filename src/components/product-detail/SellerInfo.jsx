@@ -24,7 +24,7 @@ const SellerInfo = ({ seller, productId, isOwnProduct }) => {
             }}
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-green-600 text-white flex items-center justify-center text-lg font-semibold">
+          <div className="w-14 h-14 rounded-full bg-green-800 text-white flex items-center justify-center text-lg font-semibold">
             {initials || 'AN'}
           </div>
         )}

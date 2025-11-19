@@ -23,7 +23,7 @@ const ReportActionModal = ({ isOpen, type, onClose, onConfirm }) => {
       iconColor: 'text-green-600',
       bgColor: 'bg-green-50',
       message: 'Resolve this report and close the case. Provide details about how the issue was resolved.',
-      buttonColor: 'bg-green-600 hover:bg-green-700',
+      buttonColor: 'bg-green-800 hover:bg-green-700',
       buttonText: 'Resolve Report',
       requiresInput: true
     },
