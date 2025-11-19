@@ -45,6 +45,7 @@ const Cart = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
       // fallback
+      logger.log(e);
       window.scrollTo(0, 0);
     }
   }, [loading, cart?.items?.length]);
@@ -242,6 +243,15 @@ const Cart = () => {
     }, 0);
   };
 
+  const calculateShippingFee = () => {
+    if (!cart?.items) return 0;
+    return cart.items.reduce((total, item) => {
+      if (!selectedItems.has(item.product._id)) return total;
+      const shippingFee = item.product?.shippingFee ?? item.product?.shipping_fee ?? 0;
+      return total + (shippingFee * item.quantity);
+    }, 0);
+  };
+
   const handleCheckout = () => {
     localStorage.setItem('checkout-selected-items', JSON.stringify(Array.from(selectedItems)));
     navigate('/checkout');
@@ -321,6 +331,7 @@ const Cart = () => {
           <OrderSummary
             selectedCount={selectedItems.size}
             total={calculateTotal()}
+            shippingFee={calculateShippingFee()}
             onCheckout={handleCheckout}
           />
         </div>

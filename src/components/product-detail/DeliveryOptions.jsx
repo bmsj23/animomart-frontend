@@ -1,9 +1,16 @@
 const DeliveryOptions = ({ product, formatPrice, className = '' }) => {
   const shippingLabel = product.shippingAvailable !== false ? 'Shipping available' : 'Meetup only';
-  const shippingFee = product.shipping_fee ?? product.shippingFee;
+  const shippingFee = product.shipping_fee ?? product.shippingFee ?? product.shippingCost;
   const parsedShippingFee = typeof shippingFee === 'number' ? shippingFee : parseFloat(shippingFee);
   const hasShippingFee = Number.isFinite(parsedShippingFee);
   const meetupLocations = Array.isArray(product.meetupLocations) ? product.meetupLocations : [];
+
+  // determine shipping fee display value
+  const shippingFeeDisplay = hasShippingFee
+    ? formatPrice(parsedShippingFee)
+    : product.shippingAvailable !== false
+      ? 'To be calculated'
+      : 'N/A';
 
   const details = [
     {
@@ -12,7 +19,7 @@ const DeliveryOptions = ({ product, formatPrice, className = '' }) => {
     },
     {
       label: 'Shipping fee',
-      value: hasShippingFee ? formatPrice(parsedShippingFee) : 'Not specified'
+      value: shippingFeeDisplay
     },
     {
       label: 'Meetup Details',

@@ -1,7 +1,7 @@
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useNavigate } from 'react-router-dom';
 
-const OrderSummary = ({ selectedCount, total, onCheckout }) => {
+const OrderSummary = ({ selectedCount, total, shippingFee = 0, onCheckout }) => {
   const navigate = useNavigate();
 
   return (
@@ -21,15 +21,15 @@ const OrderSummary = ({ selectedCount, total, onCheckout }) => {
           </div>
 
           <div className="flex justify-between text-gray-600">
-            <span className="text-black">Shipping</span>
-            <span className="text-black">Free</span>
+            <span className="text-black">Shipping Fee</span>
+            <span className="text-black">{formatCurrency(shippingFee)}</span>
           </div>
 
           <div className="border-t border-gray-200 pt-3">
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-gray-900">Total</span>
               <span className="text-2xl font-bold text-green-600">
-                {formatCurrency(total)}
+                {formatCurrency(total + shippingFee)}
               </span>
             </div>
           </div>
