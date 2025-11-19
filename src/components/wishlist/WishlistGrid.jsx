@@ -196,7 +196,7 @@ const WishlistGrid = ({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="mt-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium hover:cursor-pointer delay-200"
+            className="mt-2 bg-green-800 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium hover:cursor-pointer delay-200"
           >
             Clear all filters
           </button>
