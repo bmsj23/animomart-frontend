@@ -23,7 +23,6 @@ const CategoryDetail = () => {
     }
   }, [categoryData, navigate]);
 
-  // subcategories for sidebar (add "All" option at the top)
   const subcategories = categoryData ? [`All ${categoryData.name}`, ...categoryData.subcategories] : [];
 
   const [selectedSubcategory, setSelectedSubcategory] = useState(
