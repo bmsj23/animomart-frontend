@@ -266,12 +266,12 @@ const OrderDetail = () => {
                     <div key={status} className="flex gap-4">
                       <div className="flex flex-col items-center">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isCompleted && !isCancelled ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-400'
+                          isCompleted && !isCancelled ? 'bg-green-800 text-white' : 'bg-gray-200 text-gray-400'
                         }`}>
                           {isCompleted && !isCancelled ? <CheckCircle className="w-5 h-5" /> : idx + 1}
                         </div>
                         {idx < timeline.length - 1 && (
-                          <div className={`w-0.5 h-12 ${isCompleted && !isCancelled ? 'bg-green-600' : 'bg-gray-200'}`} />
+                          <div className={`w-0.5 h-12 ${isCompleted && !isCancelled ? 'bg-green-800' : 'bg-gray-200'}`} />
                         )}
                       </div>
                       <div className="flex-1 pb-8">
@@ -413,7 +413,7 @@ const OrderDetail = () => {
             <button
               onClick={() => handleStatusUpdate(getNextStatus(order.status, order.deliveryMethod))}
               disabled={updating}
-              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer capitalize"
+              className="w-full px-4 py-3 bg-green-800 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer capitalize"
             >
               {updating ? 'updating...' : getStatusAction(order.status, order.deliveryMethod)}
             </button>

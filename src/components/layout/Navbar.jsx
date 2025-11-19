@@ -124,7 +124,7 @@ const Navbar = () => {
 
             <Link
               to="/sell"
-              className="bg-[rgb(var(--color-primary))] text-white px-6 h-14 rounded-full shadow-sm flex items-center gap-2 justify-center hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+              className="bg-emerald-700 text-white px-6 h-14 rounded-full shadow-sm flex items-center gap-2 justify-center hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Sell</span>

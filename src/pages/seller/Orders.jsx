@@ -116,7 +116,7 @@ const Orders = () => {
                 onClick={() => handleStatusFilter(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-green-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >

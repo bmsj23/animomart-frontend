@@ -58,7 +58,7 @@ const PricingSection = ({ formData, errors, onChange, onConditionChange }) => {
             onChange={onChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 hover:cursor-pointer"
           >
-            <option value="">select main category</option>
+            <option value="">Select main category</option>
             {CATEGORY_DATA.map(cat => (
               <option key={cat.name} value={cat.name}>{cat.name}</option>
             ))}
@@ -78,7 +78,7 @@ const PricingSection = ({ formData, errors, onChange, onConditionChange }) => {
               errors.category ? 'border-red-500' : 'border-gray-300'
             }`}
           >
-            <option value="">select subcategory</option>
+            <option value="">Select subcategory</option>
             {selectedCategory?.subcategories.map(sub => (
               <option key={sub} value={sub}>{sub}</option>
             ))}
@@ -99,7 +99,7 @@ const PricingSection = ({ formData, errors, onChange, onConditionChange }) => {
               onClick={() => onConditionChange(condition)}
               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors hover:cursor-pointer ${
                 formData.condition === condition
-                  ? 'bg-green-600 text-white border-green-600'
+                  ? 'bg-green-800 text-white border-green-800'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               }`}
             >

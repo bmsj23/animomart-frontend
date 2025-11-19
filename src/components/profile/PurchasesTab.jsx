@@ -174,7 +174,7 @@ const PurchasesTab = ({
               onClick={() => setStatusFilter(filter.value)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:cursor-pointer ${
                 statusFilter === filter.value
-                  ? "bg-green-600 text-white"
+                  ? "bg-green-800 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -208,7 +208,7 @@ const PurchasesTab = ({
               </span>
               <Link
                 to={`/orders/${order._id}`}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors hover:cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 transition-colors hover:cursor-pointer"
               >
                 View Order
               </Link>

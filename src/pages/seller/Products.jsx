@@ -141,7 +141,7 @@ const Products = () => {
         </div>
         <Link
           to="/seller/products/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition-colors hover:cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Product</span>
@@ -171,7 +171,7 @@ const Products = () => {
                 onClick={() => handleStatusFilter(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-green-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
