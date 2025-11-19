@@ -14,10 +14,6 @@ const Users = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const { success, error } = useToast();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -30,6 +26,11 @@ const Users = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSuspendUser = async (userId) => {
     try {
