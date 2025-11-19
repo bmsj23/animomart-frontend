@@ -186,6 +186,11 @@ const PurchasesTab = ({
 
       {filteredOrders.length === 0 ? (
         <div className="py-8 text-center">
+          <img
+            src="/assets/Shipped.PNG"
+            alt="No products"
+            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+          />
           <p className="text-gray-700">No {statusFilter !== "all" ? statusFilter : ""} orders found</p>
         </div>
       ) : (
