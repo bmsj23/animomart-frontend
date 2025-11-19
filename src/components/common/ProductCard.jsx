@@ -37,7 +37,11 @@ const ProductCard = ({ product, onGreenBg = false }) => {
         await removeFromWishlist(product._id);
       } else {
         // provide product object for optimistic update
-        await addToWishlist(product._id, product);
+        const result = await addToWishlist(product._id, product);
+
+        if (result?.wishlistFull || result?.alreadyInWishlist) {
+          return;
+        }
 
         // show "Added!" feedback
         setJustAdded(true);
@@ -45,7 +49,12 @@ const ProductCard = ({ product, onGreenBg = false }) => {
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'failed to update wishlist';
-      showError(errorMessage);
+
+      if (!errorMessage.toLowerCase().includes('wishlist is full') &&
+          !errorMessage.toLowerCase().includes('already in wishlist') &&
+          !errorMessage.toLowerCase().includes('maximum')) {
+        showError(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }
