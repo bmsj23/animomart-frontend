@@ -148,6 +148,10 @@ const Messages = () => {
       if (conversationId) {
         await messageApi.markAsRead(conversationId);
 
+        if (socket) {
+          socket.emit('markAsRead', { conversationId });
+        }
+
         // then, update local state immediately
         setConversations((prev) =>
           prev.map((conv) =>
