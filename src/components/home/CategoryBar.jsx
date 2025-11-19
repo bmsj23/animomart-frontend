@@ -129,9 +129,9 @@ const CategoryBar = () => {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pb-2 pt-3">
         {/* desktop category bar */}
         <div className="hidden md:block">
-          <div className="flex items-start gap-1.5 md:gap-6 overflow-visible">
+          <div className="flex items-center gap-1.5 md:gap-6 overflow-visible">
             <div className="flex-none w-14 md:w-32">
-              <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1 pt-2">
+              <h2 className="font-semibold text-white text-lg md:text-2xl whitespace-nowrap pl-1">
                 <Link to="/categories" className="cursor-pointer hover:text-accent transition-colors">Categories</Link>
               </h2>
             </div>
@@ -183,19 +183,22 @@ const CategoryBar = () => {
                   <div
                     key={category.name}
                     className="relative group z-10"
-                    onMouseEnter={() => handleMouseEnter(category.name)}
-                    onMouseLeave={handleMouseLeave}
                   >
-                    <button
-                      ref={el => buttonRefs.current[category.name] = el}
-                      onClick={() => handleCategoryClick(category.name)}
-                      className="relative flex items-center gap-1.5 px-6 py-6 bg-white hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
+                    <div
+                      onMouseEnter={() => handleMouseEnter(category.name)}
+                      onMouseLeave={handleMouseLeave}
                     >
-                      {category.name}
-                      {category.subcategories.length > 0 && (
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      )}
-                    </button>
+                      <button
+                        ref={el => buttonRefs.current[category.name] = el}
+                        onClick={() => handleCategoryClick(category.name)}
+                        className="relative flex items-center gap-1.5 px-6 py-6 bg-white hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
+                      >
+                        {category.name}
+                        {category.subcategories.length > 0 && (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
 
                     {category.subcategories.length > 0 && hoveredCategory === category.name && createPortal(
                       <div
