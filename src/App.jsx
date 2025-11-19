@@ -12,6 +12,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import SellerLayout from './components/layout/SellerLayout';
 import Navbar from './components/layout/Navbar';
 import Toast from './components/common/Toast';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // pages
 import Login from './pages/Login';
@@ -49,6 +50,7 @@ import BuyerOrderDetail from './pages/OrderDetail';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <ToastProvider>
           <AdminProvider>
