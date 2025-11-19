@@ -6,11 +6,11 @@ const DeliveryOptions = ({ product, formatPrice, className = '' }) => {
   const meetupLocations = Array.isArray(product.meetupLocations) ? product.meetupLocations : [];
 
   // determine shipping fee display value
-  const shippingFeeDisplay = hasShippingFee
-    ? formatPrice(parsedShippingFee)
-    : product.shippingAvailable !== false
-      ? 'To be calculated'
-      : 'N/A';
+  const shippingFeeDisplay = product.shippingAvailable === false
+    ? 'Not Available'
+    : hasShippingFee
+      ? formatPrice(parsedShippingFee)
+      : 'To be calculated';
 
   const details = [
     {
