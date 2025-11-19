@@ -150,7 +150,7 @@ const PurchasesTab = ({
     return (
       <div className="py-8 text-center">
         <p className="text-gray-700 mb-4">You haven't purchased any products yet.</p>
-        <Link to="/browse" className="px-4 py-2 bg-green-600 text-white rounded-md">Browse products</Link>
+        <Link to="/browse" className="px-4 py-2 bg-green-800 text-white rounded-md">Browse products</Link>
       </div>
     );
   }
@@ -246,7 +246,7 @@ const PurchasesTab = ({
                   {order.status === 'completed' && reviewable && (
                     <button
                       onClick={() => onWriteReview(order, product)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors hover:cursor-pointer"
+                      className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 transition-colors hover:cursor-pointer"
                     >
                       Write Review
                     </button>
