@@ -60,13 +60,12 @@ const ProductDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // ensure heart reflects server state on refresh (in case wishlist wasn't loaded yet)
+  // ensure heart reflects server state on refresh
   useEffect(() => {
     let mounted = true;
     const verifyWishlist = async () => {
       if (!user || !id) return;
       try {
-        // if context already knows, prefer that
         if (isInWishlist(id)) {
           if (mounted) setIsFavorite(true);
           return;
