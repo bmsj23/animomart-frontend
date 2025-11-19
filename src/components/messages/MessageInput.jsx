@@ -35,7 +35,7 @@ const MessageInput = ({
       <form onSubmit={onSubmit} className="flex items-end gap-2">
         {/* image upload */}
         <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
-          <ImageIcon className="w-5 h-7 text-green-600" />
+          <ImageIcon className="w-5 h-7 text-green-800" />
           <input
             type="file"
             multiple
@@ -54,14 +54,14 @@ const MessageInput = ({
             onTyping();
           }}
           placeholder="Type a message..."
-          className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-800 focus:border-transparent"
         />
 
         {/* send button */}
         <button
           type="submit"
           disabled={!messageText.trim() && imagePreviews.length === 0}
-          className="text-green-600 hover:text-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 p-2"
+          className="text-green-800 hover:text-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 p-2"
         >
           <Send className="w-6 h-7 fill-current" />
         </button>
