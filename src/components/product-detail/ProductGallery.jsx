@@ -16,11 +16,11 @@ const ProductGallery = ({ images, productName }) => {
 
   return (
     <div>
-      <div className="relative aspect-square rounded-4xl bg-gray-50 border border-gray-200 p-6 flex items-center justify-center overflow-hidden">
+      <div className="relative aspect-square rounded-2xl bg-gray-50 border border-gray-200 p-6 flex items-center justify-center overflow-hidden">
         <img
           src={safeImages[selectedImage]}
           alt={productName}
-          className="w-full h-full object-contain drop-shadow"
+          className="w-full h-full object-contain drop-shadow rounded-lg"
         />
 
         {hasMultiple && (
