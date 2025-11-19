@@ -57,7 +57,6 @@ const CategoryDetail = () => {
           // filter by specific subcategory
           params.category = selectedSubcategory;
         }
-
         const response = await getProducts(params);
         let fetchedProducts = response.data.products || [];
 
@@ -240,13 +239,15 @@ const CategoryDetail = () => {
                       Name: A to Z
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
+            {!loading && (
               <p className="text-gray text-sm">
                 {products.length} {products.length === 1 ? 'product' : 'products'}
               </p>
-            </div>
+            )}
           </div>
         </div>
         )}
