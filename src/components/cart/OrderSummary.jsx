@@ -38,7 +38,7 @@ const OrderSummary = ({ selectedCount, total, shippingFee = 0, onCheckout }) => 
         <button
           onClick={onCheckout}
           disabled={selectedCount === 0}
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed hover:cursor-pointer"
+          className="w-full bg-green-800 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed hover:cursor-pointer"
         >
           Proceed to Checkout
         </button>
