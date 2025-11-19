@@ -152,14 +152,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-  logger.log('AuthContext updateUser called with:', userData); // Debug log
 
   const normalizedUser = {
     ...userData,
     profilePicture: userData.profilePicture || userData.picture
   };
-
-  logger.log('Normalized user:', normalizedUser); // Debug log
 
   setUser(normalizedUser);
   localStorage.setItem('user', JSON.stringify(normalizedUser));
