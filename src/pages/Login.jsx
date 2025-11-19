@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { UserRoundX } from 'lucide-react';
-import { logger } from '../utils/logger';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../hooks/useToast";
+import { UserRoundX } from "lucide-react";
+import { logger } from "../utils/logger";
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
@@ -31,7 +31,9 @@ const Login = () => {
     } catch (err) {
       logger.error('Login failed:', err);
       if (err.message.includes('suspended')) {
-        setSuspensionMessage('Your account has been suspended. Please contact support.');
+        setSuspensionMessage(
+          'Your account has been suspended. Please contact support.'
+        );
         showError('Your account has been suspended. Please contact support.');
       } else if (err.message.includes('@dlsl.edu.ph')) {
         showError('Only @dlsl.edu.ph email addresses are allowed');
@@ -54,7 +56,7 @@ const Login = () => {
         <div className="relative flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-12 overflow-y-auto">
           {/* decorative icons (absolute) */}
           <div className="w-full max-w-md animate-fadeIn animate-scaleIn">
-                
+            
             {/* logo */}
             <div className="mb-10">
               <div className="flex justify-center mb-8 relative">
@@ -81,7 +83,7 @@ const Login = () => {
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <div className="shrink-0">
-
+                      
                       <UserRoundX className="w-5 h-5 text-red-600" />
                     </div>
                     <div className="flex-1">
@@ -130,13 +132,9 @@ const Login = () => {
 
         {/* right side - illustration */}
         <div className="hidden lg:flex flex-1 bg-green-900 items-center justify-center p-12 relative overflow-hidden">
-
+          
           {/* illustration content */}
-          <div className="relative z-10 text-center max-w-lg animate-slide-in">
-            <div className="mb-12 flex justify-center">
-
-            </div>
-
+          <div className="relative z-10 text-center max-w-lg animate-slide-in pb-48 lg:pb-64 xl:pb-80">
             <h2 className="text-4xl font-bold text-gray-50 mb-4 font-sans leading-tight">
               Shop Smart, <span className="text-accent">Shop Local</span>
             </h2>
@@ -144,6 +142,19 @@ const Login = () => {
               Your trusted campus marketplace for buying and selling with fellow Lasallians
             </p>
           </div>
+
+          <img
+            src="/assets/Login.png"
+            alt="Login Illustration"
+            className="absolute bottom-0 right-0 
+               w-[600px] h-[600px] 
+               md:w-[700px] md:h-[700px] 
+               lg:w-[800px] lg:h-[800px] 
+               xl:w-[900px] xl:h-[900px]
+               object-contain pointer-events-none select-none
+               translate-y-10 translate-x-10
+               drop-shadow-2xl opacity-95 animate-slide-in"
+          />
         </div>
       </div>
     </GoogleOAuthProvider>
