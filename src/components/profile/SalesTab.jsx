@@ -145,7 +145,7 @@ const SalesTab = ({ sales, loading, error }) => {
     return (
       <div className="py-8 text-center">
         <p className="text-gray-700 mb-4">You haven't made any sales yet.</p>
-        <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-600 text-white rounded-md">View my listings</Link>
+        <Link to="/profile?tab=listings" className="px-4 py-2 bg-green-800 text-white rounded-md">View my listings</Link>
       </div>
     );
   }
