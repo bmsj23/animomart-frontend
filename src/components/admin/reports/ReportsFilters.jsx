@@ -3,7 +3,7 @@ const ReportsFilters = ({ filterStatus, onFilterChange }) => {
     { value: 'all', label: 'All Reports', colorClass: 'bg-red-600' },
     { value: 'pending', label: 'Pending', colorClass: 'bg-amber-600' },
     { value: 'reviewed', label: 'Reviewed', colorClass: 'bg-blue-600' },
-    { value: 'resolved', label: 'Resolved', colorClass: 'bg-green-600' },
+    { value: 'resolved', label: 'Resolved', colorClass: 'bg-green-800' },
   ];
 
   return (
