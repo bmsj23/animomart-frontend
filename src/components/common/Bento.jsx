@@ -270,7 +270,7 @@ const BentoBox = () => {
       icon: TrendingUp,
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-900',
-      onClick: () => navigate('/browse?sort=trending')
+      onClick: () => navigate('/trending')
     },
     {
       title: 'Electronics',
