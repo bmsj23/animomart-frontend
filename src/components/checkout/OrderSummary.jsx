@@ -71,7 +71,7 @@ const OrderSummary = ({ sellerGroups, subtotal, shippingFee, total, isProcessing
           </div>
           <div className="flex justify-between text-gray-600">
             <span>Shipping Fee</span>
-            <span className="font-semibold">{shippingFee > 0 ? formatCurrency(shippingFee) : 'Free'}</span>
+            <span className="font-semibold">{formatCurrency(shippingFee)}</span>
           </div>
           <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
             <span>Total</span>
