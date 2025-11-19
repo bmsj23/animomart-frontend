@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useSearch } from '../hooks/useSearch';
 import ProductCard from '../components/common/ProductCard';
@@ -6,11 +5,6 @@ import ProductCard from '../components/common/ProductCard';
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-
-  // scroll to top when search query changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [query]);
 
   // use custom search hook
   const { results: exactMatches, suggestions, isSearching: loading } = useSearch(query, {
