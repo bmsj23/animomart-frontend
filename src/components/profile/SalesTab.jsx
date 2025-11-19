@@ -160,7 +160,7 @@ const SalesTab = ({ sales, loading, error }) => {
             { value: "all", label: "All" },
             { value: "pending", label: "Pending" },
             { value: "processing", label: "Processing" },
-            { value: "shipped", label: "Shipping" },
+            { value: "shipped", label: "Shipped" },
             { value: "completed", label: "Completed" },
             { value: "cancelled", label: "Cancelled" }
           ].map(filter => (
@@ -181,6 +181,11 @@ const SalesTab = ({ sales, loading, error }) => {
 
       {filteredSales.length === 0 ? (
         <div className="py-8 text-center">
+          <img
+            src="/assets/Shipped.PNG"
+            alt="No products"
+            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+          />
           <p className="text-gray-700">No {statusFilter !== "all" ? statusFilter : ""} sales found</p>
         </div>
       ) : (
