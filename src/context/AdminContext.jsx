@@ -36,10 +36,10 @@ export const AdminProvider = ({ children }) => {
 
             // fetch all data
             const results = await Promise.allSettled([
-                adminApi.getAllUsers(),
-                adminApi.getAllProducts(),
-                adminApi.getAllOrders(),
-                adminApi.getAllReports({ status: 'pending' }).catch(() => ({ data: [] }))
+                adminApi.getAllUsers({ limit: 10000 }),
+                adminApi.getAllProducts({ limit: 10000 }),
+                adminApi.getAllOrders({ limit: 10000 }),
+                adminApi.getAllReports({ status: 'pending', limit: 10000 }).catch(() => ({ data: [] }))
             ]);
 
             // extract data from settled promises
