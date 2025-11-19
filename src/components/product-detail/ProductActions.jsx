@@ -41,7 +41,7 @@ const ProductActions = ({
     if (addedToCart) {
       return 'border border-green-900 bg-green-900 text-white cursor-not-allowed';
     }
-    return 'border border-green-800 text-green-800 bg-white hover:bg-green-600 hover:text-white hover:cursor-pointer';
+    return 'border border-green-800 text-green-800 bg-white hover:bg-green-800 hover:text-white hover:cursor-pointer';
   };
 
   const getBuyNowClass = () => {
