@@ -46,7 +46,7 @@ const ConversationList = ({
                   {getConversationName(conversation)}
                 </h3>
                 {conversation.unreadCount > 0 && (
-                  <span className="bg-green-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="bg-green-800 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {conversation.unreadCount}
                   </span>
                 )}
