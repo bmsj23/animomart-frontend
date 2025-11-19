@@ -277,19 +277,22 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Dashboard
-          </h1>
-          <p className="text-sm sm:text-base text-gray-500">Welcome, Admin. Here's what's happening with your marketplace.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <div className="space-y-6 sm:space-y-8">
+            {/* header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  Dashboard
+                </h1>
+                <p className="text-sm sm:text-base text-gray-500 mb-8">Welcome, Admin.    Here's what's happening with your marketplace.</p>
+                </div>
         </div>
       </div>
-
+    
       {/* stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {statCards.map((card, index) => (
           <StatCard
             key={card.title}
@@ -301,7 +304,7 @@ const Dashboard = () => {
       </div>
 
       {/* quick insights section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* marketplace overview */}
         <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-xl transition-shadow duration-300">
           <div className="flex items-center gap-3 mb-6">
@@ -333,7 +336,7 @@ const Dashboard = () => {
         </div>
 
         {/* recent activity placeholder */}
-        <div className="bg-green-600 rounded-2xl shadow-lg p-6 text-white">
+        <div className="bg-green-800 rounded-2xl shadow-lg p-6 text-white">
           <div className="flex items-center gap-3 mb-6">
             <Activity className="w-6 h-6" />
             <h2 className="text-xl font-bold text-white">Quick Actions</h2>
@@ -388,6 +391,7 @@ const Dashboard = () => {
           }
         }
       `}</style>
+    </div>
     </div>
   );
 };
