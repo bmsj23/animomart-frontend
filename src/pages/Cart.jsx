@@ -184,10 +184,8 @@ const Cart = () => {
       }
 
       await fetchCart();
-      showSuccess('Selected items removed from cart');
     } catch (err) {
       setCart(previousCart);
-      showError('Failed to delete selected items');
       logger.error('Bulk delete error:', err);
     }
   };

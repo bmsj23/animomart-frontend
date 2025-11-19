@@ -94,11 +94,9 @@ const Wishlist = () => {
         );
       case "trending":
         return sorted.sort((a, b) => {
-          const scoreA =
-            (a.averageRating || 0) * 0.4 + (a.totalReviews || 0) * 0.6;
-          const scoreB =
-            (b.averageRating || 0) * 0.4 + (b.totalReviews || 0) * 0.6;
-          return scoreB - scoreA;
+          const viewsA = a.views || 0;
+          const viewsB = b.views || 0;
+          return viewsB - viewsA;
         });
       case "newest":
       default:

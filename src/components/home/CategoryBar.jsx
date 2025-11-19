@@ -189,7 +189,7 @@ const CategoryBar = () => {
                     <button
                       ref={el => buttonRefs.current[category.name] = el}
                       onClick={() => handleCategoryClick(category.name)}
-                      className="relative flex items-center gap-1.5 px-6 py-5 bg-white hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
+                      className="relative flex items-center gap-1.5 px-6 py-6 bg-white hover:from-white hover:to-green-50 rounded-full text-sm font-medium text-gray-800 whitespace-nowrap hover:cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
                     >
                       {category.name}
                       {category.subcategories.length > 0 && (
