@@ -124,7 +124,11 @@ const Navbar = () => {
 
             <Link
               to="/sell"
-              className="bg-emerald-700 text-white px-6 h-14 rounded-full shadow-sm flex items-center gap-2 justify-center hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+              className={`px-6 h-14 rounded-full shadow-sm flex items-center gap-2 justify-center hover:shadow-lg hover:-translate-y-0.5 transition transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                isHomePage
+                  ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-300'
+                  : 'bg-green-800 text-white hover:bg-green-900 focus-visible:ring-green-700'
+              }`}
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Sell</span>
@@ -286,7 +290,9 @@ const Navbar = () => {
 
                   <Link
                     to="/sell"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition text-gray-700 hover:cursor-pointer"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition hover:cursor-pointer ${
+                      isHomePage ? 'bg-emerald-200 text-emerald-800 hover:bg-emerald-300' : 'bg-green-800 text-white hover:bg-green-700'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Plus className="w-5 h-5" />
