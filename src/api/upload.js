@@ -33,7 +33,6 @@ export const uploadMultipleImages = async (files) => {
 export const uploadProfilePicture = async (file) => {
   const formData = new FormData();
   formData.append('image', file);
-  formData.append('type', 'profile');
 
   const response = await api.post('/upload/profile', formData, {
     headers: {
