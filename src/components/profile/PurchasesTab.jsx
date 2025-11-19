@@ -4,6 +4,42 @@ import { Star, Filter } from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatCurrency } from "../../utils/formatCurrency";
 
+const getEmptyStateContent = (statusFilter) => {
+  const states = {
+    shipped: {
+      image: '/assets/Shipped.PNG',
+      title: 'No Shipped Orders',
+      description: 'Orders marked as shipped will appear here'
+    },
+    completed: {
+      image: '/assets/NoProducts.png',
+      title: 'No Completed Orders',
+      description: 'Completed orders will appear here'
+    },
+    cancelled: {
+      image: '/assets/NoProducts.png',
+      title: 'No Cancelled Orders',
+      description: 'Cancelled orders will appear here'
+    },
+    pending: {
+      image: '/assets/NoProducts.png',
+      title: 'No Pending Orders',
+      description: 'Pending orders will appear here'
+    },
+    processing: {
+      image: '/assets/NoProducts.png',
+      title: 'No Processing Orders',
+      description: 'Processing orders will appear here'
+    },
+    all: {
+      image: '/assets/NoProducts.png',
+      title: 'No Orders Found',
+      description: 'Your orders will appear here'
+    }
+  };
+  return states[statusFilter] || states.all;
+};
+
 const ITEMS_PER_PAGE = 20;
 
 const getStatusColor = (status) => {
@@ -187,11 +223,12 @@ const PurchasesTab = ({
       {filteredOrders.length === 0 ? (
         <div className="py-8 text-center">
           <img
-            src="/assets/Shipped.PNG"
-            alt="No products"
-            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-0 animate-slide-in"
+            src={getEmptyStateContent(statusFilter).image}
+            alt="No orders"
+            className="w-65 h-48 md:w-56 md:h-56 object-contain mx-auto mb-4 animate-slide-in"
           />
-          <p className="text-gray-700">No {statusFilter !== "all" ? statusFilter : ""} orders found</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{getEmptyStateContent(statusFilter).title}</h3>
+          <p className="text-gray-600">{getEmptyStateContent(statusFilter).description}</p>
         </div>
       ) : (
         <>
