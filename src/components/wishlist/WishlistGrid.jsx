@@ -4,9 +4,7 @@ import ProductCard from "../common/ProductCard";
 const WishlistGrid = ({
   products,
   loading,
-  pagination,
   currentPage,
-  onPageChange,
   hasActiveFilters,
   onClearFilters,
 }) => {
@@ -105,13 +103,17 @@ const WishlistGrid = ({
       setDisplayed(products || []);
     }
 
-    // cleanup on unmount: clear any pending timers
-    return () => {
-      pendingTimers.current.forEach((v) => clearTimeout(v));
-      pendingTimers.current.clear();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products]);
+
+  // cleanup on unmount: clear any pending timers
+  useLayoutEffect(() => {
+    const timers = pendingTimers;
+    return () => {
+      timers.current.forEach((v) => clearTimeout(v));
+      timers.current.clear();
+    };
+  }, []);
 
   // After `displayed` updates, run FLIP inversion using the previously-captured first rects.
   useLayoutEffect(() => {
@@ -137,17 +139,16 @@ const WishlistGrid = ({
       try {
         el.style.transition = "none";
         el.style.transform = `translate(${dx}px, ${dy}px)`;
-      } catch (e) {
+      } catch {
         return;
       }
       // force reflow
-      // eslint-disable-next-line no-unused-expressions
       el.getBoundingClientRect();
 
       try {
         el.style.transition = `transform ${ANIM_MS}ms cubic-bezier(.2,.8,.2,1)`;
         el.style.transform = "";
-      } catch (e) {
+      } catch {
         // ignore
       }
 
@@ -156,7 +157,7 @@ const WishlistGrid = ({
           try {
             el.style.transition = "";
             el.style.transform = "";
-          } catch (e) {
+          } catch {
             // ignore
           }
         }
@@ -225,58 +226,6 @@ const WishlistGrid = ({
           </div>
         ))}
       </div>
-
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-12">
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
-          >
-            Previous
-          </button>
-
-          <div className="flex items-center gap-2">
-            {[...Array(pagination.totalPages)].map((_, i) => {
-              const page = i + 1;
-              if (
-                page === 1 ||
-                page === pagination.totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <button
-                    key={page}
-                    onClick={() => onPageChange(page)}
-                    className={`min-w-11 px-4 py-2.5 rounded-full transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white ${
-                      currentPage === page
-                        ? "bg-primary text-white shadow-md"
-                        : "border border-gray-200 hover:bg-surface text-main"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              } else if (page === currentPage - 2 || page === currentPage + 2) {
-                return (
-                  <span key={page} className="px-2 text-gray">
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
-          </div>
-
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === pagination.totalPages}
-            className="px-5 py-2.5 border border-gray-200 rounded-full hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm hover:cursor-pointer hover:bg-primary hover:text-white"
-          >
-            Next
-          </button>
-        </div>
-      )}
     </>
   );
 };
