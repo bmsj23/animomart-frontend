@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, Clock, CheckCircle, XCircle, AlertTriangle, X, Package, Store, Eye } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, AlertTriangle, X, Package, Store, Eye } from 'lucide-react';
 import { getMyReports } from '../api/reports';
 import { useToast } from '../hooks/useToast';
 import { formatDate } from '../utils/formatDate';
@@ -167,7 +167,7 @@ const MyReports = () => {
         {/* reports list */}
         {reports.length === 0 ? (
           <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <img src="/assets/Report.png" alt="No reports" className="w-35 h-35 md:w-40 md:h-40 mx-auto mb-4 object-contain animate-slide-in" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No reports found
             </h3>
