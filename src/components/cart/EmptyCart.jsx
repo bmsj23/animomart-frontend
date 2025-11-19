@@ -6,7 +6,7 @@ const EmptyCart = () => {
   return (
     <div className="py-30 flex flex-col items-center justify-center gap-4 text-gray-600 animate-fade-in">
       <img
-        src="/assets/emptycart.png"
+        src="/assets/EmptyCart.png"
         alt="Empty cart"
         className="w-56 h-56 md:w-80 md:h-80 object-contain animate-slide-in"
       />
