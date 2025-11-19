@@ -57,7 +57,8 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
         messageText: messageText.trim(),
         createdAt: new Date().toISOString(),
         isRead: false,
-        status: 'sending'
+        status: 'sending',
+        ...(imagePreviews.length > 0 && { images: imagePreviews })
       };
 
       setMessages((prev) => [...prev, optimisticMessage]);
@@ -85,8 +86,8 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
 
       const messageData = {
         recipient: recipientId,
-        messageText: messageToSend,
-        ...(imageUrls.length > 0 && { image: imageUrls[0] }),
+        messageText: messageToSend || '',
+        ...(imageUrls.length > 0 && { images: imageUrls }),
         ...(selectedConversation.product && { product: selectedConversation.product._id })
       };
 
@@ -129,7 +130,7 @@ export const useMessageHandlers = (socket, user, selectedConversation, setMessag
     } finally {
       setSending(false);
     }
-  }, [messageText, selectedImages, selectedConversation, user._id, socket, setMessages, scrollToBottom]);
+  }, [messageText, selectedImages, imagePreviews, selectedConversation, user._id, socket, setMessages, scrollToBottom]);
 
   const handleTyping = useCallback(() => {
     if (!socket || !selectedConversation) return;
