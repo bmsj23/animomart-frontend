@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/common/Modal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -7,7 +7,6 @@ import DeliveryMethodSection from '../components/checkout/DeliveryMethodSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection';
 import OrderSummary from '../components/checkout/OrderSummary';
 import useCheckout from '../hooks/useCheckout';
-import { logger } from '../utils/logger';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -38,17 +37,6 @@ const Checkout = () => {
     setShowCancelConfirm(false);
     navigate('/cart');
   };
-
-  // ensure we land at the top when opening the checkout page
-  // (prevents leftover scroll from previous page making fields show validation)
-  useEffect(() => {
-    try {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    } catch (e) {
-      logger.log(e);
-      window.scrollTo(0, 0);
-    }
-  }, []);
 
   // Observe when the user scrolls the delivery/payment sections into view
   // We no longer use IntersectionObserver to trigger validation on passive scroll.
