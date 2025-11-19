@@ -161,7 +161,7 @@ const Navbar = () => {
             </Link>
 
             {/* Profile avatar matching search height */}
-            <div ref={profileRef} className="relative">
+            <div ref={profileRef} className="relative mt-2">
               <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative z-10 hover:cursor-pointer">
                 <ProfileAvatar user={user} size="lg" />
               </button>
