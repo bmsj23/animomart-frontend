@@ -31,7 +31,6 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  // Use custom hooks
   const {
     conversations,
     setConversations,
