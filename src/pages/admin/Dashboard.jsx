@@ -333,7 +333,7 @@ const Dashboard = () => {
         </div>
 
         {/* recent activity placeholder */}
-        <div className="bg-green-600 rounded-2xl shadow-lg p-6 text-white">
+        <div className="bg-green-800 rounded-2xl shadow-lg p-6 text-white">
           <div className="flex items-center gap-3 mb-6">
             <Activity className="w-6 h-6" />
             <h2 className="text-xl font-bold text-white">Quick Actions</h2>
