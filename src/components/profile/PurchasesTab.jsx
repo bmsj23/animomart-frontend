@@ -165,7 +165,7 @@ const PurchasesTab = ({
             { value: "all", label: "All" },
             { value: "pending", label: "Pending" },
             { value: "processing", label: "Processing" },
-            { value: "shipped", label: "Shipping" },
+            { value: "shipped", label: "Shipped" },
             { value: "completed", label: "Completed" },
             { value: "cancelled", label: "Cancelled" }
           ].map(filter => (
