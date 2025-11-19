@@ -7,7 +7,7 @@ const ProfileHeader = ({ isEditing, onEditClick }) => {
       {!isEditing && (
         <button
           onClick={onEditClick}
-          className="ml-4 px-3 py-1 bg-green-600 text-white rounded-md text-md hover:cursor-pointer hover:bg-green-700 transition"
+          className="ml-4 px-3 py-1 bg-green-800 text-white rounded-md text-md hover:cursor-pointer hover:bg-green-700 transition"
         >
           Edit Profile
         </button>

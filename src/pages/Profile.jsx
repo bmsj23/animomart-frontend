@@ -705,7 +705,7 @@ const Profile = () => {
             existingReview: null,
           })
         }
-        title={reviewModal.existingReview ? "edit review" : "write a review"}
+        title={reviewModal.existingReview ? "Edit review" : "Write a review"}
       >
         <div className="mb-4">
           <h3 className="font-semibold">{reviewModal.product?.name}</h3>

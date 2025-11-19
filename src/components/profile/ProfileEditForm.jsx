@@ -36,7 +36,7 @@ const ProfileEditForm = ({
               <button
                 type="button"
                 onClick={() => document.getElementById('profile-file-input')?.click()}
-                className="text-sm px-3 py-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors"
+                className="text-sm px-3 py-1 bg-green-100 text-green-800 rounded-md hover:bg-green-200 hover:cursor-pointer transition-colors"
               >
                 Change photo
               </button>
@@ -80,12 +80,12 @@ const ProfileEditForm = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mt-2 justify-end">
           <button
             type="button"
             onClick={onSaveClick}
             disabled={isSaving}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:cursor-pointer hover:bg-green-700 transition-colors"
+            className="px-4 py-2 bg-green-800 text-white rounded-md hover:cursor-pointer hover:bg-green-700 transition-colors"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </button>

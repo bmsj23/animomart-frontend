@@ -36,12 +36,12 @@ const SellerLayout = ({ children }) => {
         style={{ height: '125vh' }}
       >
         {/* logo section */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
+        <div className="h-20 flex items-center justify-between px-4 border-b border-gray-200">
           {isSidebarOpen ? (
             <>
               <Link to="/" className="flex items-center gap-3 group hover:cursor-pointer">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
-                  <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-10 h-10 object-contain" />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
+                  <img src="/assets/LogoIcon_DarkGreen.png" alt="AnimoMart Logo" className="w-8 h-8 object-contain" />
                 </div>
                 <div>
                   <p className="font-bold text-lg text-gray-900">AnimoMart</p>
@@ -58,10 +58,10 @@ const SellerLayout = ({ children }) => {
           ) : (
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full flex justify-center p-2 hover:bg-gray-100 rounded-lg transition-colors hover:cursor-pointer"
+              className="w-full flex justify-center hover:bg-gray-100 rounded-lg transition-colors hover:cursor-pointer"
             >
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <img src="/assets/tr_animomart_1.png" alt="AnimoMart Logo" className="w-8 h-8 object-contain" />
+                <img src="/assets/LogoIcon_DarkGreen.png" alt="AnimoMart Logo" className="w-8 h-8 object-contain" />
               </div>
             </button>
           )}
@@ -76,9 +76,9 @@ const SellerLayout = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center px-0'} py-3.5 rounded-xl transition-all duration-200 group hover:cursor-pointer ${
+                className={`flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center px-0'} py-2 rounded-xl transition-all duration-200 group hover:cursor-pointer ${
                   active
-                    ? `bg-${item.color}-50 text-${item.color}-600 shadow-sm`
+                    ? `bg-${item.color}-50 text-${item.color}-800 shadow-sm`
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >

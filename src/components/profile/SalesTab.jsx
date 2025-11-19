@@ -169,7 +169,7 @@ const SalesTab = ({ sales, loading, error }) => {
               onClick={() => setStatusFilter(filter.value)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:cursor-pointer ${
                 statusFilter === filter.value
-                  ? "bg-green-600 text-white"
+                  ? "bg-green-800 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
