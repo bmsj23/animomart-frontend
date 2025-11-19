@@ -49,13 +49,7 @@ export const WishlistProvider = ({ children }) => {
   // Optimistic add: if productObj is provided we insert it locally immediately
   // and attempt the API call in the background. If the API fails we revert.
   const addToWishlist = async (productId, productObj = null) => {
-    // check if wishlist is full
-    if (wishlist.length >= MAX_WISHLIST_ITEMS) {
-      showError('Your wishlist is full. Maximum of 20 items reached.');
-      return { wishlistFull: true };
-    }
-
-    // check if already in wishlist
+    // check if already in wishlist first
     const alreadyExists = wishlist.some(
       (item) => (item._id || item.product?._id || item.product) === productId
     );
@@ -65,26 +59,17 @@ export const WishlistProvider = ({ children }) => {
       return { alreadyInWishlist: true };
     }
 
+    if (wishlist.length >= MAX_WISHLIST_ITEMS) {
+      showError('Your wishlist is full. Maximum of 20 items reached.');
+      return { wishlistFull: true };
+    }
+
     // If a product object is provided, optimistically add it to UI
     if (productObj) {
       setWishlist((prev) => [productObj, ...prev]);
 
       try {
         const response = await wishlistApi.addToWishlist(productId);
-        // try to reconcile returned product (if any)
-        const added = response?.product || response?.data || response;
-        if (added && (added._id || added.product)) {
-          setWishlist((prev) => {
-            // replace placeholder if ids match, otherwise ensure uniqueness
-            const ids = new Set(prev.map((i) => i._id || i.product?._id || i.product));
-            if (!ids.has(added._id || productId)) {
-              return [added, ...prev];
-            }
-            return prev.map((i) =>
-              (i._id || i.product?._id || i.product) === (added._id || productId) ? added : i
-            );
-          });
-        }
         return response;
       } catch (error) {
         // check if error is "already in wishlist"
@@ -93,6 +78,14 @@ export const WishlistProvider = ({ children }) => {
           showSuccess('This item is already in your wishlist');
           // don't revert - item is actually in wishlist
           return { alreadyInWishlist: true };
+        }
+
+        if (errorMessage.toLowerCase().includes('wishlist is full') ||
+            errorMessage.toLowerCase().includes('maximum') ||
+            errorMessage.toLowerCase().includes('limit reached')) {
+          showError('Your wishlist is full. Maximum of 20 items reached.');
+          setWishlist((prev) => prev.filter((i) => (i._id || i.product?._id || i.product) !== productId));
+          return { wishlistFull: true };
         }
 
         // revert optimistic add for other errors
@@ -122,6 +115,13 @@ export const WishlistProvider = ({ children }) => {
       if (errorMessage.toLowerCase().includes('already in wishlist')) {
         showSuccess('This item is already in your wishlist');
         return { alreadyInWishlist: true };
+      }
+
+      if (errorMessage.toLowerCase().includes('wishlist is full') ||
+          errorMessage.toLowerCase().includes('maximum') ||
+          errorMessage.toLowerCase().includes('limit reached')) {
+        showError('Your wishlist is full. Maximum of 20 items reached.');
+        return { wishlistFull: true };
       }
 
       logger.error('error adding to wishlist:', error);
