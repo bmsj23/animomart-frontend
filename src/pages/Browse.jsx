@@ -31,7 +31,6 @@ const CONDITIONS = [
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
-  { value: 'trending', label: 'Trending' },
   { value: 'oldest', label: 'Oldest First' },
   { value: 'price-low', label: 'Price: Low to High' },
   { value: 'price-high', label: 'Price: High to Low' }
@@ -99,13 +98,6 @@ const Browse = () => {
         return sorted.sort((a, b) => b.price - a.price);
       case 'oldest':
         return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      case 'trending':
-        // sort by engagement score (rating * 0.4 + reviews * 0.6)
-        return sorted.sort((a, b) => {
-          const scoreA = (a.averageRating || 0) * 0.4 + (a.totalReviews || 0) * 0.6;
-          const scoreB = (b.averageRating || 0) * 0.4 + (b.totalReviews || 0) * 0.6;
-          return scoreB - scoreA;
-        });
       case 'newest':
       default:
         return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -181,8 +173,9 @@ const Browse = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
         <BrowseHeader
-          productsCount={products.length}
           totalProducts={pagination.totalProducts}
+          currentPage={currentPage}
+          itemsPerPage={16}
         />
 
         <div className="mb-10 pb-6 border-b border-gray-200">
