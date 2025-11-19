@@ -217,7 +217,13 @@ const ProductDetail = () => {
   const handleBuyNow = async () => {
     const success = await attemptAddToCart({ updateAddedState: false, showPopup: false });
     if (success) {
-      navigate('/checkout');
+      navigate('/checkout', {
+        state: {
+          directCheckout: true,
+          product: product,
+          quantity: quantity
+        }
+      });
     }
   };
 
