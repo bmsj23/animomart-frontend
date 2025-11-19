@@ -220,11 +220,12 @@ const CategoryBar = () => {
                           {category.name}
                         </div>
                         <div className="space-y-0.5 px-2">
-                          {category.subcategories.map((sub) => (
+                          {category.subcategories.map((sub, i) => (
                             <button
                               key={sub}
                               onClick={() => handleCategoryClick(sub, true)}
-                              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors rounded-lg font-medium hover:cursor-pointer"
+                              style={{ transitionDelay: `${i * 45}ms` }}
+                              className={`w-full text-left px-3 py-2 text-sm text-gray-700 rounded-lg font-medium hover:cursor-pointer transform transition-all duration-300 ${isDropdownVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'} hover:bg-green-50 hover:text-green-800`}
                             >
                               {sub}
                             </button>
@@ -234,7 +235,7 @@ const CategoryBar = () => {
                         <div className="px-2 mb-1">
                           <button
                             onClick={() => handleCategoryClick(category.name, false)}
-                            className="w-full text-left px-3 py-2 text-sm font-semibold text-green-600 hover:bg-green-50 transition-colors rounded-lg hover:cursor-pointer"
+                            className="w-full text-left px-3 py-2 text-sm font-semibold text-green-800 hover:bg-green-50 transition-colors rounded-lg hover:cursor-pointer"
                           >
                             Shop All {category.name}
                           </button>
