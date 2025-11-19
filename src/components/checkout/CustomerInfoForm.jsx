@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const CustomerInfoForm = ({ form, handleChange, showAllErrors = false, validateSignal = null }) => {
-  // errors store validation messages; touched controls whether to show them
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // validators (simple and readable)
+  // validators
   const validators = {
     name: (v) => {
       const val = String(v || '').trim();
