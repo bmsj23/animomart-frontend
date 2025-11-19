@@ -195,7 +195,7 @@ const Users = () => {
 
             {/* desktop table view */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
+              <table className="min-w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
